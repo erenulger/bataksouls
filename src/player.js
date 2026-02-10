@@ -1,4 +1,4 @@
-const { ALL_ELEMENTS, CONFIG } = require('./constants');
+const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL } = require('./constants');
 const { createCard } = require('./card');
 
 function createCollection() {
@@ -31,7 +31,20 @@ function createPlayer(name, isHuman = false, aiType = null) {
 function dealHand(player) {
   const shuffled = shuffle([...player.collection]);
   player.hand = shuffled.slice(0, CONFIG.HAND_SIZE);
+  sortHand(player);
   player.tricksWon = 0;
+}
+
+function sortHand(player) {
+  const elementOrder = [...MYSTICAL, ...PHYSICAL];
+  player.hand.sort((a, b) => {
+    const suitA = elementOrder.indexOf(a.element);
+    const suitB = elementOrder.indexOf(b.element);
+    if (suitA !== suitB) return suitA - suitB;
+    const powerA = a.basePower + a.level * CONFIG.LEVEL_POWER_BONUS;
+    const powerB = b.basePower + b.level * CONFIG.LEVEL_POWER_BONUS;
+    return powerA - powerB; // Ascending power
+  });
 }
 
 function removeFromHand(player, card) {
