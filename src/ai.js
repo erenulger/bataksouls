@@ -1,0 +1,109 @@
+const { AI_TYPES, CONFIG } = require('./constants');
+const { effectivePower } = require('./card');
+
+function aiChooseCard(player, ledElement, trumpElement) {
+  const hand = player.hand;
+
+  switch (player.aiType) {
+    case AI_TYPES.AGGRESSIVE:
+      return aggressivePlay(hand, ledElement, trumpElement);
+    case AI_TYPES.DEFENSIVE:
+      return defensivePlay(hand, ledElement, trumpElement);
+    case AI_TYPES.CHAOTIC:
+      return chaoticPlay(hand);
+    default:
+      return chaoticPlay(hand);
+  }
+}
+
+function aiChooseLead(player, trumpElement) {
+  switch (player.aiType) {
+    case AI_TYPES.AGGRESSIVE:
+      return aggressiveLeadChoice(player.hand, trumpElement);
+    case AI_TYPES.DEFENSIVE:
+      return defensiveLeadChoice(player.hand, trumpElement);
+    case AI_TYPES.CHAOTIC:
+      return chaoticPlay(player.hand);
+    default:
+      return chaoticPlay(player.hand);
+  }
+}
+
+function aiChooseBid(player) {
+  switch (player.aiType) {
+    case AI_TYPES.AGGRESSIVE:
+      return aggressiveBid(player.hand);
+    case AI_TYPES.DEFENSIVE:
+      return defensiveBid(player.hand);
+    case AI_TYPES.CHAOTIC:
+      return chaoticPlay(player.hand);
+    default:
+      return chaoticPlay(player.hand);
+  }
+}
+
+// ── Aggressive: plays highest effective power ──
+function aggressivePlay(hand, ledElement, trumpElement) {
+  return hand.reduce((best, card) => {
+    const bp = effectivePower(best, ledElement, trumpElement).power;
+    const cp = effectivePower(card, ledElement, trumpElement).power;
+    return cp > bp ? card : best;
+  });
+}
+
+// ── Aggressive Lead: lead with strongest card (trump cards preferred) ──
+function aggressiveLeadChoice(hand, trumpElement) {
+  return hand.reduce((best, card) => {
+    // When leading, the card IS the led element, so it always gets follow bonus.
+    // Also check trump bonus.
+    const bp = effectivePower(best, best.element, trumpElement).power;
+    const cp = effectivePower(card, card.element, trumpElement).power;
+    return cp > bp ? card : best;
+  });
+}
+
+// ── Aggressive Bid: bid weakest card of most-held suit ──
+function aggressiveBid(hand) {
+  const counts = {};
+  hand.forEach(c => { counts[c.element] = (counts[c.element] || 0) + 1; });
+  const bestElement = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+  const suitCards = hand.filter(c => c.element === bestElement);
+  return suitCards.reduce((best, card) => {
+    const bp = best.basePower + best.level * CONFIG.LEVEL_POWER_BONUS;
+    const cp = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+    return cp < bp ? card : best;
+  });
+}
+
+// ── Defensive: dumps lowest power card ──
+function defensivePlay(hand, ledElement, trumpElement) {
+  const sorted = [...hand].sort((a, b) =>
+    effectivePower(a, ledElement, trumpElement).power - effectivePower(b, ledElement, trumpElement).power
+  );
+  return sorted[0];
+}
+
+// ── Defensive Lead: lead with weakest card to bait others ──
+function defensiveLeadChoice(hand, trumpElement) {
+  return hand.reduce((best, card) => {
+    const bp = best.basePower + best.level * CONFIG.LEVEL_POWER_BONUS;
+    const cp = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+    return cp < bp ? card : best;
+  });
+}
+
+// ── Defensive Bid: bid absolute weakest card ──
+function defensiveBid(hand) {
+  return hand.reduce((best, card) => {
+    const bp = best.basePower + best.level * CONFIG.LEVEL_POWER_BONUS;
+    const cp = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+    return cp < bp ? card : best;
+  });
+}
+
+// ── Chaotic: random ──
+function chaoticPlay(hand) {
+  return hand[Math.floor(Math.random() * hand.length)];
+}
+
+module.exports = { aiChooseCard, aiChooseLead, aiChooseBid };
