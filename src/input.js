@@ -1,4 +1,7 @@
 const readline = require('readline');
+const { ANSI, color, reset } = require('./ansiColors');
+
+const BLINK = color({ style: ANSI.style.blink });
 
 let rl = null;
 
@@ -14,7 +17,7 @@ function getRL() {
 
 function ask(prompt) {
   return new Promise(resolve => {
-    getRL().question(prompt, answer => resolve(answer.trim()));
+    getRL().question(`${BLINK}${prompt}${reset}`, answer => resolve(answer.trim()));
   });
 }
 

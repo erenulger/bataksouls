@@ -28,22 +28,20 @@ function resolveTrick(plays, trumpElement) {
   };
 }
 
+function tiePriority(card, ledElement, trumpElement) {
+  let score = 0;
+  if (card.element === trumpElement) score += 3;
+  if (beatsElement(card.element, ledElement)) score += 1;      // strong vs lead
+  else if (beatsElement(ledElement, card.element)) score -= 1;  // weak vs lead
+  return score;
+}
+
 function breakTie(plays, aIdx, bIdx, ledElement, trumpElement) {
-  const aCard = plays[aIdx].card;
-  const bCard = plays[bIdx].card;
-
-  const aTrump = aCard.element === trumpElement;
-  const bTrump = bCard.element === trumpElement;
-  if (aTrump && !bTrump) return aIdx;
-  if (bTrump && !aTrump) return bIdx;
-
-  const aWeak = beatsElement(aCard.element, ledElement);
-  const bWeak = beatsElement(bCard.element, ledElement);
-  if (aWeak && !bWeak) return aIdx;
-  if (bWeak && !aWeak) return bIdx;
-
-  // Both have same bonuses — first player wins
-  return aIdx;
+  const aPri = tiePriority(plays[aIdx].card, ledElement, trumpElement);
+  const bPri = tiePriority(plays[bIdx].card, ledElement, trumpElement);
+  if (aPri > bPri) return aIdx;
+  if (bPri > aPri) return bIdx;
+  return aIdx; // equal priority — first player wins
 }
 
 module.exports = { resolveTrick };

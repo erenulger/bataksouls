@@ -1,13 +1,22 @@
-const { ELEMENT_COLORS, RESET, BOLD, DIM, MYSTICAL, PHYSICAL, CONFIG } = require('./constants');
+const { ELEMENT_COLORS, MYSTICAL, PHYSICAL, CONFIG } = require('./constants');
 const { cardDisplay, shortDisplay, effectivePower } = require('./card');
+const { ANSI, color, reset } = require('./ansiColors');
+
+const BOLD_WHITE = color({ fg: ANSI.fg.white, style: ANSI.style.bold });
+const DIM_WHITE = color({ fg: ANSI.fg.white, style: ANSI.style.dim });
+const BRIGHT_BOLD_YELLOW = color({ fg: ANSI.fg.bright.yellow, style: ANSI.style.bold });
+const BRIGHT_YELLOW_MEDAL = color({ fg: ANSI.fg.bright.yellow });
+const WHITE_MEDAL = color({ fg: ANSI.fg.white });
+const YELLOW_MEDAL = color({ fg: ANSI.fg.yellow });
+const RESET = reset;
 
 const TITLE_ART = `
-${BOLD}\x1b[91m
+${BRIGHT_BOLD_YELLOW}
   ╔══════════════════════════════════════════════════╗
   ║                                                  ║
-  ║       ⚔  TRICK OF THE BONFIRE  ⚔                 ║
+  ║                ⚔  BATAK SOULS  ⚔                 ║
   ║                                                  ║
-  ║      A Dark Souls Themed Card Game               ║
+  ║      A Dark Souls Themed Trick-Taking Game       ║
   ║                                                  ║
   ╚══════════════════════════════════════════════════╝
 ${RESET}`;
@@ -19,17 +28,17 @@ function showTitle() {
 
 function showHeader(text) {
   const line = '═'.repeat(50);
-  console.log(`\n${BOLD}\x1b[93m╔${line}╗${RESET}`);
-  console.log(`${BOLD}\x1b[93m║${RESET} ${BOLD}${text}${RESET}`);
-  console.log(`${BOLD}\x1b[93m╚${line}╝${RESET}`);
+  console.log(`\n${BRIGHT_BOLD_YELLOW}╔${line}╗${RESET}`);
+  console.log(`${BRIGHT_BOLD_YELLOW}║${RESET} ${BRIGHT_BOLD_YELLOW}${text}${RESET}`);
+  console.log(`${BRIGHT_BOLD_YELLOW}╚${line}╝${RESET}`);
 }
 
 function showSubheader(text) {
-  console.log(`\n${BOLD}\x1b[33m── ${text} ──${RESET}`);
+  console.log(`\n${BRIGHT_BOLD_YELLOW}── ${text} ──${RESET}`);
 }
 
 function showHand(hand, trumpElement = null) {
-  console.log(`\n${BOLD}Your Hand:${RESET}`);
+  console.log(`\n${BOLD_WHITE}Your Hand:${RESET}`);
   hand.forEach((card, i) => {
     console.log(`  ${cardDisplay(card, { index: i, trumpElement })}`);
   });
@@ -37,12 +46,12 @@ function showHand(hand, trumpElement = null) {
 
 function showTrickPlay(playerName, card, ledElement, trumpElement) {
   const { power, bonuses } = effectivePower(card, ledElement, trumpElement);
-  const bonusStr = bonuses.length > 0 ? ` ${DIM}(${bonuses.join(', ')})${RESET}` : '';
-  console.log(`  ${BOLD}${playerName}${RESET} plays ${shortDisplay(card)} → Effective: ${BOLD}${power}${RESET}${bonusStr}`);
+  const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
+  console.log(`  ${BOLD_WHITE}${playerName}${RESET} plays ${shortDisplay(card)} → Effective: ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
 }
 
 function showTrickResult(winner, trickNum) {
-  console.log(`\n  ${BOLD}\x1b[93m★ ${winner.name} wins trick #${trickNum}! ★${RESET}`);
+  console.log(`\n  ${BRIGHT_BOLD_YELLOW}★ ${winner.name} wins trick #${trickNum}! ★${RESET}`);
 }
 
 function showRoundScores(players, roundNum) {
@@ -50,8 +59,8 @@ function showRoundScores(players, roundNum) {
   const maxTricks = Math.max(...players.map(p => p.tricksWon));
   players.forEach(p => {
     const soulsEarned = p.tricksWon * CONFIG.SOULS_PER_TRICK + (p.tricksWon === maxTricks ? CONFIG.MAJORITY_BONUS : 0);
-    const majorityStr = p.tricksWon === maxTricks ? ` ${BOLD}\x1b[93m+${CONFIG.MAJORITY_BONUS} majority bonus!${RESET}` : '';
-    console.log(`  ${BOLD}${p.name}${RESET}: ${p.tricksWon} tricks → ${BOLD}${soulsEarned} souls${RESET}${majorityStr}`);
+    const majorityStr = p.tricksWon === maxTricks ? ` ${BRIGHT_BOLD_YELLOW}+${CONFIG.MAJORITY_BONUS} majority bonus!${RESET}` : '';
+    console.log(`  ${BOLD_WHITE}${p.name}${RESET}: ${p.tricksWon} tricks → ${BOLD_WHITE}${soulsEarned} souls${RESET}${majorityStr}`);
   });
 }
 
@@ -59,59 +68,59 @@ function showCollection(player) {
   showSubheader(`${player.name}'s Collection`);
   player.collection.forEach((card, i) => {
     const cost = CONFIG.upgradeCost(card.level);
-    const lvlStr = card.level >= CONFIG.MAX_LEVEL ? `${DIM}(MAX)${RESET}` : `${DIM}(cost: ${cost} souls)${RESET}`;
+    const lvlStr = card.level >= CONFIG.MAX_LEVEL ? `${DIM_WHITE}(MAX)${RESET}` : `${DIM_WHITE}(cost: ${cost} souls)${RESET}`;
     console.log(`  ${cardDisplay(card, { index: i })} ${lvlStr}`);
   });
-  console.log(`\n  ${BOLD}Souls: ${player.souls}${RESET}`);
+  console.log(`\n  ${BOLD_WHITE}Souls: ${player.souls}${RESET}`);
 }
 
 function showUpgradeResult(card) {
   const color = ELEMENT_COLORS[card.element];
-  console.log(`  ${BOLD}\x1b[93m⚒${RESET}  ${color}${card.element}${RESET} ${card.name} upgraded to ${BOLD}+${card.level}${RESET}!`);
+  console.log(`  ${BRIGHT_BOLD_YELLOW}⚒${RESET}  ${color}${card.element}${RESET} ${card.name} upgraded to ${BOLD_WHITE}+${card.level}${RESET}!`);
 }
 
 function showFinalScoreboard(players) {
   showHeader('FINAL SCOREBOARD');
   const sorted = [...players].sort((a, b) => b.totalSouls - a.totalSouls);
   sorted.forEach((p, i) => {
-    const medal = i === 0 ? '\x1b[93m♛' : i === 1 ? '\x1b[37m♛' : i === 2 ? '\x1b[33m♛' : ' ';
-    console.log(`  ${medal} ${BOLD}#${i + 1}${RESET} ${BOLD}${p.name}${RESET} — ${BOLD}${p.totalSouls} souls${RESET}`);
+    const medal = i === 0 ? `${BRIGHT_YELLOW_MEDAL}♛${RESET}` : i === 1 ? `${WHITE_MEDAL}♛${RESET}` : i === 2 ? `${YELLOW_MEDAL}♛${RESET}` : ' ';
+    console.log(`  ${medal} ${BOLD_WHITE}#${i + 1}${RESET} ${BOLD_WHITE}${p.name}${RESET} — ${BOLD_WHITE}${p.totalSouls} souls${RESET}`);
   });
   console.log();
 }
 
 function showElementLegend() {
-  console.log(`\n${BOLD}Elements:${RESET}`);
-  console.log(`  ${DIM}Mystical Wheel:${RESET} ${MYSTICAL.map(e => `${ELEMENT_COLORS[e]}${e}${RESET}`).join(' > ')} > ...`);
-  console.log(`  ${DIM}Physical Wheel:${RESET} ${PHYSICAL.map(e => `${ELEMENT_COLORS[e]}${e}${RESET}`).join(' > ')} > ...`);
+  console.log(`\n${BOLD_WHITE}Elements:${RESET}`);
+  console.log(`  ${DIM_WHITE}Mystical Wheel:${RESET} ${MYSTICAL.map(e => `${ELEMENT_COLORS[e]}${e}${RESET}`).join(' > ')} > ...`);
+  console.log(`  ${DIM_WHITE}Physical Wheel:${RESET} ${PHYSICAL.map(e => `${ELEMENT_COLORS[e]}${e}${RESET}`).join(' > ')} > ...`);
 }
 
 function showCurrentTrick(plays, ledElement, trumpElement) {
   if (plays.length === 0) return;
-  console.log(`\n${BOLD}Current Trick${RESET} (led: ${ELEMENT_COLORS[ledElement]}${ledElement}${RESET}):`);
+  console.log(`\n${BOLD_WHITE}Current Trick${RESET} (led: ${ELEMENT_COLORS[ledElement]}${ledElement}${RESET}):`);
   plays.forEach(({ player, card }) => {
     const { power, bonuses } = effectivePower(card, ledElement, trumpElement);
-    const bonusStr = bonuses.length > 0 ? ` ${DIM}(${bonuses.join(', ')})${RESET}` : '';
-    console.log(`  ${player.name}: ${shortDisplay(card)} → ${BOLD}${power}${RESET}${bonusStr}`);
+    const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
+    console.log(`  ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
   });
 }
 
 function showBidReveal(bids, totals, winningElement) {
-  console.log(`\n${BOLD}Bids Revealed:${RESET}`);
+  console.log(`\n${BOLD_WHITE}Bids Revealed:${RESET}`);
   bids.forEach(({ player, card }) => {
     const power = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
-    console.log(`  ${BOLD}${player.name}${RESET} sacrifices ${shortDisplay(card)} (${BOLD}${power}${RESET} power → ${ELEMENT_COLORS[card.element]}${card.element}${RESET})`);
+    console.log(`  ${BOLD_WHITE}${player.name}${RESET} sacrifices ${shortDisplay(card)} (${BOLD_WHITE}${power}${RESET} power → ${ELEMENT_COLORS[card.element]}${card.element}${RESET})`);
   });
-  console.log(`\n${BOLD}Element Totals:${RESET}`);
+  console.log(`\n${BOLD_WHITE}Element Totals:${RESET}`);
   const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
   sorted.forEach(([element, total]) => {
-    const marker = element === winningElement ? ` ${BOLD}\x1b[93m◀ TRUMP THIS ROUND${RESET}` : '';
-    console.log(`  ${ELEMENT_COLORS[element]}${element}${RESET}: ${BOLD}${total}${RESET}${marker}`);
+    const marker = element === winningElement ? ` ${BRIGHT_BOLD_YELLOW}◀ TRUMP THIS ROUND${RESET}` : '';
+    console.log(`  ${ELEMENT_COLORS[element]}${element}${RESET}: ${BOLD_WHITE}${total}${RESET}${marker}`);
   });
 }
 
 function showTrumpSuit(element) {
-  console.log(`\n  ${BOLD}\x1b[93m⚜ Trump suit: ${ELEMENT_COLORS[element]}${element}${RESET} ${BOLD}\x1b[93m⚜${RESET}`);
+  console.log(`\n  ${BRIGHT_BOLD_YELLOW}⚜ Trump suit: ${ELEMENT_COLORS[element]}${element}${RESET} ${BRIGHT_BOLD_YELLOW}⚜${RESET}`);
 }
 
 function stripAnsi(str) {
