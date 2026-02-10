@@ -83,14 +83,14 @@ const AI_TYPES = {
 
 // ── Balance Config ──
 const CONFIG = {
-  COLLECTION_SIZE: 14,
-  HAND_SIZE: 7,
-  TRICKS_PER_ROUND: 6,
+  COLLECTION_SIZE: 26,
+  HAND_SIZE: 13,
+  TRICKS_PER_ROUND: 12,
   SOULS_PER_TRICK: 10,
   MAJORITY_BONUS: 15,
   MAX_LEVEL: 10,
-  TRUMP_BONUS: 5,
-  WEAKNESS_BONUS: 3,
+  TRUMP_BONUS: 3,
+  WEAKNESS_BONUS: 4,
   LEVEL_POWER_BONUS: 2,
   upgradeCost(level) { return 10 + level * 5; },
 };
