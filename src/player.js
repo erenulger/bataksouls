@@ -15,11 +15,12 @@ function createCollection() {
   return shuffle(cards);
 }
 
-function createPlayer(name, isHuman = false, aiType = null) {
+function createPlayer(name, isHuman = false, aiType = null, team = 'allies') {
   return {
     name,
     isHuman,
     aiType,
+    team,
     collection: createCollection(),
     hand: [],
     tricksWon: 0,

@@ -5,7 +5,7 @@ const { aiChooseCard, aiChooseLead, aiChooseBid } = require('./ai');
 const { askNumber, waitForKey } = require('./input');
 const {
   showHeader, showSubheader, showHand, showTrickPlay,
-  showTrickResult, showRoundScores, showCurrentTrick, showBidReveal, showTrumpSuit,
+  showTrickResult, showTrickResolution, showRoundScores, showCurrentTrick, showBidReveal, showTrumpSuit,
 } = require('./ui');
 
 async function playRound(players, roundNum, totalRounds) {
@@ -37,7 +37,7 @@ async function playRound(players, roundNum, totalRounds) {
         if (ledElement === null) {
           card = aiChooseLead(player, trumpElement);
         } else {
-          card = aiChooseCard(player, ledElement, trumpElement);
+          card = aiChooseCard(player, trumpElement);
         }
       }
 
@@ -47,10 +47,11 @@ async function playRound(players, roundNum, totalRounds) {
 
       removeFromHand(player, card);
       plays.push({ player, card });
-      showTrickPlay(player.name, card, ledElement, trumpElement);
+      showTrickPlay(player, card, trumpElement);
     }
 
     const result = resolveTrick(plays, trumpElement);
+    showTrickResolution(plays, result.trickPowers);
     result.winner.tricksWon++;
     showTrickResult(result.winner, trick);
 
@@ -134,7 +135,7 @@ function scoreRound(players) {
 }
 
 async function humanPlayCard(player, ledElement, trumpElement, currentPlays) {
-  showCurrentTrick(currentPlays, ledElement, trumpElement);
+  showCurrentTrick(currentPlays, trumpElement);
   showHand(player.hand, trumpElement);
 
   if (ledElement) {

@@ -10,6 +10,13 @@ const WHITE_MEDAL = color({ fg: ANSI.fg.white });
 const YELLOW_MEDAL = color({ fg: ANSI.fg.yellow });
 const RESET = reset;
 
+const ALLY_TAG = `${color({ fg: ANSI.fg.bright.green })}[A]${RESET}`;
+const ENEMY_TAG = `${color({ fg: ANSI.fg.bright.red })}[E]${RESET}`;
+
+function teamTag(player) {
+  return player.team === 'allies' ? ALLY_TAG : ENEMY_TAG;
+}
+
 const TITLE_ART = `
 ${BRIGHT_BOLD_YELLOW}
   ╔══════════════════════════════════════════════════╗
@@ -44,10 +51,19 @@ function showHand(hand, trumpElement = null) {
   });
 }
 
-function showTrickPlay(playerName, card, ledElement, trumpElement) {
-  const { power, bonuses } = effectivePower(card, ledElement, trumpElement);
+function showTrickPlay(player, card, trumpElement) {
+  const { power, bonuses } = effectivePower(card, trumpElement);
   const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
-  console.log(`  ${BOLD_WHITE}${playerName}${RESET} plays ${shortDisplay(card)} → Effective: ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+  console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} plays ${shortDisplay(card)} → Base: ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+}
+
+function showTrickResolution(plays, trickPowers) {
+  console.log(`\n${BOLD_WHITE}Trick Resolution:${RESET}`);
+  plays.forEach(({ player, card }, i) => {
+    const { power, bonuses } = trickPowers[i];
+    const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
+    console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+  });
 }
 
 function showTrickResult(winner, trickNum) {
@@ -60,7 +76,7 @@ function showRoundScores(players, roundNum) {
   players.forEach(p => {
     const soulsEarned = p.tricksWon * CONFIG.SOULS_PER_TRICK + (p.tricksWon === maxTricks ? CONFIG.MAJORITY_BONUS : 0);
     const majorityStr = p.tricksWon === maxTricks ? ` ${BRIGHT_BOLD_YELLOW}+${CONFIG.MAJORITY_BONUS} majority bonus!${RESET}` : '';
-    console.log(`  ${BOLD_WHITE}${p.name}${RESET}: ${p.tricksWon} tricks → ${BOLD_WHITE}${soulsEarned} souls${RESET}${majorityStr}`);
+    console.log(`  ${teamTag(p)} ${BOLD_WHITE}${p.name}${RESET}: ${p.tricksWon} tricks → ${BOLD_WHITE}${soulsEarned} souls${RESET}${majorityStr}`);
   });
 }
 
@@ -75,8 +91,8 @@ function showCollection(player) {
 }
 
 function showUpgradeResult(card) {
-  const color = ELEMENT_COLORS[card.element];
-  console.log(`  ${BRIGHT_BOLD_YELLOW}⚒${RESET}  ${color}${card.element}${RESET} ${card.name} upgraded to ${BOLD_WHITE}+${card.level}${RESET}!`);
+  const clr = ELEMENT_COLORS[card.element];
+  console.log(`  ${BRIGHT_BOLD_YELLOW}⚒${RESET}  ${clr}${card.element}${RESET} ${card.name} upgraded to ${BOLD_WHITE}+${card.level}${RESET}!`);
 }
 
 function showFinalScoreboard(players) {
@@ -84,7 +100,7 @@ function showFinalScoreboard(players) {
   const sorted = [...players].sort((a, b) => b.totalSouls - a.totalSouls);
   sorted.forEach((p, i) => {
     const medal = i === 0 ? `${BRIGHT_YELLOW_MEDAL}♛${RESET}` : i === 1 ? `${WHITE_MEDAL}♛${RESET}` : i === 2 ? `${YELLOW_MEDAL}♛${RESET}` : ' ';
-    console.log(`  ${medal} ${BOLD_WHITE}#${i + 1}${RESET} ${BOLD_WHITE}${p.name}${RESET} — ${BOLD_WHITE}${p.totalSouls} souls${RESET}`);
+    console.log(`  ${medal} ${teamTag(p)} ${BOLD_WHITE}#${i + 1}${RESET} ${BOLD_WHITE}${p.name}${RESET} — ${BOLD_WHITE}${p.totalSouls} souls${RESET}`);
   });
   console.log();
 }
@@ -95,13 +111,14 @@ function showElementLegend() {
   console.log(`  ${DIM_WHITE}Physical Wheel:${RESET} ${PHYSICAL.map(e => `${ELEMENT_COLORS[e]}${e}${RESET}`).join(' > ')} > ...`);
 }
 
-function showCurrentTrick(plays, ledElement, trumpElement) {
+function showCurrentTrick(plays, trumpElement) {
   if (plays.length === 0) return;
+  const ledElement = plays[0].card.element;
   console.log(`\n${BOLD_WHITE}Current Trick${RESET} (led: ${ELEMENT_COLORS[ledElement]}${ledElement}${RESET}):`);
   plays.forEach(({ player, card }) => {
-    const { power, bonuses } = effectivePower(card, ledElement, trumpElement);
+    const { power, bonuses } = effectivePower(card, trumpElement);
     const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
-    console.log(`  ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+    console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
   });
 }
 
@@ -109,7 +126,7 @@ function showBidReveal(bids, totals, winningElement) {
   console.log(`\n${BOLD_WHITE}Bids Revealed:${RESET}`);
   bids.forEach(({ player, card }) => {
     const power = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
-    console.log(`  ${BOLD_WHITE}${player.name}${RESET} sacrifices ${shortDisplay(card)} (${BOLD_WHITE}${power}${RESET} power → ${ELEMENT_COLORS[card.element]}${card.element}${RESET})`);
+    console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} sacrifices ${shortDisplay(card)} (${BOLD_WHITE}${power}${RESET} power → ${ELEMENT_COLORS[card.element]}${card.element}${RESET})`);
   });
   console.log(`\n${BOLD_WHITE}Element Totals:${RESET}`);
   const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
@@ -123,13 +140,9 @@ function showTrumpSuit(element) {
   console.log(`\n  ${BRIGHT_BOLD_YELLOW}⚜ Trump suit: ${ELEMENT_COLORS[element]}${element}${RESET} ${BRIGHT_BOLD_YELLOW}⚜${RESET}`);
 }
 
-function stripAnsi(str) {
-  return str.replace(/\x1b\[[0-9;]*m/g, '');
-}
-
 module.exports = {
   showTitle, showHeader, showSubheader, showHand,
-  showTrickPlay, showTrickResult, showRoundScores, showCollection,
+  showTrickPlay, showTrickResult, showTrickResolution, showRoundScores, showCollection,
   showUpgradeResult, showFinalScoreboard, showElementLegend,
   showCurrentTrick, showBidReveal, showTrumpSuit,
 };

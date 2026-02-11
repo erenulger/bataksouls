@@ -91,6 +91,7 @@ const CONFIG = {
   MAX_LEVEL: 10,
   TRUMP_BONUS: 3,
   WEAKNESS_BONUS: 4,
+  SAME_ELEMENT_TEAM_BUFF: 2,
   LEVEL_POWER_BONUS: 2,
   upgradeCost(level) { return 10 + level * 5; },
 };

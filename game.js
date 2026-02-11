@@ -14,20 +14,37 @@ async function main() {
 
     console.log(`\n${BOLD}Welcome, Undead. The bonfire awaits.${RESET}\n`);
 
-    const numOpponents = await askNumber('  How many opponents? (1-4) > ', 1, 4);
+    const numEnemies = await askNumber('  How many enemies? (1-4) > ', 1, 4);
+    const maxAllies = Math.min(3, 5 - numEnemies - 1);
+    let numAllies = 0;
+    if (maxAllies > 0) {
+      numAllies = await askNumber(`  How many allies? (0-${maxAllies}) > `, 0, maxAllies);
+    }
     const numRounds = await askNumber('  How many rounds? (3-7) > ', 3, 7);
 
-    // Create players
-    const human = createPlayer('You', true);
-    const opponents = [];
-    for (let i = 0; i < numOpponents; i++) {
-      const aiType = AI_TYPE_LIST[i % AI_TYPE_LIST.length];
-      const npc = createPlayer(NPC_NAMES[i], false, aiType);
-      opponents.push(npc);
-      console.log(`  ${BOLD}${NPC_NAMES[i]}${RESET} joins (${aiType})`);
+    // Create players with team assignments
+    const human = createPlayer('You', true, null, 'allies');
+
+    let nameIndex = 0;
+    const allyNPCs = [];
+    for (let i = 0; i < numAllies; i++) {
+      const aiType = AI_TYPE_LIST[nameIndex % AI_TYPE_LIST.length];
+      const npc = createPlayer(NPC_NAMES[nameIndex], false, aiType, 'allies');
+      allyNPCs.push(npc);
+      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[92mALLY\x1b[0m (${aiType})`);
+      nameIndex++;
     }
 
-    const players = [human, ...opponents];
+    const enemyNPCs = [];
+    for (let i = 0; i < numEnemies; i++) {
+      const aiType = AI_TYPE_LIST[nameIndex % AI_TYPE_LIST.length];
+      const npc = createPlayer(NPC_NAMES[nameIndex], false, aiType, 'enemies');
+      enemyNPCs.push(npc);
+      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[91mENEMY\x1b[0m (${aiType})`);
+      nameIndex++;
+    }
+
+    const players = [human, ...allyNPCs, ...enemyNPCs];
     await waitForKey();
 
     // Main game loop
@@ -42,8 +59,8 @@ async function main() {
         await playerUpgradePhase(human);
 
         // AI upgrades
-        for (const opp of opponents) {
-          aiUpgradePhase(opp);
+        for (const npc of [...allyNPCs, ...enemyNPCs]) {
+          aiUpgradePhase(npc);
         }
 
         await waitForKey();
@@ -57,6 +74,9 @@ async function main() {
     if (winner.isHuman) {
       console.log(`${BOLD}\x1b[93m  VICTORY ACHIEVED${RESET}`);
       console.log(`  You have linked the flame.\n`);
+    } else if (winner.team === 'allies') {
+      console.log(`${BOLD}\x1b[93m  ALLY VICTORY${RESET}`);
+      console.log(`  ${winner.name} has linked the flame for your covenant.\n`);
     } else {
       console.log(`${BOLD}\x1b[91m  YOU DIED${RESET}`);
       console.log(`  ${winner.name} has claimed the bonfire.\n`);
