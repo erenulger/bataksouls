@@ -1,4 +1,4 @@
-const { ELEMENT_COLORS, MYSTICAL, PHYSICAL, CONFIG } = require('./constants');
+const { ELEMENT_COLORS, MYSTICAL, PHYSICAL, CONFIG, TEAMS } = require('./constants');
 const { cardDisplay, shortDisplay, effectivePower } = require('./card');
 const { ANSI, color, reset } = require('./ansiColors');
 
@@ -14,7 +14,7 @@ const ALLY_TAG = `${color({ fg: ANSI.fg.bright.green })}[A]${RESET}`;
 const ENEMY_TAG = `${color({ fg: ANSI.fg.bright.red })}[E]${RESET}`;
 
 function teamTag(player) {
-  return player.team === 'allies' ? ALLY_TAG : ENEMY_TAG;
+  return player.team === TEAMS.ALLIES ? ALLY_TAG : ENEMY_TAG;
 }
 
 const TITLE_ART = `

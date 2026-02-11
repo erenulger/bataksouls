@@ -74,6 +74,12 @@ const WEAPON_NAMES = {
 // ── AI NPC Names ──
 const NPC_NAMES = ['Solaire', 'Siegmeyer', 'Patches', 'Lautrec', 'Oscar'];
 
+// ── Teams ──
+const TEAMS = {
+  ALLIES:  'allies',
+  ENEMIES: 'enemies',
+};
+
 // ── AI Personalities ──
 const AI_TYPES = {
   AGGRESSIVE: 'Aggressive',
@@ -100,5 +106,5 @@ module.exports = {
   ELEMENTS, MYSTICAL, PHYSICAL, ALL_ELEMENTS,
   MYSTICAL_WHEEL, PHYSICAL_WHEEL, beatsElement,
   ELEMENT_COLORS, RESET, BOLD, DIM,
-  WEAPON_NAMES, NPC_NAMES, AI_TYPES, CONFIG,
+  WEAPON_NAMES, NPC_NAMES, AI_TYPES, TEAMS, CONFIG,
 };

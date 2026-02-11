@@ -67,7 +67,7 @@ function aiUpgradeAggressive(player) {
   while (true) {
     const upgradable = player.collection
       .filter(c => c.level < CONFIG.MAX_LEVEL && CONFIG.upgradeCost(c.level) <= player.souls)
-      .sort((a, b) => (b.basePower + b.level * 2) - (a.basePower + a.level * 2));
+      .sort((a, b) => (b.basePower + b.level * CONFIG.LEVEL_POWER_BONUS) - (a.basePower + a.level * CONFIG.LEVEL_POWER_BONUS));
 
     if (upgradable.length === 0) break;
 

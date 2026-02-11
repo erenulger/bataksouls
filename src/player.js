@@ -1,4 +1,4 @@
-const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL } = require('./constants');
+const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL, TEAMS } = require('./constants');
 const { createCard } = require('./card');
 
 function createCollection() {
@@ -15,7 +15,7 @@ function createCollection() {
   return shuffle(cards);
 }
 
-function createPlayer(name, isHuman = false, aiType = null, team = 'allies') {
+function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES) {
   return {
     name,
     isHuman,
