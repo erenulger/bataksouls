@@ -17,7 +17,11 @@ function getRL() {
 
 function ask(prompt) {
   return new Promise(resolve => {
-    getRL().question(`${BLINK}${prompt}${reset}`, answer => resolve(answer.trim()));
+    getRL().question(`${BLINK}${prompt}${reset} `, answer => {
+      // Move up one line, clear it, rewrite without blink
+      process.stdout.write(`\x1b[A\r\x1b[K${prompt} ${answer}\n`);
+      resolve(answer.trim());
+    });
   });
 }
 
