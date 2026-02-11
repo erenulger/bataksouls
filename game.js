@@ -1,11 +1,34 @@
-const { NPC_NAMES, AI_TYPES, TEAMS, BOLD, RESET } = require('./src/constants');
+const path = require('path');
+const { TEAMS, BOLD, RESET } = require('./src/constants');
 const { createPlayer } = require('./src/player');
+const { loadDeck, saveDeck, loadNPC } = require('./src/deck');
 const { askNumber, waitForKey, close } = require('./src/input');
 const { showTitle, showHeader, showFinalScoreboard, showElementLegend } = require('./src/ui');
 const { playRound } = require('./src/round');
-const { playerUpgradePhase, aiUpgradePhase } = require('./src/upgrade');
+const { playerUpgradePhase } = require('./src/upgrade');
 
-const AI_TYPE_LIST = [AI_TYPES.AGGRESSIVE, AI_TYPES.DEFENSIVE, AI_TYPES.CHAOTIC];
+const PLAYER_DECK_PATH = path.join(__dirname, 'data', 'decks', 'player.json');
+const NPC_DECK_PATH = path.join(__dirname, 'data', 'decks', 'patches.json');
+
+function cloneNPCDeck(npcData, idOffset) {
+  return {
+    ...npcData,
+    cards: npcData.cards.map(c => ({ ...c, id: c.id + idOffset })),
+  };
+}
+
+function buildPlayerDeckData(player) {
+  return {
+    name: player.name,
+    cards: player.collection.map(c => ({
+      id: c.id,
+      element: c.element,
+      name: c.name,
+      basePower: c.basePower,
+      level: c.level,
+    })),
+  };
+}
 
 async function main() {
   try {
@@ -13,6 +36,10 @@ async function main() {
     showElementLegend();
 
     console.log(`\n${BOLD}Welcome, Undead. The bonfire awaits.${RESET}\n`);
+
+    // Load decks
+    const playerDeck = loadDeck(PLAYER_DECK_PATH);
+    const npcDeckBase = loadNPC(NPC_DECK_PATH);
 
     const numEnemies = await askNumber('  How many enemies? (1-4) > ', 1, 4);
     const maxAllies = Math.min(3, 5 - numEnemies - 1);
@@ -22,27 +49,29 @@ async function main() {
     }
     const numRounds = await askNumber('  How many rounds? (3-7) > ', 3, 7);
 
-    // Create players with team assignments
-    const human = createPlayer('You', true, null, TEAMS.ALLIES);
+    // Create human player
+    const human = createPlayer(playerDeck, { isHuman: true });
     console.log(`  Your Panic: ${BOLD}${human.panic}${RESET}\n`);
 
-    let nameIndex = 0;
+    // Create ally NPCs (clones of Patches with different IDs and ally team)
     const allyNPCs = [];
     for (let i = 0; i < numAllies; i++) {
-      const aiType = AI_TYPE_LIST[nameIndex % AI_TYPE_LIST.length];
-      const npc = createPlayer(NPC_NAMES[nameIndex], false, aiType, TEAMS.ALLIES);
+      const allyDeck = cloneNPCDeck(npcDeckBase, (i + 1) * 1000);
+      allyDeck.team = TEAMS.ALLIES;
+      allyDeck.name = `${npcDeckBase.name} (Ally ${i + 1})`;
+      const npc = createPlayer(allyDeck);
       allyNPCs.push(npc);
-      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[92mALLY\x1b[0m (${aiType}) — Panic: ${npc.panic}`);
-      nameIndex++;
+      console.log(`  ${BOLD}${npc.name}${RESET} joins as \x1b[92mALLY\x1b[0m (${npc.aiType}) — Panic: ${npc.panic}`);
     }
 
+    // Create enemy NPCs (clones of Patches with offset IDs)
     const enemyNPCs = [];
     for (let i = 0; i < numEnemies; i++) {
-      const aiType = AI_TYPE_LIST[nameIndex % AI_TYPE_LIST.length];
-      const npc = createPlayer(NPC_NAMES[nameIndex], false, aiType, TEAMS.ENEMIES);
+      const enemyDeck = cloneNPCDeck(npcDeckBase, (numAllies + i + 1) * 1000);
+      enemyDeck.name = `${npcDeckBase.name} (Enemy ${i + 1})`;
+      const npc = createPlayer(enemyDeck);
       enemyNPCs.push(npc);
-      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[91mENEMY\x1b[0m (${aiType}) — Panic: ${npc.panic}`);
-      nameIndex++;
+      console.log(`  ${BOLD}${npc.name}${RESET} joins as \x1b[91mENEMY\x1b[0m (${npc.aiType}) — Panic: ${npc.panic}`);
     }
 
     const players = [human, ...allyNPCs, ...enemyNPCs];
@@ -52,21 +81,20 @@ async function main() {
     for (let round = 1; round <= numRounds; round++) {
       await playRound(players, round, numRounds);
 
-      // Upgrade phase (skip after final round)
+      // Upgrade phase — human only (skip after final round)
       if (round < numRounds) {
         showHeader('⚒  UPGRADE FORGE  ⚒');
-
-        // Human upgrades first
         await playerUpgradePhase(human);
 
-        // AI upgrades
-        for (const npc of [...allyNPCs, ...enemyNPCs]) {
-          aiUpgradePhase(npc);
-        }
+        // Persist player deck after upgrades
+        saveDeck(PLAYER_DECK_PATH, buildPlayerDeckData(human));
 
         await waitForKey();
       }
     }
+
+    // Final save
+    saveDeck(PLAYER_DECK_PATH, buildPlayerDeckData(human));
 
     // Final scoreboard
     showFinalScoreboard(players);

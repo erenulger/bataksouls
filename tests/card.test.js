@@ -188,17 +188,18 @@ describe('computeTrickPowers', () => {
 
 describe('createCard', () => {
   it('creates a card with expected fields', () => {
-    const card = createCard(ELEMENTS.FIRE);
+    const card = createCard(ELEMENTS.FIRE, 42);
     assert.equal(card.element, ELEMENTS.FIRE);
     assert.equal(card.level, 0);
+    assert.equal(card.id, 42);
     assert.ok(card.basePower >= 3 && card.basePower <= 10);
     assert.ok(card.name);
-    assert.ok(card.id);
   });
 
-  it('assigns unique ids', () => {
-    const a = createCard(ELEMENTS.LIGHT);
-    const b = createCard(ELEMENTS.DARK);
-    assert.notEqual(a.id, b.id);
+  it('uses provided id', () => {
+    const a = createCard(ELEMENTS.LIGHT, 1);
+    const b = createCard(ELEMENTS.DARK, 2);
+    assert.equal(a.id, 1);
+    assert.equal(b.id, 2);
   });
 });

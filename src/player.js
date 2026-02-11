@@ -1,35 +1,18 @@
-const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL, TEAMS, AI_TYPES } = require('./constants');
-const { createCard, rawPower } = require('./card');
+const { MYSTICAL, PHYSICAL, TEAMS } = require('./constants');
+const { rawPower } = require('./card');
 
-/** @returns {Card[]} */
-function createCollection() {
-  const cards = [];
-  // Guarantee at least 1 card per suit
-  for (const el of ALL_ELEMENTS) {
-    cards.push(createCard(el));
-  }
-  // Fill remaining slots randomly
-  while (cards.length < CONFIG.COLLECTION_SIZE) {
-    const el = ALL_ELEMENTS[Math.floor(Math.random() * ALL_ELEMENTS.length)];
-    cards.push(createCard(el));
-  }
-  return shuffle(cards);
-}
-
-/** @param {string} name @param {boolean} [isHuman] @param {string|null} [aiType] @param {string} [team] @returns {Player} */
-function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES) {
-  const basePanic = isHuman ? 50
-    : aiType === AI_TYPES.AGGRESSIVE ? 60
-    : aiType === AI_TYPES.DEFENSIVE ? 40
-    : 50;
-  const panic = Math.max(10, Math.min(100, basePanic + Math.floor(Math.random() * 41) - 20));
+/** @param {object} deckData @param {{isHuman?: boolean}} [opts] @returns {Player} */
+function createPlayer(deckData, { isHuman = false } = {}) {
+  const panic = isHuman
+    ? Math.max(10, Math.min(100, 50 + Math.floor(Math.random() * 41) - 20))
+    : deckData.panic;
   return {
-    name,
+    name: deckData.name,
     isHuman,
-    aiType,
-    team,
+    aiType: deckData.aiType || null,
+    team: deckData.team || TEAMS.ALLIES,
     panic,
-    collection: createCollection(),
+    collection: deckData.cards.map(c => ({ ...c })),
     hand: [],
     tricksWon: 0,
     souls: 0,
@@ -40,7 +23,7 @@ function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES)
 /** @param {Player} player */
 function dealHand(player) {
   const shuffled = shuffle([...player.collection]);
-  player.hand = shuffled.slice(0, CONFIG.HAND_SIZE);
+  player.hand = shuffled.slice(0, 13);
   sortHand(player);
   player.tricksWon = 0;
 }
