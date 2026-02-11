@@ -231,17 +231,17 @@ No test files, no test runner configured. `computeTrickPowers()` and `resolveTri
 
 | Priority | ID | Issue | Category |
 |---|---|---|---|
-| P0 | B-01 | Hardcoded `* 2` in ai.js -- use CONFIG.LEVEL_POWER_BONUS | Bug |
-| P0 | B-02 | Team strings as magic values -- add TEAMS constant | Architecture |
-| P1 | BAL-01 | Last-player advantage too strong | Balance |
-| P1 | BAL-02 | Trump bonus too weak (+3 vs +4 weakness) | Balance |
-| P1 | BAL-03 | Stacking escalation too steep | Balance |
-| P1 | A-01 | Extract rawPower(card) helper, use everywhere | Architecture |
-| P2 | BAL-04 | No catch-up mechanic for trailing players | Balance |
-| P2 | BAL-05 | Team size imbalance (1v4 is unwinnable) | Balance |
-| P2 | A-02 | Split computeTrickPowers into sub-functions | Architecture |
-| P2 | A-03 | Extract bidding/scoring from round.js | Architecture |
-| P2 | UX-01 | Power calculation display clarity | UX |
+✅| P0 | B-01 | Hardcoded `* 2` in ai.js -- use CONFIG.LEVEL_POWER_BONUS | Bug | ✅ Fixed
+✅| P0 | B-02 | Team strings as magic values -- add TEAMS constant | Architecture | ✅ Fixed
+✅| P1 | BAL-01 | Last-player advantage too strong | Balance | ✅ Added Panic System
+✅| P1 | BAL-02 | Trump bonus too weak (+3 vs +4 weakness) | Balance | ✅ Balanced both at +4
+✅| P1 | BAL-03 | Stacking escalation too steep | Balance | ✅ Increase only adds +1. One strong +4 2 strongs +5 3 strongs +5 etc.
+✅| P1 | A-01 | Extract rawPower(card) helper, use everywhere | Architecture | ✅
+◻️| P2 | BAL-04 | No catch-up mechanic for trailing players | Balance | Skipped — RPG evolution will handle
+◻️| P2 | BAL-05 | Team size imbalance (1v4 is unwinnable) | Balance | Skipped — RPG evolution will handle
+✅| P2 | A-02 | Split computeTrickPowers into sub-functions | Architecture | ✅ Split into initBaseResults, applyTeamBuffs, applyCrossTeamInteractions
+✅| P2 | A-03 | Extract bidding/scoring from round.js | Architecture | ✅ Extracted biddingPhase to src/bidding.js
+✅| P2 | UX-01 | Power calculation display clarity | UX | ✅ Shows Base X → Y format in trick resolution
 | P3 | BAL-06 | Majority bonus too small | Balance |
 | P3 | BAL-07 | Bidding cost too high, no recovery | Balance |
 | P3 | UX-02 | Bidding strategy guidance for new players | UX |

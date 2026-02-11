@@ -29,21 +29,19 @@ function effectivePower(card, trumpElement) {
   return { power, bonuses };
 }
 
-function computeTrickPowers(plays, trumpElement) {
-  // Step 1: Compute base power for each card (base + level + trump)
-  const results = plays.map(({ player, card }) => {
+function initBaseResults(plays, trumpElement) {
+  return plays.map(({ player, card }) => {
+    const base = rawPower(card);
     const { power, bonuses } = effectivePower(card, trumpElement);
     return {
-      player,
-      card,
-      power,
+      player, card, base, power,
       bonuses: [...bonuses],
-      empowerCount: 0,
-      weakenCount: 0,
+      empowerCount: 0, weakenCount: 0,
     };
   });
+}
 
-  // Step 2: Same-team same-element buff (+2 per matching teammate, pairwise)
+function applyTeamBuffs(results) {
   for (let i = 0; i < results.length; i++) {
     for (let j = i + 1; j < results.length; j++) {
       if (results[i].player.team === results[j].player.team &&
@@ -55,27 +53,20 @@ function computeTrickPowers(plays, trumpElement) {
       }
     }
   }
+}
 
-  // Step 3: Cross-team global interactions based on play order
-  // The LATER card (j) is affected by EARLIER cards (i) on the table
-  // Later card is strong vs earlier → later card empowered
-  // Later card is weak vs earlier → later card weakened
-  // Stacking: base WEAKNESS_BONUS + (count) for each subsequent interaction
+function applyCrossTeamInteractions(results) {
   for (let j = 1; j < results.length; j++) {
     for (let i = 0; i < j; i++) {
       if (results[i].player.team === results[j].player.team) continue;
-
-      const cardA = results[i].card; // earlier (on table)
-      const cardB = results[j].card; // later (being played, "hitting" the table)
-
+      const cardA = results[i].card;
+      const cardB = results[j].card;
       if (beatsElement(cardB.element, cardA.element)) {
-        // B is strong against A → B gets empowered
         const bonus = results[j].empowerCount === 0 ? CONFIG.WEAKNESS_BONUS : 1;
         results[j].empowerCount++;
         results[j].power += bonus;
         results[j].bonuses.push(`+${bonus} strong vs ${cardA.element}`);
       } else if (beatsElement(cardA.element, cardB.element)) {
-        // A is strong against B → B gets weakened
         const penalty = results[j].weakenCount === 0 ? CONFIG.WEAKNESS_BONUS : 1;
         results[j].weakenCount++;
         results[j].power -= penalty;
@@ -83,8 +74,13 @@ function computeTrickPowers(plays, trumpElement) {
       }
     }
   }
+}
 
-  return results.map(r => ({ power: r.power, bonuses: r.bonuses }));
+function computeTrickPowers(plays, trumpElement) {
+  const results = initBaseResults(plays, trumpElement);
+  applyTeamBuffs(results);
+  applyCrossTeamInteractions(results);
+  return results.map(r => ({ base: r.base, power: r.power, bonuses: r.bonuses }));
 }
 
 function cardDisplay(card, { showPower = true, trumpElement = null, index = null } = {}) {

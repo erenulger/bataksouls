@@ -60,9 +60,12 @@ function showTrickPlay(player, card, trumpElement) {
 function showTrickResolution(plays, trickPowers) {
   console.log(`\n${BOLD_WHITE}Trick Resolution:${RESET}`);
   plays.forEach(({ player, card }, i) => {
-    const { power, bonuses } = trickPowers[i];
+    const { base, power, bonuses } = trickPowers[i];
     const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
-    console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+    const powerStr = base !== power
+      ? `Base ${DIM_WHITE}${base}${RESET} → ${BOLD_WHITE}${power}${RESET}`
+      : `${BOLD_WHITE}${power}${RESET}`;
+    console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${powerStr}${bonusStr}`);
   });
 }
 
