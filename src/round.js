@@ -1,5 +1,4 @@
 const { CONFIG, ELEMENT_COLORS, RESET } = require('./constants');
-const { effectivePower } = require('./card');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
 const { aiChooseCard, aiChooseLead } = require('./ai');
@@ -20,6 +19,7 @@ async function playRound(players, roundNum, totalRounds) {
   // ── Bidding Phase → determines trump suit, winner gets panic reduction ──
   const { trumpElement, bidWinner } = await biddingPhase(players);
 
+  // Reset each round so trick 1 has no lastWinner tiebreaker (SBUG-03)
   let lastWinner = null;
 
   for (let trick = 1; trick <= CONFIG.TRICKS_PER_ROUND; trick++) {
@@ -55,10 +55,9 @@ async function playRound(players, roundNum, totalRounds) {
       }
 
       removeFromHand(player, card);
-      const { power, bonuses } = effectivePower(card, trumpElement);
-      plays.push({ player, card, power, bonuses });
-      if (!player.isHuman) await sleep(800);
-      showTrickPlay(player, card, power, bonuses);
+      plays.push({ player, card });
+      if (!player.isHuman) await sleep(400);
+      showTrickPlay(player, card);
     }
 
     const result = resolveTrick(plays, trumpElement);

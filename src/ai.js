@@ -10,10 +10,10 @@ function aiChooseCard(player, trumpElement) {
       return aggressivePlay(hand, trumpElement);
     case AI_TYPES.DEFENSIVE:
       return defensivePlay(hand, trumpElement);
-    case AI_TYPES.RECKLESS:
-      return recklessPlay(hand, trumpElement);
+    case AI_TYPES.CHAOTIC:
+      return chaoticPlay(hand, trumpElement);
     default:
-      return recklessPlay(hand, trumpElement);
+      return chaoticPlay(hand, trumpElement);
   }
 }
 
@@ -24,10 +24,10 @@ function aiChooseLead(player, trumpElement) {
       return aggressiveLeadChoice(player.hand, trumpElement);
     case AI_TYPES.DEFENSIVE:
       return defensiveLeadChoice(player.hand);
-    case AI_TYPES.RECKLESS:
-      return recklessLeadChoice(player.hand, trumpElement);
+    case AI_TYPES.CHAOTIC:
+      return chaoticLeadChoice(player.hand, trumpElement);
     default:
-      return recklessLeadChoice(player.hand, trumpElement);
+      return chaoticLeadChoice(player.hand, trumpElement);
   }
 }
 
@@ -38,10 +38,10 @@ function aiChooseBid(player) {
       return aggressiveBid(player.hand);
     case AI_TYPES.DEFENSIVE:
       return defensiveBid(player.hand);
-    case AI_TYPES.RECKLESS:
-      return recklessBid(player.hand);
+    case AI_TYPES.CHAOTIC:
+      return chaoticBid(player.hand);
     default:
-      return recklessBid(player.hand);
+      return chaoticBid(player.hand);
   }
 }
 
@@ -96,8 +96,8 @@ function defensiveBid(hand) {
   });
 }
 
-// ── Reckless: 70% strongest, 30% random ──
-function recklessPlay(hand, trumpElement) {
+// ── Chaotic: 70% strongest, 30% random ──
+function chaoticPlay(hand, trumpElement) {
   if (Math.random() < 0.7) {
     return aggressivePlay(hand, trumpElement);
   }
@@ -105,12 +105,12 @@ function recklessPlay(hand, trumpElement) {
 }
 
 // ── Reckless Lead: always leads with strongest card ──
-function recklessLeadChoice(hand, trumpElement) {
+function chaoticLeadChoice(hand, trumpElement) {
   return aggressiveLeadChoice(hand, trumpElement);
 }
 
 // ── Reckless Bid: strongest card of a random element ──
-function recklessBid(hand) {
+function chaoticBid(hand) {
   const elements = [...new Set(hand.map(c => c.element))];
   const pick = elements[Math.floor(Math.random() * elements.length)];
   const suitCards = hand.filter(c => c.element === pick);

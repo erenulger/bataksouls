@@ -18,11 +18,11 @@ function createCollection() {
 
 /** @param {string} name @param {boolean} [isHuman] @param {string|null} [aiType] @param {string} [team] @returns {Player} */
 function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES) {
-  const basePanic = isHuman ? 5
-    : aiType === AI_TYPES.AGGRESSIVE ? 6
-    : aiType === AI_TYPES.DEFENSIVE ? 4
-    : 5;
-  const panic = Math.max(1, Math.min(10, basePanic + Math.floor(Math.random() * 5) - 2));
+  const basePanic = isHuman ? 50
+    : aiType === AI_TYPES.AGGRESSIVE ? 60
+    : aiType === AI_TYPES.DEFENSIVE ? 40
+    : 50;
+  const panic = Math.max(10, Math.min(100, basePanic + Math.floor(Math.random() * 41) - 20));
   return {
     name,
     isHuman,
@@ -59,7 +59,11 @@ function sortHand(player) {
 
 /** @param {Player} player @param {Card} card */
 function removeFromHand(player, card) {
+  const before = player.hand.length;
   player.hand = player.hand.filter(c => c.id !== card.id);
+  if (player.hand.length === before) {
+    throw new Error(`Card "${card.name}" (id:${card.id}) not found in ${player.name}'s hand`);
+  }
 }
 
 function shuffle(arr) {

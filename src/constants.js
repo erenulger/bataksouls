@@ -84,7 +84,7 @@ const TEAMS = {
 const AI_TYPES = {
   AGGRESSIVE: 'Aggressive',
   DEFENSIVE:  'Defensive',
-  RECKLESS:   'Reckless',
+  CHAOTIC:    'Chaotic',
 };
 
 // ── Balance Config ──
@@ -98,8 +98,8 @@ const CONFIG = {
   TRUMP_BONUS: 4,
   WEAKNESS_BONUS: 4,
   SAME_ELEMENT_TEAM_BUFF: 2,
-  BID_WINNER_PANIC_REDUCTION: 2,
-  TRICK_WIN_PANIC_INCREASE: 0.5,
+  BID_WINNER_PANIC_REDUCTION: 20,
+  TRICK_WIN_PANIC_INCREASE: 5,
   LEVEL_POWER_BONUS: 2,
   upgradeCost(level) { return 10 + level * 5; },
 };

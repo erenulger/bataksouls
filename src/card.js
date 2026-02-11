@@ -40,6 +40,10 @@ const { ELEMENT_COLORS, RESET, BOLD, DIM, WEAPON_NAMES, CONFIG, beatsElement } =
 
 let nextId = 1;
 
+function resetIdCounter(start = 1) {
+  nextId = start;
+}
+
 /** @param {string} element @returns {Card} */
 function createCard(element) {
   const names = WEAPON_NAMES[element];
@@ -143,4 +147,4 @@ function shortDisplay(card) {
   return `${color}${card.element}${RESET} ${card.name}${lvl} (${rawPower(card)})`;
 }
 
-module.exports = { createCard, rawPower, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };
+module.exports = { createCard, resetIdCounter, rawPower, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };

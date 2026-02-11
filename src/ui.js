@@ -64,11 +64,11 @@ function showHand(hand, trumpElement = null) {
     const clr = ELEMENT_COLORS[card.element];
     return `${DIM_WHITE}${idx}${RESET} ${clr}${elem}${RESET} ${nameStr.padEnd(18)} ${BOLD_WHITE}${String(power).padStart(2)}${RESET}${trump}`;
   });
-  for (let i = 0; i < entries.length; i += 2) {
+  const half = Math.ceil(entries.length / 2);
+  for (let i = 0; i < half; i++) {
     const left = entries[i];
-    const right = entries[i + 1] || '';
+    const right = entries[i + half] || '';
     if (right) {
-      // Pad left column to fixed visual width using ANSI-aware padding
       const leftPlain = left.replace(/\x1b\[[0-9;]*m/g, '');
       const pad = ' '.repeat(Math.max(1, COL_WIDTH - leftPlain.length));
       console.log(`  ${left}${pad}${right}`);
@@ -81,9 +81,8 @@ function showHand(hand, trumpElement = null) {
   }
 }
 
-function showTrickPlay(player, card, power, bonuses) {
-  const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
-  console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} plays ${shortDisplay(card)} → Base: ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+function showTrickPlay(player, card) {
+  console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} plays ${shortDisplay(card)}`);
 }
 
 async function showTrickResolution(plays, trickPowers) {
@@ -148,9 +147,8 @@ function showElementLegend() {
 function showCurrentTrick(plays) {
   if (plays.length === 0) return;
   console.log(`\n${BOLD_WHITE}Current Trick:${RESET}`);
-  plays.forEach(({ player, card, power, bonuses }) => {
-    const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
-    console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
+  plays.forEach(({ player, card }) => {
+    console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)}`);
   });
 }
 
