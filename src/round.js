@@ -1,4 +1,5 @@
 const { CONFIG, ELEMENT_COLORS, RESET, BOLD } = require('./constants');
+const { rawPower } = require('./card');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
 const { aiChooseCard, aiChooseLead, aiChooseBid } = require('./ai');
@@ -6,6 +7,7 @@ const { askNumber, waitForKey } = require('./input');
 const {
   showHeader, showSubheader, showHand, showTrickPlay,
   showTrickResult, showTrickResolution, showRoundScores, showCurrentTrick, showBidReveal, showTrumpSuit,
+  showPlayOrder,
 } = require('./ui');
 
 async function playRound(players, roundNum, totalRounds) {
@@ -14,10 +16,13 @@ async function playRound(players, roundNum, totalRounds) {
   // Deal hands
   players.forEach(p => dealHand(p));
 
-  // ── Bidding Phase → determines trump suit + starting player ──
-  const { trumpElement, starter } = await biddingPhase(players);
+  // ── Bidding Phase → determines trump suit, winner gets panic reduction ──
+  const { trumpElement, bidWinner } = await biddingPhase(players);
 
-  let leaderIndex = players.indexOf(starter);
+  // First trick: highest panic player leads (most panicked goes first)
+  let leaderIndex = players.indexOf(
+    players.reduce((a, b) => b.panic > a.panic ? b : a)
+  );
 
   for (let trick = 1; trick <= CONFIG.TRICKS_PER_ROUND; trick++) {
     showSubheader(`Trick ${trick} of ${CONFIG.TRICKS_PER_ROUND}  ⚜ Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
@@ -25,14 +30,18 @@ async function playRound(players, roundNum, totalRounds) {
     const plays = [];
     let ledElement = null;
 
-    // Play in order starting from leader
-    for (let i = 0; i < players.length; i++) {
-      const pIndex = (leaderIndex + i) % players.length;
-      const player = players[pIndex];
+    // Build play order: leader first, rest sorted by panic (highest first = plays earliest)
+    const leader = players[leaderIndex];
+    const others = players.filter((_, i) => i !== leaderIndex);
+    others.sort((a, b) => b.panic - a.panic || (a === bidWinner ? 1 : b === bidWinner ? -1 : 0));
+    const playOrder = [leader, ...others];
+
+    for (let i = 0; i < playOrder.length; i++) {
+      const player = playOrder[i];
 
       let card;
       if (player.isHuman) {
-        card = await humanPlayCard(player, ledElement, trumpElement, plays);
+        card = await humanPlayCard(player, ledElement, trumpElement, plays, playOrder, i);
       } else {
         if (ledElement === null) {
           card = aiChooseLead(player, trumpElement);
@@ -53,6 +62,7 @@ async function playRound(players, roundNum, totalRounds) {
     const result = resolveTrick(plays, trumpElement);
     showTrickResolution(plays, result.trickPowers);
     result.winner.tricksWon++;
+    result.winner.panic += CONFIG.TRICK_WIN_PANIC_INCREASE;
     showTrickResult(result.winner, trick);
 
     // Winner leads next trick
@@ -95,7 +105,7 @@ async function biddingPhase(players) {
   // Tally bids by element
   const totals = {};
   bids.forEach(({ card }) => {
-    const power = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+    const power = rawPower(card);
     totals[card.element] = (totals[card.element] || 0) + power;
   });
 
@@ -104,21 +114,32 @@ async function biddingPhase(players) {
   const tied = Object.keys(totals).filter(el => totals[el] === maxTotal);
   const winningElement = tied[Math.floor(Math.random() * tied.length)];
 
-  // Determine starting player from bid winners on the trump suit
+  // Determine bid winner on the trump suit — gets panic reduction
   const trumpBids = bids
     .filter(b => b.card.element === winningElement)
-    .map(b => ({ player: b.player, power: b.card.basePower + b.card.level * CONFIG.LEVEL_POWER_BONUS }));
+    .map(b => ({ player: b.player, power: rawPower(b.card) }));
   const maxBidPower = Math.max(...trumpBids.map(b => b.power));
   const topBidders = trumpBids.filter(b => b.power === maxBidPower);
-  const starter = topBidders[Math.floor(Math.random() * topBidders.length)].player;
+  const bidWinner = topBidders[Math.floor(Math.random() * topBidders.length)].player;
+
+  // Bid winner gets panic reduction, runners-up on trump suit get smaller reduction
+  const oldPanics = {};
+  trumpBids.forEach(b => { oldPanics[b.player.name] = b.player.panic; });
+  bidWinner.panic = Math.max(1, bidWinner.panic - CONFIG.BID_WINNER_PANIC_REDUCTION);
+  trumpBids.filter(b => b.player !== bidWinner).forEach(b => {
+    b.player.panic = Math.max(1, b.player.panic - 1);
+  });
 
   // Reveal
   showBidReveal(bids, totals, winningElement);
   showTrumpSuit(winningElement);
-  console.log(`  ${BOLD}${starter.name}${RESET} leads the first trick!`);
+  console.log(`  ${BOLD}${bidWinner.name}${RESET} wins the bid! Panic: ${oldPanics[bidWinner.name]} → ${bidWinner.panic}`);
+  trumpBids.filter(b => b.player !== bidWinner).forEach(b => {
+    console.log(`  ${BOLD}${b.player.name}${RESET} bid on trump but lost. Panic: ${oldPanics[b.player.name]} → ${b.player.panic}`);
+  });
   await waitForKey();
 
-  return { trumpElement: winningElement, starter };
+  return { trumpElement: winningElement, bidWinner };
 }
 
 function scoreRound(players) {
@@ -134,7 +155,8 @@ function scoreRound(players) {
   });
 }
 
-async function humanPlayCard(player, ledElement, trumpElement, currentPlays) {
+async function humanPlayCard(player, ledElement, trumpElement, currentPlays, playOrder, currentIndex) {
+  showPlayOrder(playOrder, currentIndex);
   showCurrentTrick(currentPlays, trumpElement);
   showHand(player.hand, trumpElement);
 

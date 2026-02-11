@@ -1,5 +1,5 @@
 const { AI_TYPES, CONFIG } = require('./constants');
-const { effectivePower } = require('./card');
+const { effectivePower, rawPower } = require('./card');
 
 function aiChooseCard(player, trumpElement) {
   const hand = player.hand;
@@ -67,9 +67,7 @@ function aggressiveBid(hand) {
   const bestElement = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
   const suitCards = hand.filter(c => c.element === bestElement);
   return suitCards.reduce((best, card) => {
-    const bp = best.basePower + best.level * CONFIG.LEVEL_POWER_BONUS;
-    const cp = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
-    return cp < bp ? card : best;
+    return rawPower(card) < rawPower(best) ? card : best;
   });
 }
 
@@ -84,18 +82,14 @@ function defensivePlay(hand, trumpElement) {
 // ── Defensive Lead: lead with weakest card to bait others ──
 function defensiveLeadChoice(hand) {
   return hand.reduce((best, card) => {
-    const bp = best.basePower + best.level * CONFIG.LEVEL_POWER_BONUS;
-    const cp = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
-    return cp < bp ? card : best;
+    return rawPower(card) < rawPower(best) ? card : best;
   });
 }
 
 // ── Defensive Bid: bid absolute weakest card ──
 function defensiveBid(hand) {
   return hand.reduce((best, card) => {
-    const bp = best.basePower + best.level * CONFIG.LEVEL_POWER_BONUS;
-    const cp = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
-    return cp < bp ? card : best;
+    return rawPower(card) < rawPower(best) ? card : best;
   });
 }
 

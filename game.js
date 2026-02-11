@@ -24,6 +24,7 @@ async function main() {
 
     // Create players with team assignments
     const human = createPlayer('You', true, null, TEAMS.ALLIES);
+    console.log(`  Your Panic: ${BOLD}${human.panic}${RESET}\n`);
 
     let nameIndex = 0;
     const allyNPCs = [];
@@ -31,7 +32,7 @@ async function main() {
       const aiType = AI_TYPE_LIST[nameIndex % AI_TYPE_LIST.length];
       const npc = createPlayer(NPC_NAMES[nameIndex], false, aiType, TEAMS.ALLIES);
       allyNPCs.push(npc);
-      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[92mALLY\x1b[0m (${aiType})`);
+      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[92mALLY\x1b[0m (${aiType}) — Panic: ${npc.panic}`);
       nameIndex++;
     }
 
@@ -40,7 +41,7 @@ async function main() {
       const aiType = AI_TYPE_LIST[nameIndex % AI_TYPE_LIST.length];
       const npc = createPlayer(NPC_NAMES[nameIndex], false, aiType, TEAMS.ENEMIES);
       enemyNPCs.push(npc);
-      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[91mENEMY\x1b[0m (${aiType})`);
+      console.log(`  ${BOLD}${NPC_NAMES[nameIndex]}${RESET} joins as \x1b[91mENEMY\x1b[0m (${aiType}) — Panic: ${npc.panic}`);
       nameIndex++;
     }
 

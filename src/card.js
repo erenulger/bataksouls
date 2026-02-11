@@ -15,8 +15,12 @@ function createCard(element) {
   };
 }
 
+function rawPower(card) {
+  return card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+}
+
 function effectivePower(card, trumpElement) {
-  let power = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+  let power = rawPower(card);
   let bonuses = [];
   if (trumpElement && card.element === trumpElement) {
     power += CONFIG.TRUMP_BONUS;
@@ -66,13 +70,13 @@ function computeTrickPowers(plays, trumpElement) {
 
       if (beatsElement(cardB.element, cardA.element)) {
         // B is strong against A → B gets empowered
-        const bonus = CONFIG.WEAKNESS_BONUS + results[j].empowerCount;
+        const bonus = results[j].empowerCount === 0 ? CONFIG.WEAKNESS_BONUS : 1;
         results[j].empowerCount++;
         results[j].power += bonus;
         results[j].bonuses.push(`+${bonus} strong vs ${cardA.element}`);
       } else if (beatsElement(cardA.element, cardB.element)) {
         // A is strong against B → B gets weakened
-        const penalty = CONFIG.WEAKNESS_BONUS + results[j].weakenCount;
+        const penalty = results[j].weakenCount === 0 ? CONFIG.WEAKNESS_BONUS : 1;
         results[j].weakenCount++;
         results[j].power -= penalty;
         results[j].bonuses.push(`-${penalty} weak vs ${cardA.element}`);
@@ -96,7 +100,7 @@ function cardDisplay(card, { showPower = true, trumpElement = null, index = null
 function shortDisplay(card) {
   const color = ELEMENT_COLORS[card.element];
   const lvl = card.level > 0 ? `+${card.level}` : '';
-  return `${color}${card.element}${RESET} ${card.name}${lvl} (${card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS})`;
+  return `${color}${card.element}${RESET} ${card.name}${lvl} (${rawPower(card)})`;
 }
 
-module.exports = { createCard, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };
+module.exports = { createCard, rawPower, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };

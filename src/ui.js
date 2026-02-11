@@ -1,5 +1,5 @@
 const { ELEMENT_COLORS, MYSTICAL, PHYSICAL, CONFIG, TEAMS } = require('./constants');
-const { cardDisplay, shortDisplay, effectivePower } = require('./card');
+const { cardDisplay, shortDisplay, effectivePower, rawPower } = require('./card');
 const { ANSI, color, reset } = require('./ansiColors');
 
 const BOLD_WHITE = color({ fg: ANSI.fg.white, style: ANSI.style.bold });
@@ -125,7 +125,7 @@ function showCurrentTrick(plays, trumpElement) {
 function showBidReveal(bids, totals, winningElement) {
   console.log(`\n${BOLD_WHITE}Bids Revealed:${RESET}`);
   bids.forEach(({ player, card }) => {
-    const power = card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
+    const power = rawPower(card);
     console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} sacrifices ${shortDisplay(card)} (${BOLD_WHITE}${power}${RESET} power → ${ELEMENT_COLORS[card.element]}${card.element}${RESET})`);
   });
   console.log(`\n${BOLD_WHITE}Element Totals:${RESET}`);
@@ -140,9 +140,29 @@ function showTrumpSuit(element) {
   console.log(`\n  ${BRIGHT_BOLD_YELLOW}⚜ Trump suit: ${ELEMENT_COLORS[element]}${element}${RESET} ${BRIGHT_BOLD_YELLOW}⚜${RESET}`);
 }
 
+function showPlayOrder(playOrder, currentIndex) {
+  const orderStr = playOrder.map((p, i) => {
+    const tag = teamTag(p);
+    const name = i === currentIndex ? `${BRIGHT_BOLD_YELLOW}${p.name}${RESET}` : p.name;
+    return `${tag}${name}(${p.panic})`;
+  }).join(' → ');
+  console.log(`\n  ${DIM_WHITE}Play order:${RESET} ${orderStr}`);
+  console.log(`  ${DIM_WHITE}You play ${currentIndex + 1}${ordinalSuffix(currentIndex + 1)} of ${playOrder.length}${RESET}`);
+}
+
+function ordinalSuffix(n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return 'th';
+  switch (n % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
 module.exports = {
   showTitle, showHeader, showSubheader, showHand,
   showTrickPlay, showTrickResult, showTrickResolution, showRoundScores, showCollection,
   showUpgradeResult, showFinalScoreboard, showElementLegend,
-  showCurrentTrick, showBidReveal, showTrumpSuit,
+  showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder,
 };

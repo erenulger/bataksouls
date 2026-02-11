@@ -1,5 +1,5 @@
-const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL, TEAMS } = require('./constants');
-const { createCard } = require('./card');
+const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL, TEAMS, AI_TYPES } = require('./constants');
+const { createCard, rawPower } = require('./card');
 
 function createCollection() {
   const cards = [];
@@ -16,11 +16,17 @@ function createCollection() {
 }
 
 function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES) {
+  const basePanic = isHuman ? 5
+    : aiType === AI_TYPES.AGGRESSIVE ? 6
+    : aiType === AI_TYPES.DEFENSIVE ? 4
+    : 5;
+  const panic = Math.max(1, Math.min(10, basePanic + Math.floor(Math.random() * 5) - 2));
   return {
     name,
     isHuman,
     aiType,
     team,
+    panic,
     collection: createCollection(),
     hand: [],
     tricksWon: 0,
@@ -42,8 +48,8 @@ function sortHand(player) {
     const suitA = elementOrder.indexOf(a.element);
     const suitB = elementOrder.indexOf(b.element);
     if (suitA !== suitB) return suitA - suitB;
-    const powerA = a.basePower + a.level * CONFIG.LEVEL_POWER_BONUS;
-    const powerB = b.basePower + b.level * CONFIG.LEVEL_POWER_BONUS;
+    const powerA = rawPower(a);
+    const powerB = rawPower(b);
     return powerA - powerB; // Ascending power
   });
 }

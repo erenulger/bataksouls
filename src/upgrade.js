@@ -1,4 +1,5 @@
 const { CONFIG, AI_TYPES } = require('./constants');
+const { rawPower } = require('./card');
 const { askNumber } = require('./input');
 const { showCollection, showUpgradeResult, showSubheader } = require('./ui');
 
@@ -67,7 +68,7 @@ function aiUpgradeAggressive(player) {
   while (true) {
     const upgradable = player.collection
       .filter(c => c.level < CONFIG.MAX_LEVEL && CONFIG.upgradeCost(c.level) <= player.souls)
-      .sort((a, b) => (b.basePower + b.level * CONFIG.LEVEL_POWER_BONUS) - (a.basePower + a.level * CONFIG.LEVEL_POWER_BONUS));
+      .sort((a, b) => rawPower(b) - rawPower(a));
 
     if (upgradable.length === 0) break;
 
