@@ -115,8 +115,7 @@ function showElementLegend() {
 
 function showCurrentTrick(plays) {
   if (plays.length === 0) return;
-  const ledElement = plays[0].card.element;
-  console.log(`\n${BOLD_WHITE}Current Trick${RESET} (led: ${ELEMENT_COLORS[ledElement]}${ledElement}${RESET}):`);
+  console.log(`\n${BOLD_WHITE}Current Trick:${RESET}`);
   plays.forEach(({ player, card, power, bonuses }) => {
     const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
     console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);

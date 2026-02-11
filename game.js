@@ -5,7 +5,7 @@ const { showTitle, showHeader, showFinalScoreboard, showElementLegend } = requir
 const { playRound } = require('./src/round');
 const { playerUpgradePhase, aiUpgradePhase } = require('./src/upgrade');
 
-const AI_TYPE_LIST = [AI_TYPES.AGGRESSIVE, AI_TYPES.DEFENSIVE, AI_TYPES.CHAOTIC];
+const AI_TYPE_LIST = [AI_TYPES.AGGRESSIVE, AI_TYPES.DEFENSIVE, AI_TYPES.RECKLESS];
 
 async function main() {
   try {

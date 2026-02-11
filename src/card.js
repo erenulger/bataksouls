@@ -1,7 +1,46 @@
 const { ELEMENT_COLORS, RESET, BOLD, DIM, WEAPON_NAMES, CONFIG, beatsElement } = require('./constants');
 
+/**
+ * @typedef {Object} Card
+ * @property {number} id
+ * @property {string} element
+ * @property {string} name
+ * @property {number} basePower - Base power (3-10)
+ * @property {number} level - Upgrade level (0+)
+ */
+
+/**
+ * @typedef {Object} Player
+ * @property {string} name
+ * @property {boolean} isHuman
+ * @property {string|null} aiType
+ * @property {string} team - 'allies' or 'enemies'
+ * @property {number} panic - Play order priority (higher = plays earlier = disadvantage)
+ * @property {Card[]} collection
+ * @property {Card[]} hand
+ * @property {number} tricksWon
+ * @property {number} souls
+ * @property {number} totalSouls
+ */
+
+/**
+ * @typedef {Object} Play
+ * @property {Player} player
+ * @property {Card} card
+ * @property {number} [power] - Pre-computed effective power (set after play)
+ * @property {string[]} [bonuses] - Bonus descriptions (set after play)
+ */
+
+/**
+ * @typedef {Object} TrickPower
+ * @property {number} base - Raw power before any bonuses
+ * @property {number} power - Final power after all modifiers
+ * @property {string[]} bonuses - List of modifier descriptions
+ */
+
 let nextId = 1;
 
+/** @param {string} element @returns {Card} */
 function createCard(element) {
   const names = WEAPON_NAMES[element];
   const name = names[Math.floor(Math.random() * names.length)];
@@ -15,10 +54,12 @@ function createCard(element) {
   };
 }
 
+/** @param {Card} card @returns {number} */
 function rawPower(card) {
   return card.basePower + card.level * CONFIG.LEVEL_POWER_BONUS;
 }
 
+/** @param {Card} card @param {string|null} trumpElement @returns {{power: number, bonuses: string[]}} */
 function effectivePower(card, trumpElement) {
   let power = rawPower(card);
   let bonuses = [];
@@ -76,6 +117,7 @@ function applyCrossTeamInteractions(results) {
   }
 }
 
+/** @param {Play[]} plays @param {string|null} trumpElement @returns {TrickPower[]} */
 function computeTrickPowers(plays, trumpElement) {
   const results = initBaseResults(plays, trumpElement);
   applyTeamBuffs(results);
@@ -83,6 +125,7 @@ function computeTrickPowers(plays, trumpElement) {
   return results.map(r => ({ base: r.base, power: r.power, bonuses: r.bonuses }));
 }
 
+/** @param {Card} card @param {{showPower?: boolean, trumpElement?: string|null, index?: number|null}} [opts] @returns {string} */
 function cardDisplay(card, { showPower = true, trumpElement = null, index = null } = {}) {
   const color = ELEMENT_COLORS[card.element];
   const lvl = card.level > 0 ? ` +${card.level}` : '';
@@ -93,6 +136,7 @@ function cardDisplay(card, { showPower = true, trumpElement = null, index = null
   return `${prefix}${color}${card.element}${RESET} ${card.name}${lvl}${powerStr}`;
 }
 
+/** @param {Card} card @returns {string} */
 function shortDisplay(card) {
   const color = ELEMENT_COLORS[card.element];
   const lvl = card.level > 0 ? `+${card.level}` : '';

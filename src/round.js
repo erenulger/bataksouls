@@ -41,7 +41,7 @@ async function playRound(players, roundNum, totalRounds) {
 
       let card;
       if (player.isHuman) {
-        card = await humanPlayCard(player, ledElement, trumpElement, plays, playOrder, i);
+        card = await humanPlayCard(player, trumpElement, plays, playOrder, i);
       } else {
         if (ledElement === null) {
           card = aiChooseLead(player, trumpElement);
@@ -91,16 +91,12 @@ function scoreRound(players) {
   });
 }
 
-async function humanPlayCard(player, ledElement, trumpElement, currentPlays, playOrder, currentIndex) {
+async function humanPlayCard(player, trumpElement, currentPlays, playOrder, currentIndex) {
   showPlayOrder(playOrder, currentIndex);
   showCurrentTrick(currentPlays);
   showHand(player.hand, trumpElement);
 
-  if (ledElement) {
-    console.log(`\n  Led: ${ELEMENT_COLORS[ledElement]}${ledElement}${RESET}  |  Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
-  } else {
-    console.log(`\n  You lead! Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
-  }
+  console.log(`\n  Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
 
   const choice = await askNumber('  Play card > ', 1, player.hand.length);
   return player.hand[choice - 1];

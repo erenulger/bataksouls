@@ -84,7 +84,7 @@ const TEAMS = {
 const AI_TYPES = {
   AGGRESSIVE: 'Aggressive',
   DEFENSIVE:  'Defensive',
-  CHAOTIC:    'Chaotic',
+  RECKLESS:   'Reckless',
 };
 
 // ── Balance Config ──

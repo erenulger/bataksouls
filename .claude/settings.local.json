@@ -3,7 +3,8 @@
     "allow": [
       "Bash(node:*)",
       "Bash(printf:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx jsdoc:*)"
     ]
   }
 }

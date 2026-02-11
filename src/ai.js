@@ -1,6 +1,7 @@
 const { AI_TYPES, CONFIG } = require('./constants');
 const { effectivePower, rawPower } = require('./card');
 
+/** @param {Player} player @param {string|null} trumpElement @returns {Card} */
 function aiChooseCard(player, trumpElement) {
   const hand = player.hand;
 
@@ -9,36 +10,38 @@ function aiChooseCard(player, trumpElement) {
       return aggressivePlay(hand, trumpElement);
     case AI_TYPES.DEFENSIVE:
       return defensivePlay(hand, trumpElement);
-    case AI_TYPES.CHAOTIC:
-      return chaoticPlay(hand);
+    case AI_TYPES.RECKLESS:
+      return recklessPlay(hand, trumpElement);
     default:
-      return chaoticPlay(hand);
+      return recklessPlay(hand, trumpElement);
   }
 }
 
+/** @param {Player} player @param {string|null} trumpElement @returns {Card} */
 function aiChooseLead(player, trumpElement) {
   switch (player.aiType) {
     case AI_TYPES.AGGRESSIVE:
       return aggressiveLeadChoice(player.hand, trumpElement);
     case AI_TYPES.DEFENSIVE:
       return defensiveLeadChoice(player.hand);
-    case AI_TYPES.CHAOTIC:
-      return chaoticPlay(player.hand);
+    case AI_TYPES.RECKLESS:
+      return recklessLeadChoice(player.hand, trumpElement);
     default:
-      return chaoticPlay(player.hand);
+      return recklessLeadChoice(player.hand, trumpElement);
   }
 }
 
+/** @param {Player} player @returns {Card} */
 function aiChooseBid(player) {
   switch (player.aiType) {
     case AI_TYPES.AGGRESSIVE:
       return aggressiveBid(player.hand);
     case AI_TYPES.DEFENSIVE:
       return defensiveBid(player.hand);
-    case AI_TYPES.CHAOTIC:
-      return chaoticPlay(player.hand);
+    case AI_TYPES.RECKLESS:
+      return recklessBid(player.hand);
     default:
-      return chaoticPlay(player.hand);
+      return recklessBid(player.hand);
   }
 }
 
@@ -93,9 +96,25 @@ function defensiveBid(hand) {
   });
 }
 
-// ── Chaotic: random ──
-function chaoticPlay(hand) {
+// ── Reckless: 70% strongest, 30% random ──
+function recklessPlay(hand, trumpElement) {
+  if (Math.random() < 0.7) {
+    return aggressivePlay(hand, trumpElement);
+  }
   return hand[Math.floor(Math.random() * hand.length)];
+}
+
+// ── Reckless Lead: always leads with strongest card ──
+function recklessLeadChoice(hand, trumpElement) {
+  return aggressiveLeadChoice(hand, trumpElement);
+}
+
+// ── Reckless Bid: strongest card of a random element ──
+function recklessBid(hand) {
+  const elements = [...new Set(hand.map(c => c.element))];
+  const pick = elements[Math.floor(Math.random() * elements.length)];
+  const suitCards = hand.filter(c => c.element === pick);
+  return suitCards.reduce((best, card) => rawPower(card) > rawPower(best) ? card : best);
 }
 
 module.exports = { aiChooseCard, aiChooseLead, aiChooseBid };

@@ -248,9 +248,9 @@ No test files, no test runner configured. `computeTrickPowers()` and `resolveTri
 ◻️| P3 | UX-03 | Endgame drama (final round announcement) | UX |
 ✅| P3 | A-04 | UI recalculates game logic | Architecture | ✅ UI receives pre-computed power data from callers
 ✅| P3 | Q-01 | Add unit tests for core game logic | Quality | ✅ 33 tests across card, trick, constants
-| P4 | UX-04 | Upgrade variety beyond +2 power | UX |
-| P4 | UX-05 | Chaotic AI too weak / boring | UX |
-| P4 | Q-02 | Add JSDoc type documentation | Quality |
+◻️| P4 | UX-04 | Upgrade variety beyond +2 power | UX | Skipped — RPG evolution will handle
+✅| P4 | UX-05 | Chaotic AI too weak / boring | UX | ✅ Renamed to Reckless — 70% strongest / 30% random play, bids strongest card of random element
+✅| P4 | Q-02 | Add JSDoc type documentation | Quality | ✅ JSDoc types on card, trick, player, ai modules
 
 ---
 

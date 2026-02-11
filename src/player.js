@@ -1,6 +1,7 @@
 const { ALL_ELEMENTS, CONFIG, MYSTICAL, PHYSICAL, TEAMS, AI_TYPES } = require('./constants');
 const { createCard, rawPower } = require('./card');
 
+/** @returns {Card[]} */
 function createCollection() {
   const cards = [];
   // Guarantee at least 1 card per suit
@@ -15,6 +16,7 @@ function createCollection() {
   return shuffle(cards);
 }
 
+/** @param {string} name @param {boolean} [isHuman] @param {string|null} [aiType] @param {string} [team] @returns {Player} */
 function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES) {
   const basePanic = isHuman ? 5
     : aiType === AI_TYPES.AGGRESSIVE ? 6
@@ -35,6 +37,7 @@ function createPlayer(name, isHuman = false, aiType = null, team = TEAMS.ALLIES)
   };
 }
 
+/** @param {Player} player */
 function dealHand(player) {
   const shuffled = shuffle([...player.collection]);
   player.hand = shuffled.slice(0, CONFIG.HAND_SIZE);
@@ -54,6 +57,7 @@ function sortHand(player) {
   });
 }
 
+/** @param {Player} player @param {Card} card */
 function removeFromHand(player, card) {
   player.hand = player.hand.filter(c => c.id !== card.id);
 }
