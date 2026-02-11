@@ -242,12 +242,12 @@ No test files, no test runner configured. `computeTrickPowers()` and `resolveTri
 ✅| P2 | A-02 | Split computeTrickPowers into sub-functions | Architecture | ✅ Split into initBaseResults, applyTeamBuffs, applyCrossTeamInteractions
 ✅| P2 | A-03 | Extract bidding/scoring from round.js | Architecture | ✅ Extracted biddingPhase to src/bidding.js
 ✅| P2 | UX-01 | Power calculation display clarity | UX | ✅ Shows Base X → Y format in trick resolution
-| P3 | BAL-06 | Majority bonus too small | Balance |
-| P3 | BAL-07 | Bidding cost too high, no recovery | Balance |
-| P3 | UX-02 | Bidding strategy guidance for new players | UX |
-| P3 | UX-03 | Endgame drama (final round announcement) | UX |
-| P3 | A-04 | UI recalculates game logic | Architecture |
-| P3 | Q-01 | Add unit tests for core game logic | Quality |
+◻️| P3 | BAL-06 | Majority bonus too small | Balance |
+◻️| P3 | BAL-07 | Bidding cost too high, no recovery | Balance |
+◻️| P3 | UX-02 | Bidding strategy guidance for new players | UX |
+◻️| P3 | UX-03 | Endgame drama (final round announcement) | UX |
+✅| P3 | A-04 | UI recalculates game logic | Architecture | ✅ UI receives pre-computed power data from callers
+✅| P3 | Q-01 | Add unit tests for core game logic | Quality | ✅ 33 tests across card, trick, constants
 | P4 | UX-04 | Upgrade variety beyond +2 power | UX |
 | P4 | UX-05 | Chaotic AI too weak / boring | UX |
 | P4 | Q-02 | Add JSDoc type documentation | Quality |

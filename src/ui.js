@@ -1,5 +1,5 @@
 const { ELEMENT_COLORS, MYSTICAL, PHYSICAL, CONFIG, TEAMS } = require('./constants');
-const { cardDisplay, shortDisplay, effectivePower, rawPower } = require('./card');
+const { cardDisplay, shortDisplay } = require('./card');
 const { ANSI, color, reset } = require('./ansiColors');
 
 const BOLD_WHITE = color({ fg: ANSI.fg.white, style: ANSI.style.bold });
@@ -51,8 +51,7 @@ function showHand(hand, trumpElement = null) {
   });
 }
 
-function showTrickPlay(player, card, trumpElement) {
-  const { power, bonuses } = effectivePower(card, trumpElement);
+function showTrickPlay(player, card, power, bonuses) {
   const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
   console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} plays ${shortDisplay(card)} → Base: ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
 }
@@ -114,12 +113,11 @@ function showElementLegend() {
   console.log(`  ${DIM_WHITE}Physical Wheel:${RESET} ${PHYSICAL.map(e => `${ELEMENT_COLORS[e]}${e}${RESET}`).join(' > ')} > ...`);
 }
 
-function showCurrentTrick(plays, trumpElement) {
+function showCurrentTrick(plays) {
   if (plays.length === 0) return;
   const ledElement = plays[0].card.element;
   console.log(`\n${BOLD_WHITE}Current Trick${RESET} (led: ${ELEMENT_COLORS[ledElement]}${ledElement}${RESET}):`);
-  plays.forEach(({ player, card }) => {
-    const { power, bonuses } = effectivePower(card, trumpElement);
+  plays.forEach(({ player, card, power, bonuses }) => {
     const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
     console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
   });
@@ -127,8 +125,7 @@ function showCurrentTrick(plays, trumpElement) {
 
 function showBidReveal(bids, totals, winningElement) {
   console.log(`\n${BOLD_WHITE}Bids Revealed:${RESET}`);
-  bids.forEach(({ player, card }) => {
-    const power = rawPower(card);
+  bids.forEach(({ player, card, power }) => {
     console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} sacrifices ${shortDisplay(card)} (${BOLD_WHITE}${power}${RESET} power → ${ELEMENT_COLORS[card.element]}${card.element}${RESET})`);
   });
   console.log(`\n${BOLD_WHITE}Element Totals:${RESET}`);

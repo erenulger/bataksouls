@@ -1,4 +1,5 @@
 const { CONFIG, ELEMENT_COLORS, RESET } = require('./constants');
+const { effectivePower } = require('./card');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
 const { aiChooseCard, aiChooseLead } = require('./ai');
@@ -54,8 +55,9 @@ async function playRound(players, roundNum, totalRounds) {
       }
 
       removeFromHand(player, card);
-      plays.push({ player, card });
-      showTrickPlay(player, card, trumpElement);
+      const { power, bonuses } = effectivePower(card, trumpElement);
+      plays.push({ player, card, power, bonuses });
+      showTrickPlay(player, card, power, bonuses);
     }
 
     const result = resolveTrick(plays, trumpElement);
@@ -91,7 +93,7 @@ function scoreRound(players) {
 
 async function humanPlayCard(player, ledElement, trumpElement, currentPlays, playOrder, currentIndex) {
   showPlayOrder(playOrder, currentIndex);
-  showCurrentTrick(currentPlays, trumpElement);
+  showCurrentTrick(currentPlays);
   showHand(player.hand, trumpElement);
 
   if (ledElement) {

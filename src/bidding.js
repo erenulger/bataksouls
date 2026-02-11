@@ -18,20 +18,19 @@ async function biddingPhase(players) {
       console.log(`\n  Choose a card to sacrifice for the bid:`);
       const choice = await askNumber('  Bid card > ', 1, player.hand.length);
       const card = player.hand[choice - 1];
-      bids.push({ player, card });
+      bids.push({ player, card, power: rawPower(card) });
       removeFromHand(player, card);
       console.log(`  You commit your bid to the bonfire...`);
     } else {
       const card = aiChooseBid(player);
-      bids.push({ player, card });
+      bids.push({ player, card, power: rawPower(card) });
       removeFromHand(player, card);
     }
   }
 
   // Tally bids by element
   const totals = {};
-  bids.forEach(({ card }) => {
-    const power = rawPower(card);
+  bids.forEach(({ card, power }) => {
     totals[card.element] = (totals[card.element] || 0) + power;
   });
 
@@ -41,9 +40,7 @@ async function biddingPhase(players) {
   const winningElement = tied[Math.floor(Math.random() * tied.length)];
 
   // Determine bid winner on the trump suit — gets panic reduction
-  const trumpBids = bids
-    .filter(b => b.card.element === winningElement)
-    .map(b => ({ player: b.player, power: rawPower(b.card) }));
+  const trumpBids = bids.filter(b => b.card.element === winningElement);
   const maxBidPower = Math.max(...trumpBids.map(b => b.power));
   const topBidders = trumpBids.filter(b => b.power === maxBidPower);
   const bidWinner = topBidders[Math.floor(Math.random() * topBidders.length)].player;
