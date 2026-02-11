@@ -1,6 +1,7 @@
 const { ELEMENT_COLORS, MYSTICAL, PHYSICAL, CONFIG, TEAMS } = require('./constants');
-const { cardDisplay, shortDisplay } = require('./card');
+const { cardDisplay, shortDisplay, effectivePower } = require('./card');
 const { ANSI, color, reset } = require('./ansiColors');
+const { sleep } = require('./input');
 
 const BOLD_WHITE = color({ fg: ANSI.fg.white, style: ANSI.style.bold });
 const DIM_WHITE = color({ fg: ANSI.fg.white, style: ANSI.style.dim });
@@ -44,11 +45,40 @@ function showSubheader(text) {
   console.log(`\n${BRIGHT_BOLD_YELLOW}── ${text} ──${RESET}`);
 }
 
+const ELEM_SHORT = {
+  Light: 'LGT', Dark: 'DRK', Magic: 'MAG',
+  Fire: 'FIR', Poison: 'PSN', Bleed: 'BLD',
+  Armor: 'AMR', Slash: 'SLS', Pierce: 'PRC',
+};
+
 function showHand(hand, trumpElement = null) {
   console.log(`\n${BOLD_WHITE}Your Hand:${RESET}`);
-  hand.forEach((card, i) => {
-    console.log(`  ${cardDisplay(card, { index: i, trumpElement })}`);
+  const COL_WIDTH = 36;
+  const entries = hand.map((card, i) => {
+    const idx = `[${i + 1}]`.padEnd(4);
+    const elem = ELEM_SHORT[card.element] || card.element.slice(0, 3).toUpperCase();
+    const lvl = card.level > 0 ? `+${card.level}` : '';
+    const nameStr = `${card.name}${lvl}`;
+    const { power } = effectivePower(card, trumpElement);
+    const trump = trumpElement && card.element === trumpElement ? '*' : '';
+    const clr = ELEMENT_COLORS[card.element];
+    return `${DIM_WHITE}${idx}${RESET} ${clr}${elem}${RESET} ${nameStr.padEnd(18)} ${BOLD_WHITE}${String(power).padStart(2)}${RESET}${trump}`;
   });
+  for (let i = 0; i < entries.length; i += 2) {
+    const left = entries[i];
+    const right = entries[i + 1] || '';
+    if (right) {
+      // Pad left column to fixed visual width using ANSI-aware padding
+      const leftPlain = left.replace(/\x1b\[[0-9;]*m/g, '');
+      const pad = ' '.repeat(Math.max(1, COL_WIDTH - leftPlain.length));
+      console.log(`  ${left}${pad}${right}`);
+    } else {
+      console.log(`  ${left}`);
+    }
+  }
+  if (trumpElement) {
+    console.log(`  ${DIM_WHITE}(* = trump)${RESET}`);
+  }
 }
 
 function showTrickPlay(player, card, power, bonuses) {
@@ -56,16 +86,18 @@ function showTrickPlay(player, card, power, bonuses) {
   console.log(`  ${teamTag(player)} ${BOLD_WHITE}${player.name}${RESET} plays ${shortDisplay(card)} → Base: ${BOLD_WHITE}${power}${RESET}${bonusStr}`);
 }
 
-function showTrickResolution(plays, trickPowers) {
+async function showTrickResolution(plays, trickPowers) {
   console.log(`\n${BOLD_WHITE}Trick Resolution:${RESET}`);
-  plays.forEach(({ player, card }, i) => {
+  for (let i = 0; i < plays.length; i++) {
+    if (i > 0) await sleep(200);
+    const { player, card } = plays[i];
     const { base, power, bonuses } = trickPowers[i];
     const bonusStr = bonuses.length > 0 ? ` ${DIM_WHITE}(${bonuses.join(', ')})${RESET}` : '';
     const powerStr = base !== power
       ? `Base ${DIM_WHITE}${base}${RESET} → ${BOLD_WHITE}${power}${RESET}`
       : `${BOLD_WHITE}${power}${RESET}`;
     console.log(`  ${teamTag(player)} ${player.name}: ${shortDisplay(card)} → ${powerStr}${bonusStr}`);
-  });
+  }
 }
 
 function showTrickResult(winner, trickNum) {

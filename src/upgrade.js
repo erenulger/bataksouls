@@ -57,8 +57,8 @@ function aiUpgradePhase(player) {
     case AI_TYPES.DEFENSIVE:
       aiUpgradeDefensive(player);
       break;
-    case AI_TYPES.CHAOTIC:
-      aiUpgradeChaotic(player);
+    case AI_TYPES.RECKLESS:
+      aiUpgradeReckless(player);
       break;
   }
 }
@@ -95,7 +95,7 @@ function aiUpgradeDefensive(player) {
   }
 }
 
-function aiUpgradeChaotic(player) {
+function aiUpgradeReckless(player) {
   // Random upgrades
   while (true) {
     const upgradable = player.collection

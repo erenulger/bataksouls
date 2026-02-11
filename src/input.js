@@ -50,4 +50,8 @@ function close() {
   }
 }
 
-module.exports = { ask, askNumber, waitForKey, close };
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports = { ask, askNumber, waitForKey, close, sleep };

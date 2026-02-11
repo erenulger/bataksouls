@@ -3,7 +3,7 @@ const { effectivePower } = require('./card');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
 const { aiChooseCard, aiChooseLead } = require('./ai');
-const { askNumber, waitForKey } = require('./input');
+const { askNumber, waitForKey, sleep } = require('./input');
 const { biddingPhase } = require('./bidding');
 const {
   showHeader, showSubheader, showHand, showTrickPlay,
@@ -57,14 +57,16 @@ async function playRound(players, roundNum, totalRounds) {
       removeFromHand(player, card);
       const { power, bonuses } = effectivePower(card, trumpElement);
       plays.push({ player, card, power, bonuses });
+      if (!player.isHuman) await sleep(800);
       showTrickPlay(player, card, power, bonuses);
     }
 
     const result = resolveTrick(plays, trumpElement);
-    showTrickResolution(plays, result.trickPowers);
+    await showTrickResolution(plays, result.trickPowers);
     result.winner.tricksWon++;
     result.winner.panic += CONFIG.TRICK_WIN_PANIC_INCREASE;
     lastWinner = result.winner;
+    await sleep(1000);
     showTrickResult(result.winner, trick);
 
     if (trick < CONFIG.TRICKS_PER_ROUND) {
@@ -95,8 +97,6 @@ async function humanPlayCard(player, trumpElement, currentPlays, playOrder, curr
   showPlayOrder(playOrder, currentIndex);
   showCurrentTrick(currentPlays);
   showHand(player.hand, trumpElement);
-
-  console.log(`\n  Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
 
   const choice = await askNumber('  Play card > ', 1, player.hand.length);
   return player.hand[choice - 1];
