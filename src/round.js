@@ -128,6 +128,13 @@ async function playRound(players, roundNum, events) {
           }
 
           await waitForKey();
+
+          // If one side is completely eliminated, end the round early
+          const alliesAfterEndurance = players.filter(p => p.team === TEAMS.ALLIES);
+          const enemiesAfterEndurance = players.filter(p => p.team === TEAMS.ENEMIES);
+          if (alliesAfterEndurance.length === 0 || enemiesAfterEndurance.length === 0) {
+            break;
+          }
         }
 
         // Reshuffle depleted players AFTER damage (only alive ones now), continue round
@@ -227,6 +234,13 @@ async function playRound(players, roundNum, events) {
       }
 
       await waitForKey();
+
+      // If one side is completely eliminated, end the round early
+      const alliesLeft = players.filter(p => p.team === TEAMS.ALLIES);
+      const enemiesLeft = players.filter(p => p.team === TEAMS.ENEMIES);
+      if (alliesLeft.length === 0 || enemiesLeft.length === 0) {
+        break;
+      }
     }
 
     if (trick < CONFIG.TRICKS_PER_ROUND) {

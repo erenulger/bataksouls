@@ -58,14 +58,9 @@ function checkDeaths(players) {
  * @returns {null|{winner: Player, playerWon: boolean, cause: string, deadNPCs: Player[]}} null if combat continues
  */
 function determineCombatResult(players) {
-  const alive = players.filter(p => p.hp > 0);
-  const dead = checkDeaths(players);
-
-  if (dead.length === 0) return null;
-
-  // Check if entire teams are eliminated
-  const alliesAlive = alive.filter(p => p.team === TEAMS.ALLIES);
-  const enemiesAlive = alive.filter(p => p.team === TEAMS.ENEMIES);
+  // Check team presence — dead players may already be removed from the array
+  const alliesAlive = players.filter(p => p.hp > 0 && p.team === TEAMS.ALLIES);
+  const enemiesAlive = players.filter(p => p.hp > 0 && p.team === TEAMS.ENEMIES);
 
   // Combat continues if both sides have survivors
   if (alliesAlive.length > 0 && enemiesAlive.length > 0) {
@@ -74,13 +69,13 @@ function determineCombatResult(players) {
 
   // All allies dead = enemy victory
   if (alliesAlive.length === 0) {
-    const winner = enemiesAlive.length > 0 ? enemiesAlive[0] : players.find(p => p.team === TEAMS.ENEMIES);
-    return { winner, playerWon: false, cause: 'death', deadNPCs: dead };
+    const winner = enemiesAlive[0] || players.find(p => p.team === TEAMS.ENEMIES);
+    return { winner, playerWon: false, cause: 'death', deadNPCs: [] };
   }
 
   // All enemies dead = player victory
   const winner = alliesAlive.find(p => p.isHuman) || alliesAlive[0];
-  return { winner, playerWon: true, cause: 'death', deadNPCs: dead };
+  return { winner, playerWon: true, cause: 'death', deadNPCs: [] };
 }
 
 /**

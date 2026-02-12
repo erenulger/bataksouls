@@ -51,11 +51,11 @@ function sortHand(player) {
 
 /** @param {Player} player @param {Card} card */
 function removeFromHand(player, card) {
-  const before = player.hand.length;
-  player.hand = player.hand.filter(c => c.id !== card.id);
-  if (player.hand.length === before) {
+  const idx = player.hand.indexOf(card);
+  if (idx === -1) {
     throw new Error(`Card "${card.name}" (id:${card.id}) not found in ${player.name}'s hand`);
   }
+  player.hand.splice(idx, 1);
 }
 
 function shuffle(arr) {

@@ -152,14 +152,28 @@ describe('dealHand', () => {
 });
 
 describe('removeFromHand', () => {
-  it('removes card from hand by id', () => {
+  it('removes the exact card instance from hand', () => {
     const player = createPlayer(makeDeckData());
     dealHand(player);
     const card = player.hand[0];
     const sizeBefore = player.hand.length;
     removeFromHand(player, card);
     assert.equal(player.hand.length, sizeBefore - 1);
-    assert.ok(!player.hand.some(c => c.id === card.id));
+    assert.ok(!player.hand.includes(card));
+  });
+
+  it('only removes one card when duplicates share the same id', () => {
+    const player = createPlayer(makeDeckData());
+    dealHand(player);
+    // Insert a duplicate with the same id as the first card
+    const original = player.hand[0];
+    const duplicate = { ...original };
+    player.hand.push(duplicate);
+    const sizeBefore = player.hand.length;
+    removeFromHand(player, original);
+    assert.equal(player.hand.length, sizeBefore - 1);
+    assert.ok(player.hand.includes(duplicate), 'duplicate should remain in hand');
+    assert.ok(!player.hand.includes(original), 'original should be removed');
   });
 
   it('throws when card not in hand', () => {
