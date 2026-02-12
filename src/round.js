@@ -1,15 +1,19 @@
-const { CONFIG, ELEMENT_COLORS, RESET } = require('./constants');
+const { CONFIG, ELEMENT_COLORS, RESET, TEAMS, BOLD } = require('./constants');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
-const { computeDamage, applyDamage, checkDeaths } = require('./combat');
+const { computeDamage, applyDamage, checkDeaths, computeEnduranceDamage } = require('./combat');
 const { aiChooseCard, aiChooseLead } = require('./ai');
 const { askNumber, waitForKey, sleep } = require('./input');
 const { biddingPhase } = require('./bidding');
+const { ANSI, color, reset } = require('./ansiColors');
 const {
   showHeader, showSubheader, showHand, showTrickPlay,
   showTrickResult, showTrickResolution, showCurrentTrick,
   showPlayOrder, showDamageResults, showHpStatus, showRoundHpSummary,
+  showEndurancePenalty,
 } = require('./ui');
+
+const BRIGHT_RED = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
 
 async function playRound(players, roundNum, events) {
   showHeader(`Round ${roundNum}`);
@@ -25,6 +29,112 @@ async function playRound(players, roundNum, events) {
   let deathOccurred = false;
 
   for (let trick = 1; trick <= CONFIG.TRICKS_PER_ROUND; trick++) {
+    // ── Endurance Check (before trick starts) ──
+    const depleted = players.filter(p => p.hand.length === 0);
+    if (depleted.length > 0) {
+      // Check if entire teams are depleted
+      const alliesInPlay = players.filter(p => p.team === TEAMS.ALLIES);
+      const enemiesInPlay = players.filter(p => p.team === TEAMS.ENEMIES);
+
+      const alliesDepleted = alliesInPlay.every(p => p.hand.length === 0);
+      const enemiesDepleted = enemiesInPlay.every(p => p.hand.length === 0);
+
+      if (alliesDepleted && enemiesDepleted) {
+        // Both teams exhausted — no damage, just reshuffle all, continue round
+        console.log('\n  All sides exhausted! Reshuffling...');
+        players.forEach(p => dealHand(p));
+        await waitForKey();
+      } else if (alliesDepleted || enemiesDepleted) {
+        // ONE ENTIRE TEAM exhausted — apply endurance damage, then END ROUND
+        for (const p of depleted) {
+          const damage = computeEnduranceDamage(p, players, trumpElement);
+          const oldHp = p.hp;
+          p.hp = Math.max(0, p.hp - damage);
+          showEndurancePenalty(p, damage, oldHp, p.hp);
+          events.emit('onEnduranceDamage', {
+            player: p, damage, oldHp, newHp: p.hp, trickNum: trick, roundNum
+          });
+        }
+        await waitForKey();
+
+        // Check for deaths after endurance damage
+        const dead = checkDeaths(players);
+        if (dead.length > 0) {
+          deathOccurred = true;
+
+          // Announce and remove dead players immediately
+          for (const deadPlayer of dead) {
+            console.log(`\n  ${BRIGHT_RED}${deadPlayer.name} has been defeated!${reset}`);
+
+            events.emit('onPlayerDefeated', {
+              player: deadPlayer,
+              trickNum: trick,
+              roundNum,
+              cause: 'endurance'
+            });
+          }
+
+          // Remove dead players from the round
+          const beforeCount = players.length;
+          players.splice(0, players.length, ...players.filter(p => p.hp > 0));
+
+          if (players.length < beforeCount) {
+            console.log(`  ${BOLD}${players.length} combatants remain...${reset}`);
+          }
+
+          await waitForKey();
+        }
+
+        // One side exhausted — END ROUND (don't reshuffle, start new round)
+        console.log(`\n  ${BOLD}One side exhausted! Round ${roundNum} ends...${reset}`);
+        await waitForKey();
+        break; // Exit trick loop, round ends
+      } else {
+        // Only SOME players depleted (not entire teams) — damage + reshuffle, continue round
+        for (const p of depleted) {
+          const damage = computeEnduranceDamage(p, players, trumpElement);
+          const oldHp = p.hp;
+          p.hp = Math.max(0, p.hp - damage);
+          showEndurancePenalty(p, damage, oldHp, p.hp);
+          events.emit('onEnduranceDamage', {
+            player: p, damage, oldHp, newHp: p.hp, trickNum: trick, roundNum
+          });
+        }
+        await waitForKey();
+
+        // Check for deaths after endurance damage
+        const dead = checkDeaths(players);
+        if (dead.length > 0) {
+          deathOccurred = true;
+
+          // Announce and remove dead players immediately
+          for (const deadPlayer of dead) {
+            console.log(`\n  ${BRIGHT_RED}${deadPlayer.name} has been defeated!${reset}`);
+
+            events.emit('onPlayerDefeated', {
+              player: deadPlayer,
+              trickNum: trick,
+              roundNum,
+              cause: 'endurance'
+            });
+          }
+
+          // Remove dead players from the round
+          const beforeCount = players.length;
+          players.splice(0, players.length, ...players.filter(p => p.hp > 0));
+
+          if (players.length < beforeCount) {
+            console.log(`  ${BOLD}${players.length} combatants remain...${reset}`);
+          }
+
+          await waitForKey();
+        }
+
+        // Reshuffle depleted players AFTER damage (only alive ones now), continue round
+        depleted.filter(p => p.hp > 0).forEach(p => dealHand(p));
+      }
+    }
+
     showSubheader(`Trick ${trick} of ${CONFIG.TRICKS_PER_ROUND}  ⚜ Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
 
     const plays = [];
@@ -91,11 +201,32 @@ async function playRound(players, roundNum, events) {
     showDamageResults(applied);
     showHpStatus(players);
 
-    // Check for deaths
+    // Check for deaths and handle immediately
     const dead = checkDeaths(players);
     if (dead.length > 0) {
       deathOccurred = true;
-      break;
+
+      // Announce and remove dead players immediately
+      for (const deadPlayer of dead) {
+        console.log(`\n  ${BRIGHT_RED}${deadPlayer.name} has been defeated!${reset}`);
+
+        // Emit event for tracking
+        events.emit('onPlayerDefeated', {
+          player: deadPlayer,
+          trickNum: trick,
+          roundNum
+        });
+      }
+
+      // Remove dead players from the round
+      const beforeCount = players.length;
+      players.splice(0, players.length, ...players.filter(p => p.hp > 0));
+
+      if (players.length < beforeCount) {
+        console.log(`  ${BOLD}${players.length} combatants remain...${reset}`);
+      }
+
+      await waitForKey();
     }
 
     if (trick < CONFIG.TRICKS_PER_ROUND) {
@@ -111,7 +242,9 @@ async function playRound(players, roundNum, events) {
   });
   await waitForKey();
 
-  return { completed: !deathOccurred, deathOccurred };
+  // Return dead players so combat state can handle them
+  const dead = checkDeaths(players);
+  return { completed: true, deathOccurred, deadPlayers: dead };
 }
 
 async function humanPlayCard(player, trumpElement, currentPlays, playOrder, currentIndex) {

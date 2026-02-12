@@ -246,10 +246,19 @@ function showCombatResultScreen(result, players) {
   }
 }
 
+function showEndurancePenalty(player, damage, oldHp, newHp) {
+  const tag = teamTag(player);
+  const RED_BOLD = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
+  console.log(`\n  ${tag} ${BOLD_WHITE}${player.name}${RESET} ${RED_BOLD}EXHAUSTED!${RESET}`);
+  console.log(`  ${RED_BOLD}Endurance penalty: -${damage} HP${RESET} (${oldHp} → ${newHp})`);
+  console.log(`  Reshuffling deck...`);
+}
+
 module.exports = {
   showTitle, showHeader, showSubheader, showHand,
   showTrickPlay, showTrickResult, showTrickResolution, showRoundScores, showCollection,
   showUpgradeResult, showFinalScoreboard, showElementLegend,
   showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder, showSoulsBar,
   showDamageResults, showHpStatus, showRoundHpSummary, showCombatResultScreen,
+  showEndurancePenalty,
 };

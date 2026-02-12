@@ -1,4 +1,5 @@
 const { TEAMS } = require('./constants');
+const { effectivePower } = require('./card');
 
 /**
  * Compute damage pairs from trick powers.
@@ -52,30 +53,54 @@ function checkDeaths(players) {
 }
 
 /**
- * Determine combat result after a round/death.
- * @param {Player[]} players
- * @returns {null|{winner: Player, playerWon: boolean, cause: string}} null if no result yet
+ * Determine combat result. Returns result only when one side is completely eliminated.
+ * @param {Player[]} players - all combat participants (including dead)
+ * @returns {null|{winner: Player, playerWon: boolean, cause: string, deadNPCs: Player[]}} null if combat continues
  */
 function determineCombatResult(players) {
+  const alive = players.filter(p => p.hp > 0);
   const dead = checkDeaths(players);
+
   if (dead.length === 0) return null;
 
-  const alliesDead = dead.some(p => p.team === TEAMS.ALLIES);
-  const enemiesDead = dead.some(p => p.team === TEAMS.ENEMIES);
+  // Check if entire teams are eliminated
+  const alliesAlive = alive.filter(p => p.team === TEAMS.ALLIES);
+  const enemiesAlive = alive.filter(p => p.team === TEAMS.ENEMIES);
 
-  if (alliesDead && enemiesDead) {
-    // Both sides died — attacker (enemy) wins the trade
-    const enemy = players.find(p => p.team === TEAMS.ENEMIES);
-    return { winner: enemy, playerWon: false, cause: 'mutual-kill' };
+  // Combat continues if both sides have survivors
+  if (alliesAlive.length > 0 && enemiesAlive.length > 0) {
+    return null;
   }
 
-  if (alliesDead) {
-    const enemy = players.find(p => p.team === TEAMS.ENEMIES);
-    return { winner: enemy, playerWon: false, cause: 'death' };
+  // All allies dead = enemy victory
+  if (alliesAlive.length === 0) {
+    const winner = enemiesAlive.length > 0 ? enemiesAlive[0] : players.find(p => p.team === TEAMS.ENEMIES);
+    return { winner, playerWon: false, cause: 'death', deadNPCs: dead };
   }
 
-  const ally = players.find(p => p.team === TEAMS.ALLIES);
-  return { winner: ally, playerWon: true, cause: 'death' };
+  // All enemies dead = player victory
+  const winner = alliesAlive.find(p => p.isHuman) || alliesAlive[0];
+  return { winner, playerWon: true, cause: 'death', deadNPCs: dead };
 }
 
-module.exports = { computeDamage, applyDamage, checkDeaths, determineCombatResult };
+/**
+ * Compute endurance damage when a player has empty hand while enemies have cards.
+ * Applied once per trick while depleted.
+ * @param {Player} depletedPlayer - player with no cards
+ * @param {Player[]} allPlayers - all combat participants
+ * @param {string|null} trumpElement - current trump for power calculation
+ * @returns {number} damage to apply to depleted player (average power of enemy cards)
+ */
+function computeEnduranceDamage(depletedPlayer, allPlayers, trumpElement) {
+  const enemies = allPlayers.filter(p => p.team !== depletedPlayer.team);
+  const enemyCards = enemies.flatMap(p => p.hand);
+
+  if (enemyCards.length === 0) return 0;
+
+  const totalEffectivePower = enemyCards.reduce((sum, card) =>
+    sum + effectivePower(card, trumpElement).power, 0);
+
+  return Math.floor(totalEffectivePower / enemyCards.length);
+}
+
+module.exports = { computeDamage, applyDamage, checkDeaths, determineCombatResult, computeEnduranceDamage };

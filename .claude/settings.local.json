@@ -5,7 +5,10 @@
       "Bash(printf:*)",
       "Bash(grep:*)",
       "Bash(npx jsdoc:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(xargs:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)"
     ]
   }
 }

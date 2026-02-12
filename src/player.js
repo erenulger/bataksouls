@@ -7,6 +7,9 @@ function createPlayer(deckData, { isHuman = false } = {}) {
     ? Math.max(CONFIG.PANIC_FLOOR, Math.min(100, 50 + Math.floor(Math.random() * 41) - 20))
     : deckData.panic;
   const hp = deckData.hp || CONFIG.DEFAULT_PLAYER_HP;
+  const handSize = deckData.handSize || CONFIG.HAND_SIZE;
+  const deckSize = deckData.cards.length;
+  const soulsReward = deckData.soulsReward || 0;
   return {
     name: deckData.name,
     isHuman,
@@ -15,6 +18,9 @@ function createPlayer(deckData, { isHuman = false } = {}) {
     panic,
     hp,
     maxHp: hp,
+    handSize,
+    deckSize,
+    soulsReward,
     collection: deckData.cards.map(c => ({ ...c })),
     hand: [],
     tricksWon: 0,
@@ -26,7 +32,7 @@ function createPlayer(deckData, { isHuman = false } = {}) {
 /** @param {Player} player */
 function dealHand(player) {
   const shuffled = shuffle([...player.collection]);
-  player.hand = shuffled.slice(0, 13);
+  player.hand = shuffled.slice(0, player.handSize);
   sortHand(player);
   player.tricksWon = 0;
 }

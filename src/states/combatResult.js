@@ -12,9 +12,9 @@ module.exports = {
     showCombatResultScreen(result, ctx.combatPlayers);
 
     if (result.playerWon) {
-      const reward = ctx.currentNPC.soulsReward || 0;
-      ctx.player.souls += reward;
-      console.log(`  ${BOLD}Souls earned: ${reward}${RESET}`);
+      // Souls were already awarded during combat when enemies died
+      const defeatedCount = result.defeatedEnemies ? result.defeatedEnemies.length : 1;
+      console.log(`  ${BOLD}Defeated ${defeatedCount} ${defeatedCount === 1 ? 'enemy' : 'enemies'}${RESET}`);
     } else {
       console.log(`  ${BOLD}No souls earned.${RESET}`);
     }

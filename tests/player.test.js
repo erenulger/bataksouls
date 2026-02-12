@@ -80,10 +80,38 @@ describe('createPlayer', () => {
     assert.equal(player.hp, CONFIG.DEFAULT_PLAYER_HP);
     assert.equal(player.maxHp, CONFIG.DEFAULT_PLAYER_HP);
   });
+
+  it('sets handSize from deck data', () => {
+    const deck = makeDeckData();
+    deck.handSize = 10;
+    const player = createPlayer(deck);
+    assert.equal(player.handSize, 10);
+  });
+
+  it('defaults handSize to CONFIG.HAND_SIZE when not in deck data', () => {
+    const deck = makeDeckData();
+    const player = createPlayer(deck);
+    assert.equal(player.handSize, CONFIG.HAND_SIZE);
+  });
+
+  it('sets deckSize to collection length', () => {
+    const deck = makeDeckData({ size: 20 });
+    const player = createPlayer(deck);
+    assert.equal(player.deckSize, 20);
+    assert.equal(player.collection.length, 20);
+  });
 });
 
 describe('dealHand', () => {
-  it('deals HAND_SIZE cards from collection', () => {
+  it('deals player.handSize cards from collection', () => {
+    const deck = makeDeckData();
+    deck.handSize = 10;
+    const player = createPlayer(deck);
+    dealHand(player);
+    assert.equal(player.hand.length, 10);
+  });
+
+  it('deals HAND_SIZE cards by default', () => {
     const player = createPlayer(makeDeckData());
     dealHand(player);
     assert.equal(player.hand.length, 13);
