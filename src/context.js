@@ -1,6 +1,7 @@
 const path = require('path');
 const { loadDeck, saveDeck } = require('./deck');
 const { createPlayer } = require('./player');
+const { EventBus } = require('./eventBus');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const PLAYER_DECK_PATH = path.join(DATA_DIR, 'decks', 'player.json');
@@ -23,6 +24,7 @@ function createContext(opts = {}) {
     combatPlayers: [],
     combatResult: null,
     debug: opts.debug || false,
+    events: new EventBus(),
   };
 }
 

@@ -17,6 +17,8 @@ function listNPCs() {
       aiType: data.aiType,
       difficulty: data.difficulty || 1,
       description: data.description || '',
+      hp: data.hp || 100,
+      soulsReward: data.soulsReward || 0,
       filePath,
     };
   }).sort((a, b) => a.difficulty - b.difficulty);

@@ -6,12 +6,15 @@ function createPlayer(deckData, { isHuman = false } = {}) {
   const panic = isHuman
     ? Math.max(CONFIG.PANIC_FLOOR, Math.min(100, 50 + Math.floor(Math.random() * 41) - 20))
     : deckData.panic;
+  const hp = deckData.hp || CONFIG.DEFAULT_PLAYER_HP;
   return {
     name: deckData.name,
     isHuman,
     aiType: deckData.aiType || null,
     team: deckData.team || TEAMS.ALLIES,
     panic,
+    hp,
+    maxHp: hp,
     collection: deckData.cards.map(c => ({ ...c })),
     hand: [],
     tricksWon: 0,

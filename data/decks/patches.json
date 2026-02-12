@@ -5,6 +5,8 @@
   "team": "enemies",
   "description": "A treacherous trickster. Unpredictable and self-serving.",
   "difficulty": 1,
+  "hp": 80,
+  "soulsReward": 50,
   "cards": [
     { "cardId": 1001, "level": 0 },
     { "cardId": 1004, "level": 0 },

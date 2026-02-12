@@ -193,9 +193,63 @@ function showSoulsBar(player) {
   console.log(`  ${BRIGHT_BOLD_YELLOW}\u2604 Souls: ${player.souls}${RESET}`);
 }
 
+function hpBar(hp, maxHp) {
+  const BAR_LEN = 20;
+  const ratio = Math.max(0, hp / maxHp);
+  const filled = Math.round(ratio * BAR_LEN);
+  const empty = BAR_LEN - filled;
+  const barColor = ratio > 0.5
+    ? color({ fg: ANSI.fg.bright.green })
+    : ratio > 0.25
+      ? color({ fg: ANSI.fg.bright.yellow })
+      : color({ fg: ANSI.fg.bright.red });
+  return `${barColor}${'█'.repeat(filled)}${DIM_WHITE}${'░'.repeat(empty)}${RESET}`;
+}
+
+function showDamageResults(applied) {
+  if (applied.length === 0) return;
+  applied.forEach(({ attacker, defender, damage, newHp }) => {
+    const atkTag = teamTag(attacker);
+    const defTag = teamTag(defender);
+    const RED_BOLD = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
+    console.log(`  ${atkTag} ${BOLD_WHITE}${attacker.name}${RESET} deals ${RED_BOLD}${damage}${RESET} damage to ${defTag} ${BOLD_WHITE}${defender.name}${RESET} (${newHp} HP)`);
+  });
+}
+
+function showHpStatus(players) {
+  console.log(`\n${BOLD_WHITE}HP Status:${RESET}`);
+  players.forEach(p => {
+    console.log(`  ${teamTag(p)} ${BOLD_WHITE}${p.name}${RESET} ${hpBar(p.hp, p.maxHp)} ${p.hp}/${p.maxHp}`);
+  });
+}
+
+function showRoundHpSummary(players, roundNum) {
+  showHeader(`Round ${roundNum} Complete`);
+  players.forEach(p => {
+    console.log(`  ${teamTag(p)} ${BOLD_WHITE}${p.name}${RESET} ${hpBar(p.hp, p.maxHp)} ${p.hp}/${p.maxHp} HP | ${p.tricksWon} tricks won`);
+  });
+}
+
+function showCombatResultScreen(result, players) {
+  showHeader('COMBAT RESULT');
+  players.forEach(p => {
+    console.log(`  ${teamTag(p)} ${BOLD_WHITE}${p.name}${RESET} ${hpBar(p.hp, p.maxHp)} ${p.hp}/${p.maxHp} HP`);
+  });
+  console.log();
+  if (result.playerWon) {
+    console.log(`${BRIGHT_BOLD_YELLOW}  VICTORY ACHIEVED${RESET}`);
+    console.log(`  You have linked the flame.\n`);
+  } else {
+    const RED_BOLD = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
+    console.log(`${RED_BOLD}  YOU DIED${RESET}`);
+    console.log(`  ${result.winner.name} has claimed the bonfire.\n`);
+  }
+}
+
 module.exports = {
   showTitle, showHeader, showSubheader, showHand,
   showTrickPlay, showTrickResult, showTrickResolution, showRoundScores, showCollection,
   showUpgradeResult, showFinalScoreboard, showElementLegend,
   showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder, showSoulsBar,
+  showDamageResults, showHpStatus, showRoundHpSummary, showCombatResultScreen,
 };

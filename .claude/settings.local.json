@@ -4,7 +4,8 @@
       "Bash(node:*)",
       "Bash(printf:*)",
       "Bash(grep:*)",
-      "Bash(npx jsdoc:*)"
+      "Bash(npx jsdoc:*)",
+      "Bash(ls:*)"
     ]
   }
 }

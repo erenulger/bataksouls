@@ -65,6 +65,21 @@ describe('createPlayer', () => {
     const player = createPlayer(deck);
     assert.equal(player.team, TEAMS.ALLIES);
   });
+
+  it('sets hp and maxHp from deck data', () => {
+    const deck = makeDeckData();
+    deck.hp = 80;
+    const player = createPlayer(deck);
+    assert.equal(player.hp, 80);
+    assert.equal(player.maxHp, 80);
+  });
+
+  it('defaults hp to DEFAULT_PLAYER_HP when not in deck data', () => {
+    const deck = makeDeckData();
+    const player = createPlayer(deck);
+    assert.equal(player.hp, CONFIG.DEFAULT_PLAYER_HP);
+    assert.equal(player.maxHp, CONFIG.DEFAULT_PLAYER_HP);
+  });
 });
 
 describe('dealHand', () => {
