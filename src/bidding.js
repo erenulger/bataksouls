@@ -48,9 +48,9 @@ async function biddingPhase(players) {
   // Bid winner gets panic reduction, runners-up on trump suit get smaller reduction
   const oldPanics = {};
   trumpBids.forEach(b => { oldPanics[b.player.name] = b.player.panic; });
-  bidWinner.panic = Math.max(10, bidWinner.panic - CONFIG.BID_WINNER_PANIC_REDUCTION);
+  bidWinner.panic = Math.max(CONFIG.PANIC_FLOOR, bidWinner.panic - CONFIG.BID_WINNER_PANIC_REDUCTION);
   trumpBids.filter(b => b.player !== bidWinner).forEach(b => {
-    b.player.panic = Math.max(10, b.player.panic - 10);
+    b.player.panic = Math.max(CONFIG.PANIC_FLOOR, b.player.panic - 10);
   });
 
   // Reveal

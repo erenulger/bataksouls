@@ -104,12 +104,12 @@ function chaoticPlay(hand, trumpElement) {
   return hand[Math.floor(Math.random() * hand.length)];
 }
 
-// ── Reckless Lead: always leads with strongest card ──
+// ── Chaotic Lead: always leads with strongest card ──
 function chaoticLeadChoice(hand, trumpElement) {
   return aggressiveLeadChoice(hand, trumpElement);
 }
 
-// ── Reckless Bid: strongest card of a random element ──
+// ── Chaotic Bid: strongest card of a random element ──
 function chaoticBid(hand) {
   const elements = [...new Set(hand.map(c => c.element))];
   const pick = elements[Math.floor(Math.random() * elements.length)];

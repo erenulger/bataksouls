@@ -101,6 +101,7 @@ const CONFIG = {
   BID_WINNER_PANIC_REDUCTION: 20,
   TRICK_WIN_PANIC_INCREASE: 5,
   LEVEL_POWER_BONUS: 2,
+  PANIC_FLOOR: 10,
   upgradeCost(level) { return 10 + level * 5; },
 };
 

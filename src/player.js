@@ -1,10 +1,10 @@
-const { MYSTICAL, PHYSICAL, TEAMS } = require('./constants');
+const { MYSTICAL, PHYSICAL, TEAMS, CONFIG } = require('./constants');
 const { rawPower } = require('./card');
 
 /** @param {object} deckData @param {{isHuman?: boolean}} [opts] @returns {Player} */
 function createPlayer(deckData, { isHuman = false } = {}) {
   const panic = isHuman
-    ? Math.max(10, Math.min(100, 50 + Math.floor(Math.random() * 41) - 20))
+    ? Math.max(CONFIG.PANIC_FLOOR, Math.min(100, 50 + Math.floor(Math.random() * 41) - 20))
     : deckData.panic;
   return {
     name: deckData.name,
