@@ -2,185 +2,111 @@
   "name": "You",
   "cards": [
     {
-      "id": 1,
-      "element": "Light",
-      "name": "Talisman",
-      "basePower": 7,
+      "cardId": 1003,
+      "level": 4
+    },
+    {
+      "cardId": 1003,
+      "level": 8
+    },
+    {
+      "cardId": 1001,
+      "level": 1
+    },
+    {
+      "cardId": 1004,
       "level": 0
     },
     {
-      "id": 2,
-      "element": "Dark",
-      "name": "Manus Catalyst",
-      "basePower": 3,
+      "cardId": 1006,
       "level": 0
     },
     {
-      "id": 3,
-      "element": "Magic",
-      "name": "Crystal Staff",
-      "basePower": 9,
+      "cardId": 1007,
       "level": 0
     },
     {
-      "id": 4,
-      "element": "Fire",
-      "name": "Claymore",
-      "basePower": 8,
+      "cardId": 1008,
       "level": 0
     },
     {
-      "id": 5,
-      "element": "Poison",
-      "name": "Poison Broadsword",
-      "basePower": 10,
+      "cardId": 2000,
       "level": 0
     },
     {
-      "id": 6,
-      "element": "Bleed",
-      "name": "Notched Whip",
-      "basePower": 4,
+      "cardId": 2004,
       "level": 0
     },
     {
-      "id": 7,
-      "element": "Armor",
-      "name": "Greatshield",
-      "basePower": 4,
+      "cardId": 2008,
       "level": 0
     },
     {
-      "id": 8,
-      "element": "Slash",
-      "name": "Iaito",
-      "basePower": 5,
+      "cardId": 3002,
       "level": 0
     },
     {
-      "id": 9,
-      "element": "Pierce",
-      "name": "Silver Spear",
-      "basePower": 5,
+      "cardId": 3006,
       "level": 0
     },
     {
-      "id": 10,
-      "element": "Light",
-      "name": "Sacred Chime",
-      "basePower": 4,
+      "cardId": 3008,
       "level": 0
     },
     {
-      "id": 11,
-      "element": "Magic",
-      "name": "Tin Catalyst",
-      "basePower": 7,
+      "cardId": 4001,
       "level": 0
     },
     {
-      "id": 12,
-      "element": "Light",
-      "name": "Sacred Chime",
-      "basePower": 8,
+      "cardId": 4004,
       "level": 0
     },
     {
-      "id": 13,
-      "element": "Fire",
-      "name": "Chaos Blade",
-      "basePower": 6,
+      "cardId": 4007,
       "level": 0
     },
     {
-      "id": 14,
-      "element": "Fire",
-      "name": "Chaos Blade",
-      "basePower": 6,
+      "cardId": 5002,
       "level": 0
     },
     {
-      "id": 15,
-      "element": "Pierce",
-      "name": "Estoc",
-      "basePower": 4,
+      "cardId": 5004,
       "level": 0
     },
     {
-      "id": 16,
-      "element": "Light",
-      "name": "Sacred Chime",
-      "basePower": 10,
+      "cardId": 5007,
       "level": 0
     },
     {
-      "id": 17,
-      "element": "Fire",
-      "name": "Claymore",
-      "basePower": 4,
+      "cardId": 6001,
       "level": 0
     },
     {
-      "id": 18,
-      "element": "Bleed",
-      "name": "Flamberge",
-      "basePower": 5,
+      "cardId": 6006,
       "level": 0
     },
     {
-      "id": 19,
-      "element": "Pierce",
-      "name": "Silver Spear",
-      "basePower": 7,
+      "cardId": 7003,
       "level": 0
     },
     {
-      "id": 20,
-      "element": "Magic",
-      "name": "Tin Catalyst",
-      "basePower": 4,
+      "cardId": 7007,
       "level": 0
     },
     {
-      "id": 21,
-      "element": "Light",
-      "name": "Canvas Talisman",
-      "basePower": 6,
+      "cardId": 8002,
       "level": 0
     },
     {
-      "id": 22,
-      "element": "Light",
-      "name": "Canvas Talisman",
-      "basePower": 7,
+      "cardId": 8006,
       "level": 0
     },
     {
-      "id": 23,
-      "element": "Light",
-      "name": "Canvas Talisman",
-      "basePower": 10,
+      "cardId": 9003,
       "level": 0
     },
     {
-      "id": 24,
-      "element": "Fire",
-      "name": "Chaos Blade",
-      "basePower": 6,
-      "level": 0
-    },
-    {
-      "id": 25,
-      "element": "Dark",
-      "name": "Abyss Greatsword",
-      "basePower": 7,
-      "level": 0
-    },
-    {
-      "id": 26,
-      "element": "Pierce",
-      "name": "Estoc",
-      "basePower": 4,
+      "cardId": 9007,
       "level": 0
     }
   ]
