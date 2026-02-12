@@ -3,12 +3,11 @@ const { computeTrickPowers } = require('./card');
 /**
  * @param {Play[]} plays
  * @param {string|null} trumpElement
- * @returns {{winner: Player, winningCard: Card, winningPower: number, ledElement: string, trickPowers: TrickPower[]}}
+ * @returns {{winner: Player, winningCard: Card, winningPower: number, trickPowers: TrickPower[]}}
  */
 function resolveTrick(plays, trumpElement) {
   if (plays.length === 0) return null;
 
-  const ledElement = plays[0].card.element;
   const trickPowers = computeTrickPowers(plays, trumpElement);
 
   let bestIndex = 0;
@@ -29,7 +28,6 @@ function resolveTrick(plays, trumpElement) {
     winner: plays[bestIndex].player,
     winningCard: plays[bestIndex].card,
     winningPower: bestPower,
-    ledElement,
     trickPowers,
   };
 }

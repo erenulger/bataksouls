@@ -1,0 +1,12 @@
+{
+    "slash-cards": [
+        { "id": 8000, "name": "Dagger",     "basePower": 2 },
+        { "id": 8001, "name": "Chime",      "basePower": 3 },
+        { "id": 8002, "name": "Staff",      "basePower": 4 },
+        { "id": 8003, "name": "Talisman",   "basePower": 5 },
+        { "id": 8004, "name": "Spear",      "basePower": 6 },
+        { "id": 8006, "name": "Arrow",      "basePower": 7 },
+        { "id": 8007, "name": "Longsword",  "basePower": 8 },
+        { "id": 8008, "name": "Greatsword", "basePower": 9 }
+    ]
+}

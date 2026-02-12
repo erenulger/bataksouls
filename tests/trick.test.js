@@ -21,15 +21,6 @@ describe('resolveTrick', () => {
     assert.equal(result.winningPower, 9);
   });
 
-  it('returns ledElement from first play', () => {
-    const plays = [
-      { player: { ...ally, name: 'A' }, card: makeCard(ELEMENTS.FIRE, 5) },
-      { player: { ...enemy, name: 'B' }, card: makeCard(ELEMENTS.LIGHT, 3) },
-    ];
-    const result = resolveTrick(plays, null);
-    assert.equal(result.ledElement, ELEMENTS.FIRE);
-  });
-
   it('returns trickPowers array', () => {
     const plays = [
       { player: { ...ally, name: 'A' }, card: makeCard(ELEMENTS.FIRE, 5) },

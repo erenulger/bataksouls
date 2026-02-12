@@ -38,19 +38,13 @@ const { ELEMENT_COLORS, RESET, BOLD, DIM, WEAPON_NAMES, CONFIG, beatsElement } =
  * @property {string[]} bonuses - List of modifier descriptions
  */
 
-let nextId = 1;
-
-function resetIdCounter(start = 1) {
-  nextId = start;
-}
-
-/** @param {string} element @returns {Card} */
-function createCard(element) {
+/** @param {string} element @param {number} id @returns {Card} */
+function createCard(element, id = 0) {
   const names = WEAPON_NAMES[element];
   const name = names[Math.floor(Math.random() * names.length)];
   const basePower = Math.floor(Math.random() * 8) + 3; // 3-10
   return {
-    id: nextId++,
+    id,
     element,
     name,
     basePower,
@@ -147,4 +141,4 @@ function shortDisplay(card) {
   return `${color}${card.element}${RESET} ${card.name}${lvl} (${rawPower(card)})`;
 }
 
-module.exports = { createCard, resetIdCounter, rawPower, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };
+module.exports = { createCard, rawPower, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };

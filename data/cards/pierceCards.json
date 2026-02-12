@@ -1,0 +1,12 @@
+{
+    "pierce-cards": [
+        { "id": 9000, "name": "Dagger",     "basePower": 2 },
+        { "id": 9001, "name": "Chime",      "basePower": 3 },
+        { "id": 9002, "name": "Staff",      "basePower": 4 },
+        { "id": 9003, "name": "Talisman",   "basePower": 5 },
+        { "id": 9004, "name": "Spear",      "basePower": 6 },
+        { "id": 9006, "name": "Arrow",      "basePower": 7 },
+        { "id": 9007, "name": "Longsword",  "basePower": 8 },
+        { "id": 9008, "name": "Greatsword", "basePower": 9 }
+    ]
+}

@@ -114,7 +114,7 @@ function showRoundScores(players, roundNum) {
 }
 
 function showCollection(player) {
-  showSubheader(`${player.name}'s Collection`);
+  if (player.name) showSubheader(`${player.name}'s Collection`);
   player.collection.forEach((card, i) => {
     const cost = CONFIG.upgradeCost(card.level);
     const lvlStr = card.level >= CONFIG.MAX_LEVEL ? `${DIM_WHITE}(MAX)${RESET}` : `${DIM_WHITE}(cost: ${cost} souls)${RESET}`;
@@ -189,9 +189,13 @@ function ordinalSuffix(n) {
   }
 }
 
+function showSoulsBar(player) {
+  console.log(`  ${BRIGHT_BOLD_YELLOW}\u2604 Souls: ${player.souls}${RESET}`);
+}
+
 module.exports = {
   showTitle, showHeader, showSubheader, showHand,
   showTrickPlay, showTrickResult, showTrickResolution, showRoundScores, showCollection,
   showUpgradeResult, showFinalScoreboard, showElementLegend,
-  showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder,
+  showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder, showSoulsBar,
 };

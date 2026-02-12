@@ -101,4 +101,4 @@ async function humanPlayCard(player, trumpElement, currentPlays, playOrder, curr
   return player.hand[choice - 1];
 }
 
-module.exports = { playRound };
+module.exports = { playRound, scoreRound };
