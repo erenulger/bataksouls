@@ -102,6 +102,7 @@ const CONFIG = {
   TRICK_WIN_PANIC_INCREASE: 5,
   LEVEL_POWER_BONUS: 2,
   PANIC_FLOOR: 10,
+  DEFAULT_PLAYER_HP: 100,
   upgradeCost(level) { return 10 + level * 5; },
 };
 

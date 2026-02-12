@@ -5,7 +5,7 @@ const { aiChooseBid } = require('./ai');
 const { askNumber, waitForKey } = require('./input');
 const { showHand, showSubheader, showBidReveal, showTrumpSuit } = require('./ui');
 
-async function biddingPhase(players) {
+async function biddingPhase(players, events) {
   showSubheader('BONFIRE BIDDING \u2014 Sacrifice a card to set the trump suit');
   console.log(`  Each player bids one card blind. Element with highest total power becomes trump.`);
   console.log(`  Bid cards are ${BOLD}discarded${RESET} \u2014 choose wisely!\n`);
@@ -49,8 +49,20 @@ async function biddingPhase(players) {
   const oldPanics = {};
   trumpBids.forEach(b => { oldPanics[b.player.name] = b.player.panic; });
   bidWinner.panic = Math.max(CONFIG.PANIC_FLOOR, bidWinner.panic - CONFIG.BID_WINNER_PANIC_REDUCTION);
+  events.emit('onPanicChanged', {
+    player: bidWinner,
+    oldPanic: oldPanics[bidWinner.name],
+    newPanic: bidWinner.panic,
+    cause: 'bid-winner',
+  });
   trumpBids.filter(b => b.player !== bidWinner).forEach(b => {
     b.player.panic = Math.max(CONFIG.PANIC_FLOOR, b.player.panic - 10);
+    events.emit('onPanicChanged', {
+      player: b.player,
+      oldPanic: oldPanics[b.player.name],
+      newPanic: b.player.panic,
+      cause: 'bid-runner-up',
+    });
   });
 
   // Reveal

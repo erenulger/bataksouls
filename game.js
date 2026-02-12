@@ -18,7 +18,6 @@ function parseArgs(argv) {
       case '--state': args.state = argv[++i]; break;
       case '--souls': args.souls = parseInt(argv[++i], 10); break;
       case '--npc':   args.npc = argv[++i]; break;
-      case '--rounds': args.rounds = parseInt(argv[++i], 10); break;
       case '--debug': args.debug = true; break;
     }
   }
@@ -44,10 +43,10 @@ async function main() {
       const enemy = createPlayer(npcData);
       enemy.team = TEAMS.ENEMIES;
       ctx.currentNPC = npcData;
-      ctx.combatPlayers = [ctx.player, enemy];
+      ctx.player.hp = ctx.player.maxHp;
       ctx.player.tricksWon = 0;
       ctx.player.totalSouls = 0;
-      if (args.rounds) ctx.combatRounds = args.rounds;
+      ctx.combatPlayers = [ctx.player, enemy];
     }
 
     await runEngine(states, args.state, ctx);

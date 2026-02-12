@@ -1,26 +1,28 @@
 const { CONFIG, ELEMENT_COLORS, RESET } = require('./constants');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
+const { computeDamage, applyDamage, checkDeaths } = require('./combat');
 const { aiChooseCard, aiChooseLead } = require('./ai');
 const { askNumber, waitForKey, sleep } = require('./input');
 const { biddingPhase } = require('./bidding');
 const {
   showHeader, showSubheader, showHand, showTrickPlay,
-  showTrickResult, showTrickResolution, showRoundScores, showCurrentTrick,
-  showPlayOrder,
+  showTrickResult, showTrickResolution, showCurrentTrick,
+  showPlayOrder, showDamageResults, showHpStatus, showRoundHpSummary,
 } = require('./ui');
 
-async function playRound(players, roundNum, totalRounds) {
-  showHeader(`Round ${roundNum} of ${totalRounds}`);
+async function playRound(players, roundNum, events) {
+  showHeader(`Round ${roundNum}`);
 
   // Deal hands
   players.forEach(p => dealHand(p));
 
   // ── Bidding Phase → determines trump suit, winner gets panic reduction ──
-  const { trumpElement, bidWinner } = await biddingPhase(players);
+  const { trumpElement, bidWinner } = await biddingPhase(players, events);
 
   // Reset each round so trick 1 has no lastWinner tiebreaker (SBUG-03)
   let lastWinner = null;
+  let deathOccurred = false;
 
   for (let trick = 1; trick <= CONFIG.TRICKS_PER_ROUND; trick++) {
     showSubheader(`Trick ${trick} of ${CONFIG.TRICKS_PER_ROUND}  ⚜ Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
@@ -58,38 +60,58 @@ async function playRound(players, roundNum, totalRounds) {
       plays.push({ player, card });
       if (!player.isHuman) await sleep(400);
       showTrickPlay(player, card);
+      events.emit('onCardPlayed', { player, card, trickNum: trick, roundNum, plays: [...plays] });
     }
 
     const result = resolveTrick(plays, trumpElement);
     await showTrickResolution(plays, result.trickPowers);
     result.winner.tricksWon++;
+    const panicBefore = result.winner.panic;
     result.winner.panic += CONFIG.TRICK_WIN_PANIC_INCREASE;
+    events.emit('onPanicChanged', {
+      player: result.winner, oldPanic: panicBefore, newPanic: result.winner.panic, cause: 'trick-win',
+    });
+    events.emit('onTrickResolved', {
+      winner: result.winner, winningCard: result.winningCard, winningPower: result.winningPower,
+      trickPowers: result.trickPowers, plays, trickNum: trick, roundNum, trumpElement,
+    });
     lastWinner = result.winner;
     await sleep(1000);
     showTrickResult(result.winner, trick);
+
+    // ── Damage phase ──
+    const damages = computeDamage(plays, result.trickPowers);
+    const applied = applyDamage(damages);
+    applied.forEach(d => {
+      events.emit('onDamageDealt', {
+        attacker: d.attacker, defender: d.defender, damage: d.damage,
+        oldHp: d.oldHp, newHp: d.newHp, trickNum: trick, roundNum,
+      });
+    });
+    showDamageResults(applied);
+    showHpStatus(players);
+
+    // Check for deaths
+    const dead = checkDeaths(players);
+    if (dead.length > 0) {
+      deathOccurred = true;
+      break;
+    }
 
     if (trick < CONFIG.TRICKS_PER_ROUND) {
       await waitForKey();
     }
   }
 
-  // Score the round
-  scoreRound(players);
-  showRoundScores(players, roundNum);
-  await waitForKey();
-}
-
-function scoreRound(players) {
-  const maxTricks = Math.max(...players.map(p => p.tricksWon));
-
-  players.forEach(p => {
-    let earned = p.tricksWon * CONFIG.SOULS_PER_TRICK;
-    if (p.tricksWon === maxTricks) {
-      earned += CONFIG.MAJORITY_BONUS;
-    }
-    p.souls += earned;
-    p.totalSouls += earned;
+  // End of round
+  showRoundHpSummary(players, roundNum);
+  events.emit('onRoundEnd', {
+    players,
+    standings: [...players].sort((a, b) => b.hp - a.hp),
   });
+  await waitForKey();
+
+  return { completed: !deathOccurred, deathOccurred };
 }
 
 async function humanPlayCard(player, trumpElement, currentPlays, playOrder, currentIndex) {
@@ -101,4 +123,4 @@ async function humanPlayCard(player, trumpElement, currentPlays, playOrder, curr
   return player.hand[choice - 1];
 }
 
-module.exports = { playRound, scoreRound };
+module.exports = { playRound };

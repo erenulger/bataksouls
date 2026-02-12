@@ -5,6 +5,8 @@
   "team": "enemies",
   "description": "Praise the sun! A warrior of faith who fights with conviction.",
   "difficulty": 2,
+  "hp": 120,
+  "soulsReward": 100,
   "cards": [
     { "cardId": 1000, "level": 1 },
     { "cardId": 1002, "level": 0 },
