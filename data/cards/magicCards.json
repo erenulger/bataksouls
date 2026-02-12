@@ -1,12 +1,12 @@
 {
     "magic-cards": [
-        { "id": 3000, "name": "Dagger",     "basePower": 2 },
-        { "id": 3001, "name": "Chime",      "basePower": 3 },
-        { "id": 3002, "name": "Staff",      "basePower": 4 },
-        { "id": 3003, "name": "Talisman",   "basePower": 5 },
-        { "id": 3004, "name": "Spear",      "basePower": 6 },
-        { "id": 3006, "name": "Arrow",      "basePower": 7 },
-        { "id": 3007, "name": "Longsword",  "basePower": 8 },
-        { "id": 3008, "name": "Greatsword", "basePower": 9 }
+        { "id": 6000, "name": "Dagger",     "basePower": 2 },
+        { "id": 6001, "name": "Chime",      "basePower": 3 },
+        { "id": 6002, "name": "Staff",      "basePower": 4 },
+        { "id": 6003, "name": "Talisman",   "basePower": 5 },
+        { "id": 6004, "name": "Spear",      "basePower": 6 },
+        { "id": 6006, "name": "Arrow",      "basePower": 7 },
+        { "id": 6007, "name": "Longsword",  "basePower": 8 },
+        { "id": 6008, "name": "Greatsword", "basePower": 9 }
     ]
 }

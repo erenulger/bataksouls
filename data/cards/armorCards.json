@@ -1,12 +1,12 @@
 {
     "armor-cards": [
-        { "id": 7000, "name": "Dagger",     "basePower": 2 },
-        { "id": 7001, "name": "Chime",      "basePower": 3 },
-        { "id": 7002, "name": "Staff",      "basePower": 4 },
-        { "id": 7003, "name": "Talisman",   "basePower": 5 },
-        { "id": 7004, "name": "Spear",      "basePower": 6 },
-        { "id": 7006, "name": "Arrow",      "basePower": 7 },
-        { "id": 7007, "name": "Longsword",  "basePower": 8 },
-        { "id": 7008, "name": "Greatsword", "basePower": 9 }
+        { "id": 1000, "name": "Dagger",     "basePower": 2 },
+        { "id": 1001, "name": "Chime",      "basePower": 3 },
+        { "id": 1002, "name": "Staff",      "basePower": 4 },
+        { "id": 1003, "name": "Talisman",   "basePower": 5 },
+        { "id": 1004, "name": "Spear",      "basePower": 6 },
+        { "id": 1006, "name": "Arrow",      "basePower": 7 },
+        { "id": 1007, "name": "Longsword",  "basePower": 8 },
+        { "id": 1008, "name": "Greatsword", "basePower": 9 }
     ]
 }

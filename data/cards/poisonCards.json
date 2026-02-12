@@ -1,12 +1,12 @@
 {
     "poison-cards": [
-        { "id": 5000, "name": "Dagger",     "basePower": 2 },
-        { "id": 5001, "name": "Chime",      "basePower": 3 },
-        { "id": 5002, "name": "Staff",      "basePower": 4 },
-        { "id": 5003, "name": "Talisman",   "basePower": 5 },
-        { "id": 5004, "name": "Spear",      "basePower": 6 },
-        { "id": 5006, "name": "Arrow",      "basePower": 7 },
-        { "id": 5007, "name": "Longsword",  "basePower": 8 },
-        { "id": 5008, "name": "Greatsword", "basePower": 9 }
+        { "id": 8000, "name": "Dagger",     "basePower": 2 },
+        { "id": 8001, "name": "Chime",      "basePower": 3 },
+        { "id": 8002, "name": "Staff",      "basePower": 4 },
+        { "id": 8003, "name": "Talisman",   "basePower": 5 },
+        { "id": 8004, "name": "Spear",      "basePower": 6 },
+        { "id": 8006, "name": "Arrow",      "basePower": 7 },
+        { "id": 8007, "name": "Longsword",  "basePower": 8 },
+        { "id": 8008, "name": "Greatsword", "basePower": 9 }
     ] 
 }

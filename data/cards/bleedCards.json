@@ -1,12 +1,12 @@
 {
     "bleed-cards": [
-        { "id": 6000, "name": "Dagger",     "basePower": 2 },
-        { "id": 6001, "name": "Chime",      "basePower": 3 },
-        { "id": 6002, "name": "Staff",      "basePower": 4 },
-        { "id": 6003, "name": "Talisman",   "basePower": 5 },
-        { "id": 6004, "name": "Spear",      "basePower": 6 },
-        { "id": 6006, "name": "Arrow",      "basePower": 7 },
-        { "id": 6007, "name": "Longsword",  "basePower": 8 },
-        { "id": 6008, "name": "Greatsword", "basePower": 9 }
+        { "id": 2000, "name": "Dagger",     "basePower": 2 },
+        { "id": 2001, "name": "Chime",      "basePower": 3 },
+        { "id": 2002, "name": "Staff",      "basePower": 4 },
+        { "id": 2003, "name": "Talisman",   "basePower": 5 },
+        { "id": 2004, "name": "Spear",      "basePower": 6 },
+        { "id": 2006, "name": "Arrow",      "basePower": 7 },
+        { "id": 2007, "name": "Longsword",  "basePower": 8 },
+        { "id": 2008, "name": "Greatsword", "basePower": 9 }
     ] 
 }

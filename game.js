@@ -33,20 +33,29 @@ async function main() {
       souls: args.souls,
     });
 
-    // Direct combat launch: --state combat --npc patches
-    if (args.npc && args.state === 'combat') {
+    // Direct NPC shortcuts
+    if (args.npc) {
       const { loadNPCBySlug } = require('./src/npcRegistry');
-      const { createPlayer } = require('./src/player');
-      const { TEAMS } = require('./src/constants');
-
       const npcData = loadNPCBySlug(args.npc);
-      const enemy = createPlayer(npcData);
-      enemy.team = TEAMS.ENEMIES;
-      ctx.currentNPC = npcData;
-      ctx.player.hp = ctx.player.maxHp;
-      ctx.player.tricksWon = 0;
-      ctx.player.totalSouls = 0;
-      ctx.combatPlayers = [ctx.player, enemy];
+
+      // --state combat --npc patches
+      if (args.state === 'combat') {
+        const { createPlayer } = require('./src/player');
+        const { TEAMS } = require('./src/constants');
+
+        const enemy = createPlayer(npcData);
+        enemy.team = TEAMS.ENEMIES;
+        ctx.currentNPC = npcData;
+        ctx.player.hp = ctx.player.maxHp;
+        ctx.player.tricksWon = 0;
+        ctx.player.totalSouls = 0;
+        ctx.combatPlayers = [ctx.player, enemy];
+      }
+
+      // --state deck-view --npc patches
+      if (args.state === 'deck-view') {
+        ctx.viewNPC = npcData;
+      }
     }
 
     await runEngine(states, args.state, ctx);
