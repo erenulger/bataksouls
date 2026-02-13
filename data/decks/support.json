@@ -1,0 +1,31 @@
+{
+    "name": "FooSupport",
+    "aiType": "Supportive",
+    "panic": 25,
+    "team": "enemies",
+    "description": "A simple support with whole purpose to support their allies.",
+    "difficulty": 1,
+    "hp": 90,
+    "soulsReward": 55,
+    "handSize": 11,
+    "cards": [
+        { "cardId": 1003, "level": 0 },
+        { "cardId": 1001, "level": 0 },
+        { "cardId": 2001, "level": 1 },
+        { "cardId": 2002, "level": 0 },
+        { "cardId": 3001, "level": 0 },
+        { "cardId": 3001, "level": 0 },
+        { "cardId": 4001, "level": 2 },
+        { "cardId": 4001, "level": 0 },
+        { "cardId": 5003, "level": 0 },
+        { "cardId": 5001, "level": 0 },
+        { "cardId": 6001, "level": 0 },
+        { "cardId": 6001, "level": 1 },
+        { "cardId": 7001, "level": 0 },
+        { "cardId": 7002, "level": 0 },
+        { "cardId": 8001, "level": 1 },
+        { "cardId": 8001, "level": 0 },
+        { "cardId": 9001, "level": 0 },
+        { "cardId": 9001, "level": 0 }
+    ]
+}

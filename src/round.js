@@ -2,7 +2,7 @@ const { CONFIG, ELEMENT_COLORS, RESET, TEAMS, BOLD } = require('./constants');
 const { dealHand, removeFromHand } = require('./player');
 const { resolveTrick } = require('./trick');
 const { computeDamage, applyDamage, checkDeaths, computeEnduranceDamage } = require('./combat');
-const { aiChooseCard, aiChooseLead } = require('./ai');
+const { aiChooseLead, aiChooseFollow } = require('./ai');
 const { askNumber, waitForKey, sleep } = require('./input');
 const { biddingPhase } = require('./bidding');
 const { ANSI, color, reset } = require('./ansiColors');
@@ -145,7 +145,6 @@ async function playRound(players, roundNum, events) {
     showSubheader(`Trick ${trick} of ${CONFIG.TRICKS_PER_ROUND}  ⚜ Trump: ${ELEMENT_COLORS[trumpElement]}${trumpElement}${RESET}`);
 
     const plays = [];
-    let ledElement = null;
 
     // Play order: sorted by panic descending (highest panic = plays earliest = disadvantage)
     // Tiebreakers: last trick winner plays earlier (punishment), bid winner plays later (reward)
@@ -162,15 +161,20 @@ async function playRound(players, roundNum, events) {
       if (player.isHuman) {
         card = await humanPlayCard(player, trumpElement, plays, playOrder, i);
       } else {
-        if (ledElement === null) {
-          card = aiChooseLead(player, trumpElement);
+        const trickCtx = {
+          player,
+          hand: player.hand,
+          trump: trumpElement,
+          plays,
+          players,
+          trick,
+          totalTricks: CONFIG.TRICKS_PER_ROUND,
+        };
+        if (plays.length === 0) {
+          card = aiChooseLead(trickCtx);
         } else {
-          card = aiChooseCard(player, trumpElement);
+          card = aiChooseFollow(trickCtx);
         }
-      }
-
-      if (ledElement === null) {
-        ledElement = card.element;
       }
 
       removeFromHand(player, card);

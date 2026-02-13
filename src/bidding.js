@@ -22,7 +22,8 @@ async function biddingPhase(players, events) {
       removeFromHand(player, card);
       console.log(`  You commit your bid to the bonfire...`);
     } else {
-      const card = aiChooseBid(player);
+      const bidCtx = { player, hand: player.hand, trump: null, players };
+      const card = aiChooseBid(bidCtx);
       bids.push({ player, card, power: rawPower(card) });
       removeFromHand(player, card);
     }

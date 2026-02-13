@@ -85,6 +85,17 @@ const AI_TYPES = {
   AGGRESSIVE: 'Aggressive',
   DEFENSIVE:  'Defensive',
   CHAOTIC:    'Chaotic',
+  TRICKSTER:  'Trickster',
+  SUPPORTIVE: 'Supportive',
+};
+
+const AI_MOODS = {
+  NORMAL:     'Normal',
+  DESPERATE:  'Desperate',
+  LAST_STAND: 'LastStand',
+  MINDLESS:   'Mindless',
+  SCHEMING:   'Scheming',
+  COWARD:     'Coward',
 };
 
 // ── Balance Config ──
@@ -110,5 +121,5 @@ module.exports = {
   ELEMENTS, MYSTICAL, PHYSICAL, ALL_ELEMENTS,
   MYSTICAL_WHEEL, PHYSICAL_WHEEL, beatsElement,
   ELEMENT_COLORS, RESET, BOLD, DIM,
-  WEAPON_NAMES, NPC_NAMES, AI_TYPES, TEAMS, CONFIG,
+  WEAPON_NAMES, NPC_NAMES, AI_TYPES, AI_MOODS, TEAMS, CONFIG,
 };
