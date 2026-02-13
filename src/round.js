@@ -10,12 +10,13 @@ const {
   showHeader, showSubheader, showHand, showTrickPlay,
   showTrickResult, showTrickResolution, showCurrentTrick,
   showPlayOrder, showDamageResults, showHpStatus, showRoundHpSummary,
-  showEndurancePenalty, drawElementWheels,
+  showEndurancePenalty, drawElementWheels, clearScreen,
 } = require('./ui');
 
 const BRIGHT_RED = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
 
 async function playRound(players, roundNum, events) {
+  clearScreen();
   showHeader(`Round ${roundNum}`);
   drawElementWheels();
 
@@ -267,6 +268,7 @@ async function playRound(players, roundNum, events) {
 }
 
 async function humanPlayCard(player, trumpElement, currentPlays, playOrder, currentIndex) {
+  clearScreen();
   drawElementWheels();
   showPlayOrder(playOrder, currentIndex);
   showCurrentTrick(currentPlays);

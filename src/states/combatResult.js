@@ -1,4 +1,4 @@
-const { showCombatResultScreen } = require('../ui');
+const { showCombatResultScreen, clearScreen } = require('../ui');
 const { savePlayerDeck } = require('../context');
 const { waitForKey } = require('../input');
 const { BOLD, RESET } = require('../constants');
@@ -9,6 +9,7 @@ module.exports = {
   async enter(ctx) {
     const result = ctx.combatResult;
 
+    clearScreen();
     showCombatResultScreen(result, ctx.combatPlayers);
 
     if (result.playerWon) {

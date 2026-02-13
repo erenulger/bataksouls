@@ -2,12 +2,13 @@ const { listNPCs, loadNPCBySlug } = require('../npcRegistry');
 const { createPlayer } = require('../player');
 const { TEAMS, BOLD, RESET } = require('../constants');
 const { askNumber, waitForKey } = require('../input');
-const { showHeader } = require('../ui');
+const { showHeader, clearScreen } = require('../ui');
 
 module.exports = {
   name: 'combat-setup',
 
   async enter(ctx) {
+    clearScreen();
     showHeader('CHOOSE YOUR OPPONENT');
 
     const npcs = listNPCs();

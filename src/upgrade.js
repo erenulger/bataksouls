@@ -1,6 +1,6 @@
 const { CONFIG, BOLD, RESET } = require('./constants');
 const { askNumber } = require('./input');
-const { showCollection, showUpgradeResult, showSubheader, drawElementWheels } = require('./ui');
+const { showCollection, showUpgradeResult, showSubheader, drawElementWheels, clearScreen } = require('./ui');
 
 /**
  * Runs the forge upgrade loop on a snapshot of the player's collection.
@@ -18,6 +18,8 @@ async function playerUpgradePhase(player) {
 
   while (true) {
     // Show snapshot state
+    clearScreen();
+    drawElementWheels();
     showCollection({ collection: snapshot, souls });
 
     const canUpgrade = snapshot.some(

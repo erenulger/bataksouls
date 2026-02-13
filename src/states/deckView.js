@@ -1,10 +1,13 @@
-const { showCollection, showHeader, showSoulsBar } = require('../ui');
+const { showCollection, showHeader, showSoulsBar, clearScreen, drawElementWheels } = require('../ui');
 const { waitForKey } = require('../input');
 
 module.exports = {
   name: 'deck-view',
 
   async enter(ctx) {
+    clearScreen();
+    drawElementWheels();
+
     // If viewing NPC deck (set via ctx.viewNPC), show that instead
     if (ctx.viewNPC) {
       showHeader(`${ctx.viewNPC.name.toUpperCase()}'S COLLECTION`);

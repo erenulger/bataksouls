@@ -34,6 +34,17 @@ function showTitle() {
   console.log(TITLE_ART);
 }
 
+const WHEEL_HEIGHT = 15;
+
+function clearScreen() {
+  console.clear();
+  // Ensure terminal scroll buffer has enough rows for the element wheel
+  // overlay which uses absolute positioning at rows 1-WHEEL_HEIGHT.
+  // After console.clear() the buffer only extends to the cursor row,
+  // so absolute-positioned content at lower rows is invisible.
+  process.stdout.write('\n'.repeat(WHEEL_HEIGHT) + '\x1b[H');
+}
+
 function showHeader(text) {
   const line = '═'.repeat(50);
   console.log(`\n${BRIGHT_BOLD_YELLOW}╔${line}╗${RESET}`);
@@ -307,5 +318,5 @@ module.exports = {
   showUpgradeResult, showFinalScoreboard, showElementLegend,
   showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder, showSoulsBar,
   showDamageResults, showHpStatus, showRoundHpSummary, showCombatResultScreen,
-  showEndurancePenalty, drawElementWheels,
+  showEndurancePenalty, drawElementWheels, clearScreen,
 };
