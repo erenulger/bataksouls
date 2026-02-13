@@ -27,7 +27,7 @@ module.exports = {
     const defeatedEnemies = [];
 
     // Listen for player defeats to award souls
-    ctx.events.on('onPlayerDefeated', ({ player }) => {
+    const onDefeated = ({ player }) => {
       if (player.team === TEAMS.ENEMIES) {
         defeatedEnemies.push(player);
         const reward = player.soulsReward || 0;
@@ -36,7 +36,8 @@ module.exports = {
           console.log(`  ${BOLD}+${reward} souls${RESET} (${ctx.player.souls} total)`);
         }
       }
-    });
+    };
+    ctx.events.on('onPlayerDefeated', onDefeated);
 
     let roundNum = 0;
     while (true) {
@@ -59,6 +60,7 @@ module.exports = {
       }
     }
 
+    ctx.events.off('onPlayerDefeated', onDefeated);
     return 'combat-result';
   },
 };
