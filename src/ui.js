@@ -246,6 +246,53 @@ function showCombatResultScreen(result, players) {
   }
 }
 
+function drawElementWheels() {
+  const cols = process.stdout.columns || 80;
+  const BOX_WIDTH = 22;
+  if (cols < 80) return;
+
+  const INNER = BOX_WIDTH - 2;
+  const D = DIM_WHITE;
+  const R = RESET;
+  const E = ELEMENT_COLORS;
+
+  function pad(str) {
+    const visible = str.replace(/\x1b\[[0-9;]*m/g, '').length;
+    return str + ' '.repeat(Math.max(0, INNER - visible));
+  }
+
+  function row(inner) {
+    return `${D}│${R}${pad(inner)}${D}│${R}`;
+  }
+
+  const lines = [
+    `${D}┌── Element Wheels ──┐${R}`,
+    row(`      ${E.Light}Light${R}`),
+    row(`     ${D}↗${R}    ${D}↘${R}`),
+    row(`  ${E.Bleed}Bleed${R}    ${E.Dark}Dark${R}`),
+    row(`    ${D}↑${R}        ${D}↓${R}`),
+    row(`  ${E.Poison}Poison${R}   ${E.Magic}Magic${R}`),
+    row(`     ${D}↖${R}    ${D}↙${R}`),
+    row(`      ${E.Fire}Fire${R}`),
+    row(''),
+    row(`      ${E.Armor}Armor${R}`),
+    row(`     ${D}↗${R}    ${D}↘${R}`),
+    row(`  ${E.Pierce}Pierce${R} ${D}←${R} ${E.Slash}Slash${R}`),
+    row(''),
+    row(`   ${D}(→ strong vs)${R}`),
+    `${D}└────────────────────┘${R}`,
+  ];
+
+  const startCol = cols - BOX_WIDTH;
+  let output = '\x1b[s';
+  for (let i = 0; i < lines.length; i++) {
+    output += `\x1b[${i + 1};${startCol}H${lines[i]}`;
+  }
+  output += '\x1b[u';
+
+  process.stdout.write(output);
+}
+
 function showEndurancePenalty(player, damage, oldHp, newHp) {
   const tag = teamTag(player);
   const RED_BOLD = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
@@ -260,5 +307,5 @@ module.exports = {
   showUpgradeResult, showFinalScoreboard, showElementLegend,
   showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder, showSoulsBar,
   showDamageResults, showHpStatus, showRoundHpSummary, showCombatResultScreen,
-  showEndurancePenalty,
+  showEndurancePenalty, drawElementWheels,
 };

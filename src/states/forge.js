@@ -1,6 +1,6 @@
 const { playerUpgradePhase } = require('../upgrade');
 const { savePlayerDeck } = require('../context');
-const { showHeader, showSoulsBar, showCollection } = require('../ui');
+const { showHeader, showSoulsBar, showCollection, drawElementWheels } = require('../ui');
 const { askNumber } = require('../input');
 const { BOLD, RESET } = require('../constants');
 
@@ -9,6 +9,7 @@ module.exports = {
 
   async enter(ctx) {
     showHeader('UPGRADE FORGE');
+    drawElementWheels();
     console.log();
     showSoulsBar(ctx.player);
 

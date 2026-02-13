@@ -1,6 +1,6 @@
 const { CONFIG, BOLD, RESET } = require('./constants');
 const { askNumber } = require('./input');
-const { showCollection, showUpgradeResult, showSubheader } = require('./ui');
+const { showCollection, showUpgradeResult, showSubheader, drawElementWheels } = require('./ui');
 
 /**
  * Runs the forge upgrade loop on a snapshot of the player's collection.
@@ -8,6 +8,7 @@ const { showCollection, showUpgradeResult, showSubheader } = require('./ui');
  */
 async function playerUpgradePhase(player) {
   showSubheader('⚒  UPGRADE FORGE  ⚒');
+  drawElementWheels();
   console.log(`\n  Spend souls to strengthen your weapons.`);
 
   // Work on a deep copy so we can discard

@@ -1,6 +1,6 @@
 const { playRound } = require('../round');
 const { determineCombatResult, checkDeaths } = require('../combat');
-const { showHeader } = require('../ui');
+const { showHeader, drawElementWheels } = require('../ui');
 const { waitForKey } = require('../input');
 const { BOLD, RESET, TEAMS } = require('../constants');
 const { ANSI, color, reset } = require('../ansiColors');
@@ -14,6 +14,7 @@ module.exports = {
     const players = ctx.combatPlayers;
 
     showHeader('COMBAT BEGINS');
+    drawElementWheels();
     const enemyCount = players.filter(p => p.team === TEAMS.ENEMIES).length;
     if (enemyCount > 1) {
       console.log(`\n  ${BOLD}Fight to the death${RESET} against ${BOLD}${enemyCount} enemies${RESET}`);
