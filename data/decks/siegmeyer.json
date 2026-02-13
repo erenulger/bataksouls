@@ -1,7 +1,7 @@
 {
-  "name": "Solaire of Astora",
-  "aiType": "Aggressive",
-  "panic": 40,
+  "name": "Siegmeyer of Catarina",
+  "aiType": "Defensive",
+  "panic": 30,
   "description": "Praise the sun! A warrior of faith who fights with conviction.",
   "hp": 120,
   "soulsReward": 100,

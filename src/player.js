@@ -14,7 +14,7 @@ function createPlayer(deckData, { isHuman = false } = {}) {
     name: deckData.name,
     isHuman,
     aiType: deckData.aiType || null,
-    team: deckData.team || TEAMS.ALLIES,
+    team: TEAMS.ALLIES,
     panic,
     hp,
     maxHp: hp,

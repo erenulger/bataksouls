@@ -1,0 +1,21 @@
+{
+    "name": "Rat",
+    "aiType": "Chaotic",
+    "panic": 100,
+    "description": "Filthy rat. May carry disease. Be careful",
+    "hp": 20,
+    "soulsReward": 10,
+    "handSize": 5,
+    "cards": [
+        { "cardId": 7000, "level": 0 },
+        { "cardId": 7000, "level": 0 },
+        { "cardId": 7001, "level": 0 },
+        { "cardId": 7000, "level": 1 },
+        { "cardId": 7001, "level": 1 },
+        { "cardId": 7000, "level": 0 },
+        { "cardId": 8000, "level": 0 },
+        { "cardId": 8001, "level": 0 },
+        { "cardId": 8000, "level": 1 },
+        { "cardId": 8001, "level": 1 }
+    ]
+}

@@ -20,8 +20,7 @@ module.exports = {
     }
 
     npcs.forEach((npc, i) => {
-      const diffStr = '\u2605'.repeat(npc.difficulty);
-      console.log(`  [${i + 1}] ${BOLD}${npc.name}${RESET} (${npc.aiType}) ${diffStr}`);
+      console.log(`  [${i + 1}] ${BOLD}${npc.name}${RESET} (${npc.aiType})`);
       if (npc.description) console.log(`      ${npc.description}`);
       console.log(`      HP: ${npc.hp} | Souls Reward: ${npc.soulsReward}`);
     });

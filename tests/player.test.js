@@ -12,17 +12,16 @@ function makeDeckData(opts = {}) {
     name: opts.name || 'TestPlayer',
     aiType: opts.aiType || null,
     panic: opts.panic || 50,
-    team: opts.team || TEAMS.ALLIES,
     cards,
   };
 }
 
 describe('createPlayer', () => {
   it('creates a player from deck data', () => {
-    const deck = makeDeckData({ name: 'Alice', panic: 40, team: TEAMS.ENEMIES });
+    const deck = makeDeckData({ name: 'Alice', panic: 40 });
     const player = createPlayer(deck);
     assert.equal(player.name, 'Alice');
-    assert.equal(player.team, TEAMS.ENEMIES);
+    assert.equal(player.team, TEAMS.ALLIES);
     assert.equal(player.panic, 40);
     assert.equal(player.isHuman, false);
     assert.equal(player.collection.length, 26);
@@ -59,9 +58,8 @@ describe('createPlayer', () => {
     assert.equal(deck.cards[0].level, 0);
   });
 
-  it('defaults to allies team when not specified', () => {
+  it('always assigns allies team', () => {
     const deck = makeDeckData();
-    delete deck.team;
     const player = createPlayer(deck);
     assert.equal(player.team, TEAMS.ALLIES);
   });

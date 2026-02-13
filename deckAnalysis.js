@@ -92,14 +92,19 @@ function computeCompositeScore({ avgRawPower, coverage, uniqueElements, bestTrum
   const diversityScore = ((uniqueElements - 1) / 8) * 10;
   const versatilityScore = coverageScore + diversityScore;
 
-  // Trump: 15 points — best trump boost per card, normalized
+  // Trump: 15 points — upside (5) + resilience (10)
+  // Upside: how much your deck benefits in the best-case trump
   const trumpPerCard = bestTrumpBoost / cards.length;
-  const trumpScore = (trumpPerCard / CONFIG.TRUMP_BONUS) * 15;
+  const trumpUpside = (trumpPerCard / CONFIG.TRUMP_BONUS) * 5;
+  // Resilience: fraction of possible trumps that benefit your deck at all
+  const trumpCoverage = uniqueElements / ALL_ELEMENTS.length;
+  const trumpResilience = trumpCoverage * 10;
+  const trumpScore = trumpUpside + trumpResilience;
 
   // Tempo: 25 points — panic advantage (10-100 → 25-0) + HP bonus (scaled)
   const panicNorm = Math.min(1, Math.max(0, (panic - CONFIG.PANIC_FLOOR) / (100 - CONFIG.PANIC_FLOOR)));
-  const panicScore = (1 - panicNorm) * 17;
-  const hpScore = Math.min(8, Math.max(0, (hp - 60) / (200 - 60) * 8));
+  const panicScore = (1 - panicNorm) * 15;
+  const hpScore = Math.min(10, Math.max(0, (hp - 60) / (200 - 60) * 10));
   const tempoScore = panicScore + hpScore;
 
   return {
@@ -167,7 +172,7 @@ function formatDeckReport(analysis) {
   lines.push('');
   lines.push(`${BRIGHT_BOLD_YELLOW}── Trump Potential ${'─'.repeat(32)}${RESET}`);
   lines.push(`  Best Trump: ${ELEMENT_COLORS[a.bestTrumpElement]}${a.bestTrumpElement}${RESET} (+${a.bestTrumpBoost} from ${a.elementCounts[a.bestTrumpElement]} cards)`);
-  lines.push(`  Avg Boost:  +${a.avgTrumpBoost.toFixed(1)} across all trumps`);
+  lines.push(`  Trump Coverage: ${BOLD_WHITE}${a.uniqueElements}${RESET} / 9 elements benefit from random trump`);
 
   lines.push('');
   lines.push(`${BRIGHT_BOLD_YELLOW}── Tempo ${'─'.repeat(42)}${RESET}`);

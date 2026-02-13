@@ -99,7 +99,6 @@ function loadNPC(filePath) {
   const data = loadDeck(filePath);
   if (!data.aiType) throw new Error(`NPC deck missing "aiType": ${filePath}`);
   if (data.panic === undefined) throw new Error(`NPC deck missing "panic": ${filePath}`);
-  if (!data.team) throw new Error(`NPC deck missing "team": ${filePath}`);
   return data;
 }
 

@@ -86,7 +86,7 @@ describe('loadNPC', () => {
     assert.equal(typeof npc.name, 'string');
     assert.equal(typeof npc.aiType, 'string');
     assert.equal(typeof npc.panic, 'number');
-    assert.equal(typeof npc.team, 'string');
+    assert.ok(npc.team === undefined);
     assert.ok(Array.isArray(npc.cards));
   });
 

@@ -1,0 +1,23 @@
+{
+    "name": "Undead",
+    "aiType": "Chaotic",
+    "panic": 100,
+    "description": "Poor fucking undead. Beware of large amounts tho.",
+    "hp": 20,
+    "soulsReward": 10,
+    "handSize": 7,
+    "cards": [
+        { "cardId": 9000, "level": 0 },
+        { "cardId": 9000, "level": 0 },
+        { "cardId": 9000, "level": 0 },
+        { "cardId": 9000, "level": 1 },
+        { "cardId": 9001, "level": 0 },
+        { "cardId": 9001, "level": 0 },
+        { "cardId": 9001, "level": 1 },
+        { "cardId": 9000, "level": 0 },
+        { "cardId": 9000, "level": 0 },
+        { "cardId": 9000, "level": 1 },
+        { "cardId": 9001, "level": 0 },
+        { "cardId": 9001, "level": 1 }
+    ]
+}
