@@ -234,6 +234,16 @@ function showHpStatus(players) {
   });
 }
 
+function showCombatHud(players, trick, totalTricks, trumpElement) {
+  const trumpClr = ELEMENT_COLORS[trumpElement];
+  console.log(`\n  ${DIM_WHITE}Trick${RESET} ${BOLD_WHITE}${trick}${RESET}${DIM_WHITE}/${totalTricks}${RESET}  ${DIM_WHITE}Trump:${RESET} ${trumpClr}${trumpElement}${RESET}`);
+  players.forEach(p => {
+    const tag = teamTag(p);
+    const tricksStr = `${DIM_WHITE}${p.tricksWon}W${RESET}`;
+    console.log(`  ${tag} ${BOLD_WHITE}${p.name}${RESET} ${hpBar(p.hp, p.maxHp)} ${p.hp}/${p.maxHp} ${tricksStr}`);
+  });
+}
+
 function showRoundHpSummary(players, roundNum) {
   showHeader(`Round ${roundNum} Complete`);
   players.forEach(p => {
@@ -317,6 +327,6 @@ module.exports = {
   showTrickPlay, showTrickResult, showTrickResolution, showRoundScores, showCollection,
   showUpgradeResult, showFinalScoreboard, showElementLegend,
   showCurrentTrick, showBidReveal, showTrumpSuit, showPlayOrder, showSoulsBar,
-  showDamageResults, showHpStatus, showRoundHpSummary, showCombatResultScreen,
+  showDamageResults, showHpStatus, showCombatHud, showRoundHpSummary, showCombatResultScreen,
   showEndurancePenalty, drawElementWheels, clearScreen,
 };

@@ -9,7 +9,7 @@ const { ANSI, color, reset } = require('./ansiColors');
 const {
   showHeader, showSubheader, showHand, showTrickPlay,
   showTrickResult, showTrickResolution, showCurrentTrick,
-  showPlayOrder, showDamageResults, showHpStatus, showRoundHpSummary,
+  showPlayOrder, showDamageResults, showHpStatus, showCombatHud, showRoundHpSummary,
   showEndurancePenalty, drawElementWheels, clearScreen,
 } = require('./ui');
 
@@ -161,7 +161,7 @@ async function playRound(players, roundNum, events) {
 
       let card;
       if (player.isHuman) {
-        card = await humanPlayCard(player, trumpElement, plays, playOrder, i);
+        card = await humanPlayCard(player, trumpElement, plays, playOrder, i, players, trick);
       } else {
         const trickCtx = {
           player,
@@ -267,9 +267,10 @@ async function playRound(players, roundNum, events) {
   return { completed: true, deathOccurred, deadPlayers: dead };
 }
 
-async function humanPlayCard(player, trumpElement, currentPlays, playOrder, currentIndex) {
+async function humanPlayCard(player, trumpElement, currentPlays, playOrder, currentIndex, allPlayers, trick) {
   clearScreen();
   drawElementWheels();
+  showCombatHud(allPlayers, trick, CONFIG.TRICKS_PER_ROUND, trumpElement);
   showPlayOrder(playOrder, currentIndex);
   showCurrentTrick(currentPlays);
   showHand(player.hand, trumpElement);
