@@ -5,8 +5,8 @@
         { "id": 5002, "name": "Staff",      "basePower": 4 },
         { "id": 5003, "name": "Talisman",   "basePower": 5 },
         { "id": 5004, "name": "Spear",      "basePower": 6 },
-        { "id": 5006, "name": "Arrow",      "basePower": 7 },
-        { "id": 5007, "name": "Longsword",  "basePower": 8 },
-        { "id": 5008, "name": "Greatsword", "basePower": 9 }
+        { "id": 5005, "name": "Arrow",      "basePower": 7 },
+        { "id": 5006, "name": "Longsword",  "basePower": 8 },
+        { "id": 5007, "name": "Greatsword", "basePower": 9 }
     ]
 }

@@ -5,8 +5,8 @@
         { "id": 2002, "name": "Staff",      "basePower": 4 },
         { "id": 2003, "name": "Talisman",   "basePower": 5 },
         { "id": 2004, "name": "Spear",      "basePower": 6 },
-        { "id": 2006, "name": "Arrow",      "basePower": 7 },
-        { "id": 2007, "name": "Longsword",  "basePower": 8 },
-        { "id": 2008, "name": "Greatsword", "basePower": 9 }
+        { "id": 2005, "name": "Arrow",      "basePower": 7 },
+        { "id": 2006, "name": "Longsword",  "basePower": 8 },
+        { "id": 2007, "name": "Greatsword", "basePower": 9 }
     ] 
 }
