@@ -15,6 +15,14 @@ const {
 
 const BRIGHT_RED = color({ fg: ANSI.fg.bright.red, style: ANSI.style.bold });
 
+function sortPlayOrder(players, lastWinner, bidWinner) {
+  return [...players].sort((a, b) =>
+    b.panic - a.panic
+    || (a === lastWinner ? -1 : b === lastWinner ? 1 : 0)
+    || (a === bidWinner ? 1 : b === bidWinner ? -1 : 0)
+  );
+}
+
 async function playRound(players, roundNum, events) {
   clearScreen();
   showHeader(`Round ${roundNum}`);
@@ -150,11 +158,7 @@ async function playRound(players, roundNum, events) {
 
     // Play order: sorted by panic descending (highest panic = plays earliest = disadvantage)
     // Tiebreakers: last trick winner plays earlier (punishment), bid winner plays later (reward)
-    const playOrder = [...players].sort((a, b) =>
-      b.panic - a.panic
-      || (a === lastWinner ? -1 : b === lastWinner ? 1 : 0)
-      || (a === bidWinner ? 1 : b === bidWinner ? -1 : 0)
-    );
+    const playOrder = sortPlayOrder(players, lastWinner, bidWinner);
 
     for (let i = 0; i < playOrder.length; i++) {
       const player = playOrder[i];
@@ -279,4 +283,4 @@ async function humanPlayCard(player, trumpElement, currentPlays, playOrder, curr
   return player.hand[choice - 1];
 }
 
-module.exports = { playRound };
+module.exports = { playRound, sortPlayOrder };

@@ -5,6 +5,56 @@ const { aiChooseBid } = require('./ai');
 const { askNumber, waitForKey } = require('./input');
 const { showHand, showSubheader, showBidReveal, showTrumpSuit } = require('./ui');
 
+// ── Pure logic (exported for testing) ──
+
+function tallyBids(bids) {
+  const totals = {};
+  bids.forEach(({ card, power }) => {
+    totals[card.element] = (totals[card.element] || 0) + power;
+  });
+  return totals;
+}
+
+function determineWinningElement(totals) {
+  const maxTotal = Math.max(...Object.values(totals));
+  const tied = Object.keys(totals).filter(el => totals[el] === maxTotal);
+  return tied[Math.floor(Math.random() * tied.length)];
+}
+
+function determineBidWinner(bids, winningElement) {
+  const trumpBids = bids.filter(b => b.card.element === winningElement);
+  const maxBidPower = Math.max(...trumpBids.map(b => b.power));
+  const topBidders = trumpBids.filter(b => b.power === maxBidPower);
+  return {
+    bidWinner: topBidders[Math.floor(Math.random() * topBidders.length)].player,
+    trumpBids,
+  };
+}
+
+function applyBidPanicReduction(bidWinner, trumpBids, events) {
+  const oldPanics = {};
+  trumpBids.forEach(b => { oldPanics[b.player.name] = b.player.panic; });
+  bidWinner.panic = Math.max(CONFIG.PANIC_FLOOR, bidWinner.panic - CONFIG.BID_WINNER_PANIC_REDUCTION);
+  events.emit('onPanicChanged', {
+    player: bidWinner,
+    oldPanic: oldPanics[bidWinner.name],
+    newPanic: bidWinner.panic,
+    cause: 'bid-winner',
+  });
+  trumpBids.filter(b => b.player !== bidWinner).forEach(b => {
+    b.player.panic = Math.max(CONFIG.PANIC_FLOOR, b.player.panic - 10);
+    events.emit('onPanicChanged', {
+      player: b.player,
+      oldPanic: oldPanics[b.player.name],
+      newPanic: b.player.panic,
+      cause: 'bid-runner-up',
+    });
+  });
+  return oldPanics;
+}
+
+// ── Main phase ──
+
 async function biddingPhase(players, events) {
   showSubheader('BONFIRE BIDDING \u2014 Sacrifice a card to set the trump suit');
   console.log(`  Each player bids one card blind. Element with highest total power becomes trump.`);
@@ -29,42 +79,10 @@ async function biddingPhase(players, events) {
     }
   }
 
-  // Tally bids by element
-  const totals = {};
-  bids.forEach(({ card, power }) => {
-    totals[card.element] = (totals[card.element] || 0) + power;
-  });
-
-  // Determine winning element — highest total, ties broken randomly
-  const maxTotal = Math.max(...Object.values(totals));
-  const tied = Object.keys(totals).filter(el => totals[el] === maxTotal);
-  const winningElement = tied[Math.floor(Math.random() * tied.length)];
-
-  // Determine bid winner on the trump suit — gets panic reduction
-  const trumpBids = bids.filter(b => b.card.element === winningElement);
-  const maxBidPower = Math.max(...trumpBids.map(b => b.power));
-  const topBidders = trumpBids.filter(b => b.power === maxBidPower);
-  const bidWinner = topBidders[Math.floor(Math.random() * topBidders.length)].player;
-
-  // Bid winner gets panic reduction, runners-up on trump suit get smaller reduction
-  const oldPanics = {};
-  trumpBids.forEach(b => { oldPanics[b.player.name] = b.player.panic; });
-  bidWinner.panic = Math.max(CONFIG.PANIC_FLOOR, bidWinner.panic - CONFIG.BID_WINNER_PANIC_REDUCTION);
-  events.emit('onPanicChanged', {
-    player: bidWinner,
-    oldPanic: oldPanics[bidWinner.name],
-    newPanic: bidWinner.panic,
-    cause: 'bid-winner',
-  });
-  trumpBids.filter(b => b.player !== bidWinner).forEach(b => {
-    b.player.panic = Math.max(CONFIG.PANIC_FLOOR, b.player.panic - 10);
-    events.emit('onPanicChanged', {
-      player: b.player,
-      oldPanic: oldPanics[b.player.name],
-      newPanic: b.player.panic,
-      cause: 'bid-runner-up',
-    });
-  });
+  const totals = tallyBids(bids);
+  const winningElement = determineWinningElement(totals);
+  const { bidWinner, trumpBids } = determineBidWinner(bids, winningElement);
+  const oldPanics = applyBidPanicReduction(bidWinner, trumpBids, events);
 
   // Reveal
   showBidReveal(bids, totals, winningElement);
@@ -78,4 +96,4 @@ async function biddingPhase(players, events) {
   return { trumpElement: winningElement, bidWinner };
 }
 
-module.exports = { biddingPhase };
+module.exports = { biddingPhase, tallyBids, determineWinningElement, determineBidWinner, applyBidPanicReduction };
