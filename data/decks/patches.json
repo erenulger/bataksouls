@@ -22,16 +22,16 @@
     { "cardId": 7000, "level": 0 },
     { "cardId": 7003, "level": 1 },
     { "cardId": 7006, "level": 0 },
-    { "cardId": 7008, "level": 1 },
+    { "cardId": 7007, "level": 1 },
     { "cardId": 8001, "level": 0 },
     { "cardId": 8004, "level": 0 },
     { "cardId": 8007, "level": 1 },
-    { "cardId": 8008, "level": 0 },
+    { "cardId": 8007, "level": 0 },
     { "cardId": 9000, "level": 0 },
     { "cardId": 9003, "level": 0 },
     { "cardId": 9004, "level": 1 },
     { "cardId": 9007, "level": 0 },
-    { "cardId": 9008, "level": 0 },
+    { "cardId": 9007, "level": 0 },
     { "cardId": 8002, "level": 0 }
   ]
 }
