@@ -25,6 +25,7 @@ function createTerminalAdapter(events) {
         console.log(`  [1] Fight     - Challenge an NPC`);
         console.log(`  [2] Forge     - Upgrade your cards`);
         console.log(`  [3] Deck      - View your collection`);
+        console.log(`  [4] Journey   - Embark on a journey`);
         console.log(`  [0] Quit      - Leave the bonfire\n`);
         break;
       }
@@ -88,6 +89,38 @@ function createTerminalAdapter(events) {
         drawElementWheels();
         console.log();
         showSoulsBar(ctx.player);
+        break;
+      }
+
+      case 'journey-select': {
+        clearScreen();
+        showHeader('CHOOSE YOUR JOURNEY');
+        const levels = ctx._journeyLevels || [];
+        if (levels.length === 0) {
+          console.log(`\n  No journeys found in data/levels/.`);
+        } else {
+          levels.forEach((level, i) => {
+            console.log(`  [${i + 1}] ${BOLD}${level.name}${RESET}`);
+            if (level.description) console.log(`      ${level.description}`);
+            console.log(`      Encounters: ${level.encounterCount}`);
+          });
+          console.log(`  [0] Back\n`);
+        }
+        break;
+      }
+
+      case 'level-complete': {
+        clearScreen();
+        const level = ctx.level;
+        const won = ctx.combatResult && ctx.combatResult.playerWon;
+        if (won) {
+          showHeader('JOURNEY COMPLETE');
+          console.log(`  ${BOLD}You conquered ${level.name}!${RESET}\n`);
+        } else {
+          showHeader('JOURNEY FAILED');
+          console.log(`  ${BOLD}You fell in ${level.name}.${RESET}\n`);
+        }
+        console.log(`  ${BOLD}Total souls: ${ctx.player.souls}${RESET}\n`);
         break;
       }
 

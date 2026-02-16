@@ -1,4 +1,5 @@
 const { savePlayerDeck } = require('../../context');
+const { EXIT } = require('../../scene');
 
 module.exports = {
   inputSpec() {
@@ -14,6 +15,6 @@ module.exports = {
     ctx.currentNPC = null;
     ctx.combat = null;
 
-    return 'main-menu';
+    return EXIT;
   },
 };

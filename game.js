@@ -1,32 +1,56 @@
 const { runEngine } = require('./src/engine');
+const { createScene } = require('./src/scene');
 const { createContext } = require('./src/context');
 const { createTerminalAdapter } = require('./src/ui/terminalAdapter');
 
-const states = {
-  'main-menu':              require('./src/states/mainMenu'),
-  'deck-view':              require('./src/states/deckView'),
-  'forge':                  require('./src/states/forge'),
-  'combat-setup':           require('./src/states/combat/combatSetup'),
-  'combat-result':          require('./src/states/combat/combatResult'),
-  // Combat micro-states
-  'combat-init':            require('./src/states/combat/combatInit'),
-  'combat-round-start':     require('./src/states/combat/combatRoundStart'),
-  'combat-bid-collect':     require('./src/states/combat/combatBidCollect'),
-  'combat-bid-resolve':     require('./src/states/combat/combatBidResolve'),
-  'combat-bid-wait':        require('./src/states/combat/combatBidWait'),
-  'combat-trick-start':     require('./src/states/combat/combatTrickStart'),
-  'combat-endurance':       require('./src/states/combat/combatEndurance'),
-  'combat-endurance-wait':  require('./src/states/combat/combatEnduranceWait'),
-  'combat-play':            require('./src/states/combat/combatPlay'),
-  'combat-trick-resolve':   require('./src/states/combat/combatTrickResolve'),
-  'combat-trick-wait':      require('./src/states/combat/combatTrickWait'),
-  'combat-round-end':       require('./src/states/combat/combatRoundEnd'),
-  'combat-round-wait':      require('./src/states/combat/combatRoundWait'),
-  'combat-end':             require('./src/states/combat/combatEnd'),
-};
+// --- Hub scene (main menu, deck view, forge, combat setup, journey) ---
+const hubScene = createScene({
+  entry: 'main-menu',
+  states: {
+    'main-menu':      require('./src/states/mainMenu'),
+    'deck-view':      require('./src/states/deckView'),
+    'forge':          require('./src/states/forge'),
+    'combat-setup':   require('./src/states/combat/combatSetup'),
+    'journey-select': require('./src/states/journeySelect'),
+  },
+});
+
+// --- Combat scene (14 micro-states + combat-result) ---
+const combatScene = createScene({
+  entry: 'combat-init',
+  states: {
+    'combat-result':          require('./src/states/combat/combatResult'),
+    'combat-init':            require('./src/states/combat/combatInit'),
+    'combat-round-start':     require('./src/states/combat/combatRoundStart'),
+    'combat-bid-collect':     require('./src/states/combat/combatBidCollect'),
+    'combat-bid-resolve':     require('./src/states/combat/combatBidResolve'),
+    'combat-bid-wait':        require('./src/states/combat/combatBidWait'),
+    'combat-trick-start':     require('./src/states/combat/combatTrickStart'),
+    'combat-endurance':       require('./src/states/combat/combatEndurance'),
+    'combat-endurance-wait':  require('./src/states/combat/combatEnduranceWait'),
+    'combat-play':            require('./src/states/combat/combatPlay'),
+    'combat-trick-resolve':   require('./src/states/combat/combatTrickResolve'),
+    'combat-trick-wait':      require('./src/states/combat/combatTrickWait'),
+    'combat-round-end':       require('./src/states/combat/combatRoundEnd'),
+    'combat-round-wait':      require('./src/states/combat/combatRoundWait'),
+    'combat-end':             require('./src/states/combat/combatEnd'),
+  },
+});
+
+// --- Level scene (sequential encounters) ---
+const levelScene = createScene({
+  entry: 'level-runner',
+  states: {
+    'level-runner':       require('./src/states/level/levelRunner'),
+    'level-post-combat':  require('./src/states/level/levelPostCombat'),
+    'level-complete':     require('./src/states/level/levelComplete'),
+  },
+});
+
+const scenes = { hub: hubScene, combat: combatScene, level: levelScene };
 
 function parseArgs(argv) {
-  const args = { state: 'main-menu', debug: false, npcs: [] };
+  const args = { state: null, debug: false, npcs: [] };
   for (let i = 2; i < argv.length; i++) {
     switch (argv[i]) {
       case '--state': args.state = argv[++i]; break;
@@ -36,11 +60,9 @@ function parseArgs(argv) {
         args.npcs.push(args.npc);
         break;
       case '--npcs':
-        // --npcs patches,solaire,undead
         args.npcs = argv[++i].split(',').map(s => s.trim());
         break;
       case '--allies':
-        // --allies solaire,patches (allies on player team)
         args.allies = argv[++i].split(',').map(s => s.trim());
         break;
       case '--debug': args.debug = true; break;
@@ -111,7 +133,19 @@ async function main() {
       }
     }
 
-    await runEngine(states, args.state, ctx, adapter);
+    // Debug mode: flatten all scenes into one ad-hoc scene for --state jumps
+    // Also register named scenes so push operations still work
+    if (args.state) {
+      const { createScene: cs } = require('./src/scene');
+      const allStates = {};
+      for (const scene of Object.values(scenes)) {
+        Object.assign(allStates, scene.states);
+      }
+      const debugScene = cs({ states: allStates, entry: args.state });
+      await runEngine({ _debug: debugScene, ...scenes }, '_debug', ctx, adapter);
+    } else {
+      await runEngine(scenes, 'hub', ctx, adapter);
+    }
   } finally {
     if (adapter) adapter.close();
   }

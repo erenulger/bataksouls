@@ -37,6 +37,6 @@ module.exports = {
     ctx.combatPlayers = [ctx.player, enemy];
 
     delete ctx._setupNpcs;
-    return 'combat-init';
+    return { push: 'combat', resume: 'combat-setup' };
   },
 };
