@@ -25,6 +25,7 @@ function createContext(opts = {}) {
     combatResult: null,
     debug: opts.debug || false,
     events: new EventBus(),
+    combat: null,
   };
 }
 

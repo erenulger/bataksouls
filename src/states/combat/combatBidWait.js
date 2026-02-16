@@ -3,8 +3,7 @@ module.exports = {
     return { type: 'key' };
   },
 
-  enter(ctx) {
-    ctx.viewNPC = null;
-    return 'main-menu';
+  enter() {
+    return 'combat-trick-start';
   },
 };

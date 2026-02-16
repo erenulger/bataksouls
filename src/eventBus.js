@@ -18,11 +18,11 @@ class EventBus {
     }
   }
 
-  emit(event, data) {
+  async emit(event, data) {
     const set = this._listeners.get(event);
     if (set) {
       for (const fn of set) {
-        fn(data);
+        await fn(data);
       }
     }
   }

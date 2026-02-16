@@ -1,14 +1,28 @@
 const { runEngine } = require('./src/engine');
 const { createContext } = require('./src/context');
-const { close } = require('./src/input');
+const { createTerminalAdapter } = require('./src/ui/terminalAdapter');
 
 const states = {
-  'main-menu':      require('./src/states/mainMenu'),
-  'deck-view':      require('./src/states/deckView'),
-  'forge':          require('./src/states/forge'),
-  'combat-setup':   require('./src/states/combatSetup'),
-  'combat':         require('./src/states/combat'),
-  'combat-result':  require('./src/states/combatResult'),
+  'main-menu':              require('./src/states/mainMenu'),
+  'deck-view':              require('./src/states/deckView'),
+  'forge':                  require('./src/states/forge'),
+  'combat-setup':           require('./src/states/combatSetup'),
+  'combat-result':          require('./src/states/combatResult'),
+  // Combat micro-states
+  'combat-init':            require('./src/states/combatInit'),
+  'combat-round-start':     require('./src/states/combatRoundStart'),
+  'combat-bid-collect':     require('./src/states/combatBidCollect'),
+  'combat-bid-resolve':     require('./src/states/combatBidResolve'),
+  'combat-bid-wait':        require('./src/states/combatBidWait'),
+  'combat-trick-start':     require('./src/states/combatTrickStart'),
+  'combat-endurance':       require('./src/states/combatEndurance'),
+  'combat-endurance-wait':  require('./src/states/combatEnduranceWait'),
+  'combat-play':            require('./src/states/combatPlay'),
+  'combat-trick-resolve':   require('./src/states/combatTrickResolve'),
+  'combat-trick-wait':      require('./src/states/combatTrickWait'),
+  'combat-round-end':       require('./src/states/combatRoundEnd'),
+  'combat-round-wait':      require('./src/states/combatRoundWait'),
+  'combat-end':             require('./src/states/combatEnd'),
 };
 
 function parseArgs(argv) {
@@ -37,12 +51,15 @@ function parseArgs(argv) {
 
 async function main() {
   const args = parseArgs(process.argv);
+  let adapter;
 
   try {
     const ctx = createContext({
       debug: args.debug,
       souls: args.souls,
     });
+
+    adapter = createTerminalAdapter(ctx.events);
 
     // Direct NPC shortcuts
     if (args.npc || args.npcs.length > 0 || args.allies) {
@@ -54,10 +71,12 @@ async function main() {
         ctx.viewNPC = npcData;
       }
 
-      // --state combat with NPCs
-      if (args.state === 'combat') {
+      // --state combat-init with NPCs (shortcut directly into combat)
+      if (args.state === 'combat' || args.state === 'combat-init') {
         const { createPlayer } = require('./src/player');
         const { TEAMS } = require('./src/constants');
+
+        args.state = 'combat-init';
 
         // Reset player
         ctx.player.hp = ctx.player.maxHp;
@@ -92,14 +111,13 @@ async function main() {
       }
     }
 
-    await runEngine(states, args.state, ctx);
+    await runEngine(states, args.state, ctx, adapter);
   } finally {
-    close();
+    if (adapter) adapter.close();
   }
 }
 
 main().catch(err => {
   console.error(err);
-  close();
   process.exit(1);
 });
