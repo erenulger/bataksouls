@@ -86,7 +86,7 @@ export class MapRenderer {
         this._drawTree(sx, sy, e.w, e.h);
       } else {
         ctx.fillRect(sx, sy, e.w, e.h);
-        ctx.strokeRect(sx, sy, e.w, e.h);
+        if (e.border) ctx.strokeRect(sx, sy, e.w, e.h);
       }
     }
   }

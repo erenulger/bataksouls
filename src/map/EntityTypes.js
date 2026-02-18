@@ -13,15 +13,17 @@ export const EntityTypes = {
     color: '#7c7c7c',
     borderColor: '#555',
     solid: true,
+    border: false,   // walls tile together — borders on overlapping segments create internal lines
     label: 'Wall',
   },
   tree: {
     color: '#2d6a4f',
     borderColor: '#1b4332',
     solid: true,
+    border: true,    // standalone entity — border makes it visually distinct
     label: 'Tree',
   },
   // Example future types (uncomment to enable):
-  // water: { color: '#48cae4', borderColor: '#023e8a', solid: false, label: 'Water' },
-  // chest: { color: '#e9c46a', borderColor: '#f4a261', solid: true,  label: 'Chest' },
+  // water: { color: '#48cae4', borderColor: '#023e8a', solid: false, border: false, label: 'Water' },
+  // chest: { color: '#e9c46a', borderColor: '#f4a261', solid: true,  border: true,  label: 'Chest' },
 };

@@ -94,8 +94,11 @@ export class EntityFactory {
     let cx = def.start.x;
     let cy = def.start.y;
 
-    for (const seg of def.segments) {
-      let wall;
+    const segments = def.segments;
+
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      let wall = null;
 
       switch (seg.dir) {
         case 'right':
@@ -124,6 +127,22 @@ export class EntityFactory {
       }
 
       walls.push(wall);
+
+      // At a perpendicular turn, the cursor sits at the joint between the two
+      // walls. Depending on which directions are involved, one corner of the
+      // T×T joint square may be left uncovered (e.g. right→up, down→left).
+      // Placing a T×T fill square at the cursor position always covers it.
+      // For turns that already fill the corner (right→down, down→right, …)
+      // the square simply redraws the same pixels — harmless.
+      // We skip same-axis transitions (180° or collinear) where no gap exists.
+      if (i < segments.length - 1) {
+        const nextDir    = segments[i + 1].dir;
+        const curHoriz   = seg.dir === 'right' || seg.dir === 'left';
+        const nextHoriz  = nextDir  === 'right' || nextDir  === 'left';
+        if (curHoriz !== nextHoriz) {
+          walls.push({ type: 'wall', x: cx, y: cy, w: t, h: t });
+        }
+      }
     }
 
     return walls;
