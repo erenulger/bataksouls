@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BatakSouls — Combat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --surface2:  #1e1e1e;
+      --border:    #2a2a2a;
+      --text:      #c8b89a;
+      --muted:     #555;
+      --accent:    #c8a96e;
+      --ally:      #6495ED;
+      --enemy:     #CD5C5C;
+      --good:      #4caf50;
+      --bad:       #e05050;
+      --hp-bg:     #1a1a1a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13 px;
+      line-height: 1.5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Status bar ─────────────────────────────────────────────────────── */
+    #status-bar {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      min-height: 32px;
+    }
+
+    #state-label {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      min-width: 140px;
+    }
+
+    #round-info { color: var(--accent); font-size: 12px; }
+
+    .trump-badge {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 3px;
+      border: 1px solid currentColor;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    /* ── Combatants row ─────────────────────────────────────────────────── */
+    #combatants {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 7px 12px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .combatant { min-width: 140px; flex: 1; max-width: 220px; }
+
+    .c-header {
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    .c-name { font-weight: bold; font-size: 16px; }
+    .c-hp   { color: var(--muted); font-size: 12px; }
+
+    .hp-track { height: 6px; background: var(--hp-bg); border-radius: 3px; overflow: hidden; }
+    .hp-fill  {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--good);
+      transition: width 0.35s ease;
+    }
+    .hp-fill.low { background: var(--bad); }
+
+    .c-meta {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* ── Main layout ────────────────────────────────────────────────────── */
+    #content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    #main-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      min-height: 0;
+    }
+
+    /* ── Event log ──────────────────────────────────────────────────────── */
+    #event-log {
+      height: 110px;
+      overflow-y: auto;
+      padding: 5px 12px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+    }
+    .log-line             { margin-bottom: 1px; color: var(--muted); }
+    .log-line.important   { color: var(--text); }
+    .log-line.good        { color: var(--good); }
+    .log-line.bad         { color: var(--bad); }
+
+    /* ── Hand area ──────────────────────────────────────────────────────── */
+    #hand-area {
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      padding: 7px 12px 6px;
+      flex-shrink: 0;
+    }
+    #hand-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+    #hand { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    .card {
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+      transition: background 0.1s, border-color 0.1s;
+      user-select: none;
+    }
+    .card:hover         { background: var(--surface2); }
+    .card.played        { opacity: 0.35; pointer-events: none; }
+    .card-el            { font-weight: bold; margin-right: 3px; }
+    .card-pw            { font-size: 10px; color: var(--muted); margin-left: 4px; }
+
+    /* ── Controls ───────────────────────────────────────────────────────── */
+    #controls {
+      padding: 6px 12px;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #continue-btn {
+      padding: 5px 18px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    #continue-btn:hover   { background: var(--accent); color: var(--bg); }
+    #continue-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* ── Reconnect overlay ──────────────────────────────────────────────── */
+    #reconnecting {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+    #reconnecting.show { display: flex; }
+
+    /* ── State-specific panels ──────────────────────────────────────────── */
+    .sec-header {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+    .waiting { color: var(--muted); font-style: italic; }
+
+    /* Trick table */
+    .trick-tbl           { border-collapse: collapse; width: 100%; margin-bottom: 10px; }
+    .trick-tbl th        { font-size: 10px; color: var(--muted); text-align: left;
+                           border-bottom: 1px solid var(--border); padding: 2px 8px;
+                           text-transform: uppercase; }
+    .trick-tbl td        { padding: 3px 8px; border-bottom: 1px solid #1a1a1a; }
+
+    /* Play order chips */
+    .play-order          { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .po-chip             { padding: 2px 9px; border: 1px solid var(--border);
+                           border-radius: 10px; font-size: 11px; opacity: 0.5; }
+    .po-chip.active      { opacity: 1; border-color: var(--accent); color: var(--accent); }
+    .po-chip.done        { opacity: 0.25; text-decoration: line-through; }
+
+    /* Result card */
+    .result-wrap         { display: flex; justify-content: center; padding: 20px 0; }
+    .result-card         { text-align: center; padding: 24px 32px;
+                           border: 1px solid var(--border); border-radius: 4px; max-width: 380px; }
+    .result-card.win     { border-color: var(--good); }
+    .result-card.lose    { border-color: var(--bad); }
+    .result-title        { font-size: 22px; font-weight: bold; letter-spacing: 3px; margin-bottom: 10px; }
+    .win-color           { color: var(--good); }
+    .lose-color          { color: var(--bad); }
+    .result-souls        { font-size: 15px; color: #FFD700; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<div id="reconnecting">⚡ RECONNECTING...</div>
+
+<div id="status-bar">
+  <span id="state-label">CONNECTING...</span>
+  <span id="round-info"></span>
+  <span id="trump-display"></span>
+</div>
+
+<div id="combatants"></div>
+
+<div id="content">
+  <div id="main-panel"><p class="waiting">Waiting for server...</p></div>
+  <div id="event-log"></div>
+</div>
+
+<div id="hand-area" style="display:none">
+  <div id="hand-label">YOUR HAND — click a card to play</div>
+  <div id="hand"></div>
+</div>
+
+<div id="controls">
+  <button id="continue-btn" disabled>[ Continue ]</button>
+</div>
+
+<script>
+// ── Client state ─────────────────────────────────────────────────────────
+let currentState = null;
+let gameCtx      = null;
+let logLines     = [];
+let inputEnabled = false;
+let autoTimer    = null;
+const MAX_LOG    = 30;
+
+// States that auto-advance (no player decision needed)
+const AUTO_STATES = new Set([
+  'combat-bid-wait',
+  'combat-trick-wait',
+  'combat-round-wait',
+  'combat-endurance-wait',
+]);
+
+// ── Element colors ────────────────────────────────────────────────────────
+const EL_COLOR = {
+  Light:  '#FFD700',
+  Dark:   '#BA55D3',
+  Magic:  '#6495ED',
+  Fire:   '#FF6347',
+  Poison: '#3CB371',
+  Bleed:  '#CD5C5C',
+  Armor:  '#DAA520',
+  Slash:  '#C0C0C0',
+  Pierce: '#40E0D0',
+};
+const elC   = el => EL_COLOR[el] || '#c8b89a';
+const elSpan = (el, txt) =>
+  `<span style="color:${elC(el)};font-weight:bold">${txt || el}</span>`;
+
+// ── DOM refs ──────────────────────────────────────────────────────────────
+const $stateLabel   = document.getElementById('state-label');
+const $roundInfo    = document.getElementById('round-info');
+const $trumpDisplay = document.getElementById('trump-display');
+const $combatants   = document.getElementById('combatants');
+const $mainPanel    = document.getElementById('main-panel');
+const $eventLog     = document.getElementById('event-log');
+const $handArea     = document.getElementById('hand-area');
+const $hand         = document.getElementById('hand');
+const $continueBtn  = document.getElementById('continue-btn');
+const $reconnecting = document.getElementById('reconnecting');
+
+// ── Input ─────────────────────────────────────────────────────────────────
+async function sendInput(value) {
+  if (!inputEnabled) return;
+  inputEnabled = false;
+  $continueBtn.disabled = true;
+  try {
+    await fetch('/input', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value }),
+    });
+  } catch (e) {
+    addLog('Network error: ' + e.message, 'bad');
+  }
+}
+
+$continueBtn.addEventListener('click', () => sendInput(null));
+
+// ── Status bar ────────────────────────────────────────────────────────────
+function renderStatus(state, ctx) {
+  $stateLabel.textContent = (state || 'connecting').replace('combat-', '').toUpperCase();
+
+  if (ctx && ctx.combat) {
+    const c = ctx.combat;
+    const rnd = c.roundNum != null ? `Round ${c.roundNum + 1}` : '';
+    const trk = c.trickNum != null ? `  Trick ${c.trickNum}` : '';
+    $roundInfo.textContent = rnd + trk;
+    if (c.trumpElement) {
+      $trumpDisplay.innerHTML =
+        `TRUMP: <span class="trump-badge" style="color:${elC(c.trumpElement)};border-color:${elC(c.trumpElement)}">${c.trumpElement}</span>`;
+    } else {
+      $trumpDisplay.innerHTML = '';
+    }
+  } else {
+    $roundInfo.textContent    = '';
+    $trumpDisplay.innerHTML   = '';
+  }
+}
+
+// ── Combatants row ────────────────────────────────────────────────────────
+function renderCombatants(players) {
+  if (!players || players.length === 0) { $combatants.innerHTML = ''; return; }
+  $combatants.innerHTML = players.map(p => {
+    const pct      = Math.max(0, Math.round((p.hp / p.maxHp) * 100));
+    const teamCol  = p.team === 'allies' ? 'var(--ally)' : 'var(--enemy)';
+    const badge    = p.isHuman ? ' <span style="color:var(--accent)">[YOU]</span>' : '';
+    const lowClass = pct < 25 ? ' low' : '';
+    return `<div class="combatant">
+      <div class="c-header">
+        <span class="c-name" style="color:${teamCol}">${p.name}${badge}</span>
+        <span class="c-hp">${p.hp}/${p.maxHp}</span>
+      </div>
+      <div class="hp-track">
+        <div class="hp-fill${lowClass}" style="width:${pct}%" data-cname="${p.name}"></div>
+      </div>
+      <div class="c-meta">
+        <span>Panic ${p.panic}</span>
+        <span>Tricks ${p.tricksWon}</span>
+        ${p.souls > 0 ? `<span style="color:#FFD700">⬥${p.souls}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateHpBars(players) {
+  if (!players) return;
+  // Re-render fully to keep HP numbers accurate
+  renderCombatants(players);
+  // Persist to gameCtx so future renders are correct
+  if (gameCtx) gameCtx.combatPlayers = players;
+}
+
+// ── Main panel ────────────────────────────────────────────────────────────
+function clearInput() {
+  inputEnabled = false;
+  $continueBtn.disabled = true;
+  $handArea.style.display = 'none';
+  $hand.innerHTML = '';
+}
+
+function renderMainPanel(state, ctx) {
+  clearInput();
+  switch (state) {
+    case 'combat-init':         return renderInit(ctx);
+    case 'combat-play':         return renderPlay(ctx);
+    case 'combat-bid-collect':  return renderBidCollect(ctx);
+    case 'combat-result':       return renderResult(ctx);
+    case 'combat-bid-wait':
+    case 'combat-trick-wait':
+    case 'combat-round-wait':
+    case 'combat-endurance-wait':
+      $mainPanel.innerHTML = '<p class="waiting">Auto-advancing...</p>';
+      return;
+    default:
+      $mainPanel.innerHTML = '<p class="waiting">Processing...</p>';
+  }
+}
+
+// Combat init screen
+function renderInit(ctx) {
+  const enemies = (ctx.combatPlayers || []).filter(p => p.team === 'enemies');
+  const names   = enemies.map(e =>
+    `<span style="color:${elC('Fire')};font-weight:bold">${e.name}</span>`).join(', ');
+  $mainPanel.innerHTML = `
+    <div style="text-align:center;padding:28px 0">
+      <div class="sec-header" style="text-align:center;font-size:13px;border:none;margin-bottom:6px">
+        ⚔ COMBAT BEGINS ⚔
+      </div>
+      <p style="color:var(--muted);margin-top:8px">Fight to the death against ${names || 'unknown'}</p>
+    </div>`;
+}
+
+// Trick play panel
+function renderPlay(ctx) {
+  const c = ctx && ctx.combat;
+  if (!c) { $mainPanel.innerHTML = '<p class="waiting">...</p>'; return; }
+
+  const order = c.playOrder || [];
+  const plays = c.plays     || [];
+  const idx   = c.currentPlayerIndex;
+
+  const orderHtml = order.length > 0 ? `
+    <div class="play-order">
+      ${order.map((p, i) => {
+        let cls = 'po-chip';
+        if (i < idx)      cls += ' done';
+        else if (i === idx) cls += ' active';
+        const col = p.team === 'allies' ? 'var(--ally)' : 'var(--enemy)';
+        return `<span class="${cls}"
+          style="${i === idx ? '' : `border-color:${col};color:${col}`}">${p.name}</span>`;
+      }).join('')}
+    </div>` : '';
+
+  const trickHtml = plays.length > 0 ? `
+    <table class="trick-tbl">
+      <thead><tr><th>Player</th><th>Card</th><th>Element</th><th>Power</th></tr></thead>
+      <tbody>
+        ${plays.map(play => `
+          <tr>
+            <td>${play.player.name}</td>
+            <td>${play.card.name}${play.card.level > 0 ? ` <span style="color:var(--muted)">+${play.card.level}</span>` : ''}</td>
+            <td>${elSpan(play.card.element)}</td>
+            <td style="color:var(--muted)">${(play.card.basePower || 0) + (play.card.level || 0) * 2}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>` : '<p class="waiting" style="margin-bottom:8px">No cards played yet</p>';
+
+  $mainPanel.innerHTML = `
+    <div class="sec-header">Trick ${c.trickNum}</div>
+    ${orderHtml}
+    ${trickHtml}`;
+}
+
+// Bid collection panel
+function renderBidCollect(ctx) {
+  const c       = ctx && ctx.combat;
+  const players = ctx && ctx.combatPlayers || [];
+  const bidderIdx = c ? c.currentBidderIndex : 0;
+  const bidder    = players[bidderIdx];
+
+  $mainPanel.innerHTML = `
+    <div class="sec-header">Bonfire Bidding — Round ${c ? c.roundNum + 1 : '?'}</div>
+    <p style="color:var(--muted);font-size:11px;margin-bottom:8px">
+      Each player bids one card blind. Highest total power determines trump. Bid cards are discarded.
+    </p>
+    <p>${bidder
+      ? `<strong>${bidder.name}</strong>${bidder.isHuman ? ' — choose a card from your hand to sacrifice' : ' is bidding...'}`
+      : 'Bidding in progress...'}</p>`;
+}
+
+// Combat result
+function renderResult(ctx) {
+  const result = ctx && ctx.combatResult;
+  if (!result) { $mainPanel.innerHTML = '<p class="waiting">Combat ended.</p>'; return; }
+  const won = result.playerWon;
+  $mainPanel.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-card ${won ? 'win' : 'lose'}">
+        <div class="result-title ${won ? 'win-color' : 'lose-color'}">
+          ${won ? '⚡ VICTORY' : '☠ DEFEATED'}
+        </div>
+        <p style="color:var(--muted)">${won ? 'You emerged victorious from the bonfire.' : 'You have fallen in combat.'}</p>
+        ${won ? `<div class="result-souls">+${ctx.playerSouls || 0} souls</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// Game-over screen (engine finished)
+function renderGameOver() {
+  $mainPanel.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-card">
+        <div class="result-title" style="color:var(--muted)">⊛ SESSION ENDED</div>
+        <p style="color:var(--muted)">Reload the page to play again.</p>
+      </div>
+    </div>`;
+  $stateLabel.textContent = 'ENDED';
+}
+
+// ── Hand rendering ────────────────────────────────────────────────────────
+function renderHand(cards, onPick) {
+  $handArea.style.display = 'block';
+  if (!cards || cards.length === 0) {
+    $hand.innerHTML = '<span class="waiting">No cards in hand</span>';
+    return;
+  }
+  $hand.innerHTML = cards.map((card, i) => {
+    const col  = elC(card.element);
+    const pw   = (card.basePower || 0) + (card.level || 0) * 2;
+    const lvl  = card.level > 0 ? ` <span style="color:var(--muted)">+${card.level}</span>` : '';
+    return `<div class="card" data-cidx="${i}"
+      style="border-left: 3px solid ${col}">
+      <span class="card-el" style="color:${col}">${card.element}</span>${card.name}${lvl}<span class="card-pw">Pw:${pw}</span>
+    </div>`;
+  }).join('');
+
+  $hand.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('click', () => {
+      if (!inputEnabled) return;
+      el.classList.add('played');
+      onPick(parseInt(el.dataset.cidx, 10));
+    });
+  });
+}
+
+// ── Event log ─────────────────────────────────────────────────────────────
+function addLog(text, cls = '') {
+  logLines.push({ text, cls });
+  if (logLines.length > MAX_LOG) logLines.shift();
+  $eventLog.innerHTML = logLines
+    .map(l => `<div class="log-line${l.cls ? ' ' + l.cls : ''}">${l.text}</div>`)
+    .join('');
+  $eventLog.scrollTop = $eventLog.scrollHeight;
+}
+
+// ── Message dispatcher ────────────────────────────────────────────────────
+function handleMessage(msg) {
+  clearTimeout(autoTimer);
+
+  switch (msg.type) {
+
+    // ── State transition ────────────────────────────────────────────────
+    case 'stateEnter': {
+      currentState = msg.state;
+      gameCtx      = msg.ctx;
+      renderStatus(msg.state, msg.ctx);
+      renderCombatants(msg.ctx.combatPlayers);
+      renderMainPanel(msg.state, msg.ctx);
+      break;
+    }
+
+    // ── Input request ───────────────────────────────────────────────────
+    case 'requestInput': {
+      const spec = msg.spec;
+
+      if (spec.type === 'key') {
+        if (AUTO_STATES.has(currentState)) {
+          // No player decision — auto-advance after brief pause
+          autoTimer = setTimeout(() => {
+            inputEnabled = true;
+            sendInput(null);
+          }, 300);
+        } else {
+          // Player must press continue (init, result, etc.)
+          $continueBtn.disabled = false;
+          inputEnabled = true;
+        }
+
+      } else if (spec.type === 'number') {
+        inputEnabled = true;
+        // combat-play or combat-bid-collect: show the human's hand
+        const hand = gameCtx && gameCtx.humanHand;
+        renderHand(hand, idx => sendInput(idx + 1));
+      }
+      break;
+    }
+
+    // ── Card played ─────────────────────────────────────────────────────
+    case 'onCardPlayed': {
+      const { player, card, plays } = msg;
+      // Update in-memory plays so renderPlay is accurate
+      if (gameCtx && gameCtx.combat && plays) {
+        gameCtx.combat.plays = plays;
+      }
+      if (currentState === 'combat-play' && gameCtx) {
+        renderPlay(gameCtx);
+      }
+      const lvl = card.level > 0 ? ` +${card.level}` : '';
+      addLog(`${player.name} played ${elSpan(card.element)} ${card.name}${lvl}`);
+      break;
+    }
+
+    // ── Trick resolved ──────────────────────────────────────────────────
+    case 'onTrickResolved': {
+      const w = msg.winner ? msg.winner.name : '?';
+      addLog(`⚔ Trick ${msg.trickNum} → <strong>${w}</strong> wins`, 'important');
+      break;
+    }
+
+    // ── Damage dealt ────────────────────────────────────────────────────
+    case 'onDamageDealt': {
+      const d = msg.damage;
+      addLog(
+        `${msg.attacker.name} → ${msg.defender.name}: ${d > 0 ? `-${d} HP` : 'no damage'}`,
+        d > 0 ? 'bad' : '',
+      );
+      break;
+    }
+
+    // ── All damage applied → refresh HP bars ────────────────────────────
+    case 'onAllDamageApplied':
+      updateHpBars(msg.players);
+      break;
+
+    // ── Player defeated ─────────────────────────────────────────────────
+    case 'onPlayerDefeated':
+      addLog(`☠ ${msg.player.name} has been defeated!`, 'bad');
+      break;
+
+    case 'onCombatantsRemain':
+      addLog(`${msg.count} combatants remain...`);
+      break;
+
+    // ── Souls awarded ───────────────────────────────────────────────────
+    case 'onSoulsAwarded':
+      addLog(`+${msg.reward} souls (${msg.totalSouls} total)`, 'good');
+      break;
+
+    // ── Endurance events ─────────────────────────────────────────────────
+    case 'onEnduranceDamage':
+      addLog(`${msg.player.name} takes ${msg.damage} endurance damage (${msg.oldHp} → ${msg.newHp} HP)`, 'bad');
+      break;
+
+    case 'onEnduranceReshuffle':
+      addLog('All sides exhausted — reshuffling...', 'important');
+      break;
+
+    case 'onRoundExhausted':
+      addLog(`One side exhausted — round ${msg.roundNum + 1} ends early`, 'important');
+      break;
+
+    // ── Bid resolved ─────────────────────────────────────────────────────
+    case 'onBidResolved': {
+      if (msg.winningElement) {
+        const bw = msg.bidWinner ? msg.bidWinner.name : '?';
+        addLog(`⚜ Trump: ${elSpan(msg.winningElement)} — bid won by ${bw}`, 'important');
+      }
+      (msg.bids || []).forEach(b => {
+        addLog(`&nbsp;&nbsp;${b.player.name} bid ${elSpan(b.card.element)} ${b.card.name} (Pw:${b.power})`);
+      });
+      break;
+    }
+
+    case 'onBidCommitted':
+      addLog('You commit your bid to the bonfire...');
+      break;
+
+    // ── Round end ────────────────────────────────────────────────────────
+    case 'onRoundEnd':
+      addLog(`── Round ${msg.roundNum + 1} ended ──`, 'important');
+      updateHpBars(msg.players);
+      break;
+
+    // ── Trick header ─────────────────────────────────────────────────────
+    case 'onTrickHeader': {
+      addLog(`── Trick ${msg.trickNum}/${msg.totalTricks} &nbsp; Trump: ${elSpan(msg.trumpElement)} ──`);
+      if (gameCtx && gameCtx.combat) {
+        gameCtx.combat.trickNum    = msg.trickNum;
+        gameCtx.combat.trumpElement = msg.trumpElement;
+        renderStatus(currentState, gameCtx);
+      }
+      break;
+    }
+
+    // ── Combat end ───────────────────────────────────────────────────────
+    case 'onCombatEnd':
+      addLog(
+        `⚡ Combat ended — ${msg.playerWon ? 'VICTORY' : 'DEFEAT'}`,
+        msg.playerWon ? 'good' : 'bad',
+      );
+      break;
+
+    case 'onPanicChanged':
+      // Panic changes are minor — omit from log to keep it readable
+      break;
+
+    // ── Session end ───────────────────────────────────────────────────────
+    case 'gameOver':
+      renderGameOver();
+      break;
+
+    case 'error':
+      addLog('Server error: ' + msg.message, 'bad');
+      break;
+  }
+}
+
+// ── SSE connection ────────────────────────────────────────────────────────
+function connect() {
+  const es = new EventSource('/events');
+
+  es.onmessage = e => {
+    $reconnecting.classList.remove('show');
+    try {
+      handleMessage(JSON.parse(e.data));
+    } catch (err) {
+      console.error('Parse error:', err, e.data);
+    }
+  };
+
+  es.onerror = () => {
+    es.close();
+    $reconnecting.classList.add('show');
+    setTimeout(connect, 1000);
+  };
+}
+
+connect();
+</script>
+</body>
+</html>
