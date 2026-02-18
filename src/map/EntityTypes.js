@@ -13,17 +13,27 @@ export const EntityTypes = {
     color: '#7c7c7c',
     borderColor: '#555',
     solid: true,
-    border: false,   // walls tile together — borders on overlapping segments create internal lines
+    border: false,        // walls tile together — borders on overlapping segments create internal lines
+    triggerable: false,
     label: 'Wall',
   },
   tree: {
     color: '#2d6a4f',
     borderColor: '#1b4332',
     solid: true,
-    border: true,    // standalone entity — border makes it visually distinct
+    border: true,         // standalone entity — border makes it visually distinct
+    triggerable: false,
     label: 'Tree',
   },
-  // Example future types (uncomment to enable):
-  // water: { color: '#48cae4', borderColor: '#023e8a', solid: false, border: false, label: 'Water' },
-  // chest: { color: '#e9c46a', borderColor: '#f4a261', solid: true,  border: true,  label: 'Chest' },
+  enemy: {
+    color: '#c1121f',
+    borderColor: '#780000',
+    solid: false,         // player walks through them — collision handled by TriggerSystem
+    border: true,
+    triggerable: true,    // TriggerSystem fires combatStart on contact
+    label: 'Enemy',
+  },
+  // Example future triggerable types:
+  // npc:   { color: '#4cc9f0', borderColor: '#4361ee', solid: false, border: true, triggerable: true,  label: 'NPC'   },
+  // chest: { color: '#e9c46a', borderColor: '#f4a261', solid: true,  border: true, triggerable: false, label: 'Chest' },
 };

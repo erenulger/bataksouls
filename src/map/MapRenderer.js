@@ -30,8 +30,9 @@ export class MapRenderer {
    * @param {import('./Player.js').Player}   player
    * @param {Array<Object>}                  entities
    * @param {import('./Camera.js').Camera}   camera
+   * @param {{ message: string, timer: number, maxTimer: number }|null} combatFlash
    */
-  render(player, entities, camera) {
+  render(player, entities, camera, combatFlash = null) {
     const { ctx, canvas } = this;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -40,6 +41,7 @@ export class MapRenderer {
     this._drawEntities(entities, camera);
     this._drawPlayer(player, camera);
     this._drawHUD();
+    this._drawCombatFlash(combatFlash);  // always last — draws over everything
   }
 
   // ---------------------------------------------------------------------------
@@ -84,6 +86,8 @@ export class MapRenderer {
 
       if (e.type === 'tree') {
         this._drawTree(sx, sy, e.w, e.h);
+      } else if (e.type === 'enemy') {
+        this._drawEnemy(sx, sy, e.w, e.h);
       } else {
         ctx.fillRect(sx, sy, e.w, e.h);
         if (e.border) ctx.strokeRect(sx, sy, e.w, e.h);
@@ -134,6 +138,59 @@ export class MapRenderer {
     ctx.beginPath();
     ctx.arc(sx + player.w / 2, sy + 5, 3, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  /** Draw an enemy as a red square with a white cross-sword marker. */
+  _drawEnemy(sx, sy, w, h) {
+    const { ctx } = this;
+
+    // Body (color/borderColor already set by caller)
+    ctx.fillRect(sx, sy, w, h);
+    ctx.strokeRect(sx, sy, w, h);
+
+    // White X marker — visually distinct from the player's dot
+    const pad = Math.max(4, Math.floor(w * 0.28));
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth   = 2;
+    ctx.beginPath();
+    ctx.moveTo(sx + pad,     sy + pad);
+    ctx.lineTo(sx + w - pad, sy + h - pad);
+    ctx.moveTo(sx + w - pad, sy + pad);
+    ctx.lineTo(sx + pad,     sy + h - pad);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /**
+   * Full-screen combat flash overlay. Fades out in the last 0.5 s.
+   * @param {{ message: string, timer: number, maxTimer: number }|null} flash
+   */
+  _drawCombatFlash(flash) {
+    if (!flash) return;
+    const { ctx, canvas } = this;
+
+    const alpha = flash.timer < 0.5 ? flash.timer / 0.5 : 1.0;
+    const cx    = canvas.width  / 2;
+    const cy    = canvas.height / 2;
+
+    // Dark red tint over the whole screen
+    ctx.fillStyle = `rgba(80, 0, 0, ${alpha * 0.75})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillStyle = `rgba(255, 70, 70, ${alpha})`;
+    ctx.font      = 'bold 56px monospace';
+    ctx.fillText('COMBAT', cx, cy - 36);
+
+    ctx.fillStyle = `rgba(255, 220, 220, ${alpha})`;
+    ctx.font      = '26px monospace';
+    ctx.fillText(flash.message, cx, cy + 16);
+
+    ctx.restore();
   }
 
   _drawHUD() {

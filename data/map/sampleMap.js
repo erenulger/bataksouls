@@ -62,5 +62,17 @@ export default {
         { dir: 'left', length: 200 },
       ],
     },
+
+    // -------------------------------------------------------------------------
+    // Enemies — add `name` to customise the combat event payload.
+    //   type        : 'enemy'
+    //   x, y        : top-left world position
+    //   w, h        : size in pixels (affects hitbox)
+    //   name        : shown on the combat flash and sent in the combatStart event
+    // -------------------------------------------------------------------------
+    { type: 'enemy', x: 150, y: 200, w: 32, h: 32, name: 'Undead Soldier' },
+    { type: 'enemy', x: 600, y: 350, w: 32, h: 32, name: 'Hollow Knight'  },
+    { type: 'enemy', x: 120, y: 500, w: 32, h: 32, name: 'Rat'            },
+    { type: 'enemy', x: 900, y: 200, w: 32, h: 32, name: 'Cursed Wraith'  },
   ],
 };
