@@ -117,16 +117,14 @@
       margin-bottom: 3px;
     }
     .c-name { font-weight: bold; font-size: 14px; }
-    .c-hp   { color: var(--muted); font-size: 12px; }
+    .c-hp   { color: var(--muted); font-size: 14px; }
 
-    .hp-track { height: 6px; background: var(--hp-bg); border-radius: 3px; overflow: hidden; }
+    .hp-track { height: 12px; background: var(--hp-bg); border-radius: 3px; overflow: hidden; }
     .hp-fill  {
       height: 100%;
       border-radius: 3px;
-      background: var(--good);
       transition: width 0.35s ease;
     }
-    .hp-fill.low { background: var(--bad); }
 
     .c-meta {
       font-size: 10px;
@@ -216,7 +214,7 @@
       gap: 12px;
     }
     #game-title {
-      font-size: 14px;
+      font-size: 24px;
       font-weight: bold;
       color: var(--accent);
       letter-spacing: 2px;
@@ -232,17 +230,6 @@
       font-size: 10px;
       color: var(--muted);
     }
-    #trump-display {
-      font-size: 10px;
-      margin-left: auto;
-    }
-    .trump-badge {
-      border: 1px solid;
-      padding: 1px 6px;
-      border-radius: 3px;
-      font-size: 10px;
-    }
-
     /* ── Element wheels (div5) ──────────────────────────────────────────── */
     #element-wheels {
       background: var(--surface);
@@ -334,7 +321,6 @@
     <span id="game-title">BatakSouls</span>
     <span id="state-label"></span>
     <span id="round-info"></span>
-    <span id="trump-display"></span>
   </div>
 
   <!-- div5: element wheels upper-right -->
@@ -363,6 +349,7 @@ const MAX_LOG    = 30;
 
 // States that auto-advance (no player decision needed)
 const AUTO_STATES = new Set([
+  'combat-init',
   'combat-bid-wait',
   'combat-trick-wait',
   'combat-round-wait',
@@ -395,7 +382,6 @@ const $handLabel    = document.getElementById('hand-label');
 const $reconnecting = document.getElementById('reconnecting');
 const $stateLabel   = document.getElementById('state-label');
 const $roundInfo    = document.getElementById('round-info');
-const $trumpDisplay = document.getElementById('trump-display');
 
 // ── Input ─────────────────────────────────────────────────────────────────
 async function sendInput(value) {
@@ -523,15 +509,8 @@ function renderStatus(state, ctx) {
     const rnd = c.roundNum != null ? `Round ${c.roundNum + 1}` : '';
     const trk = c.trickNum != null ? `  Trick ${c.trickNum}` : '';
     $roundInfo.textContent = rnd + trk;
-    if (c.trumpElement) {
-      $trumpDisplay.innerHTML =
-        `TRUMP: <span class="trump-badge" style="color:${elC(c.trumpElement)};border-color:${elC(c.trumpElement)}">${c.trumpElement}</span>`;
-    } else {
-      $trumpDisplay.innerHTML = '';
-    }
   } else {
-    $roundInfo.textContent  = '';
-    $trumpDisplay.innerHTML = '';
+    $roundInfo.textContent = '';
   }
   renderWheels(ctx && ctx.combat ? ctx.combat.trumpElement : null);
 }
@@ -543,19 +522,14 @@ function renderCombatants(players) {
     const pct      = Math.max(0, Math.round((p.hp / p.maxHp) * 100));
     const teamCol  = p.team === 'allies' ? 'var(--ally)' : 'var(--enemy)';
     const badge    = p.isHuman ? ' <span style="color:var(--accent)">[YOU]</span>' : '';
-    const lowClass = pct < 25 ? ' low' : '';
+    const barColor = p.isHuman ? '#4caf50' : p.team === 'allies' ? '#6495ED' : '#CD5C5C';
     return `<div class="combatant">
       <div class="c-header">
         <span class="c-name" style="color:${teamCol}">${p.name}${badge}</span>
         <span class="c-hp">${p.hp}/${p.maxHp}</span>
       </div>
       <div class="hp-track">
-        <div class="hp-fill${lowClass}" style="width:${pct}%" data-cname="${p.name}"></div>
-      </div>
-      <div class="c-meta">
-        <span>Panic ${p.panic}</span>
-        <span>Tricks ${p.tricksWon}</span>
-        ${p.souls > 0 ? `<span style="color:#FFD700">⬥${p.souls}</span>` : ''}
+        <div class="hp-fill" style="width:${pct}%;background:linear-gradient(to right,#000000 -20%,${barColor} 100%)" data-cname="${p.name}"></div>
       </div>
     </div>`;
   }).join('');
