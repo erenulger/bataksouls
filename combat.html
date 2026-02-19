@@ -214,14 +214,14 @@
       gap: 12px;
     }
     #game-title {
-      font-size: 24px;
+      font-size: 34px;
       font-weight: bold;
       color: var(--accent);
       letter-spacing: 2px;
       text-transform: uppercase;
     }
     #state-label {
-      font-size: 10px;
+      font-size: 14px;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -263,7 +263,7 @@
 
     /* ── State-specific panels ──────────────────────────────────────────── */
     .sec-header {
-      font-size: 10px;
+      font-size: 12px;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -275,7 +275,7 @@
 
     /* Trick table */
     .trick-tbl           { border-collapse: collapse; width: 100%; margin-bottom: 10px; }
-    .trick-tbl th        { font-size: 10px; color: var(--muted); text-align: left;
+    .trick-tbl th        { font-size: 14px; color: var(--muted); text-align: left;
                            border-bottom: 1px solid var(--border); padding: 2px 8px;
                            text-transform: uppercase; }
     .trick-tbl td        { padding: 3px 8px; border-bottom: 1px solid #1a1a1a; }
@@ -283,9 +283,9 @@
     /* Play order chips */
     .play-order          { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .po-chip             { padding: 2px 9px; border: 1px solid var(--border);
-                           border-radius: 10px; font-size: 11px; opacity: 0.5; }
+                           border-radius: 10px; font-size: 14px; opacity: 0.7; }
     .po-chip.active      { opacity: 1; border-color: var(--accent); color: var(--accent); }
-    .po-chip.done        { opacity: 0.25; text-decoration: line-through; }
+    .po-chip.done        { opacity: 0.5; text-decoration: line-through; }
 
     /* Result card */
     .result-wrap         { display: flex; justify-content: center; padding: 20px 0; }
@@ -483,12 +483,6 @@ function renderWheels(trumpEl) {
   const mNodes = mPos.map(p => drawNode(p, MNR)).join('');
   const pNodes = pPos.map(p => drawNode(p, PNR)).join('');
 
-  const trumpLabel = trumpEl
-    ? `<text x="100" y="260" text-anchor="middle" font-size="8" font-family="Courier New,monospace"
-        fill="${elC(trumpEl)}" letter-spacing="1">TRUMP: ${trumpEl.toUpperCase()}</text>`
-    : `<text x="100" y="260" text-anchor="middle" font-size="6.5" font-family="Courier New,monospace"
-        fill="#333">— beats clockwise —</text>`;
-
   svg.innerHTML = `
     <defs>${allMarkers}${glowFilter}</defs>
     <text x="60" y="11" text-anchor="middle" font-size="10" font-family="Courier New,monospace"
@@ -496,8 +490,7 @@ function renderWheels(trumpEl) {
     ${mEdges}${mNodes}
     <text x="140" y="158" text-anchor="middle" font-size="10" font-family="Courier New,monospace"
       fill="#444" letter-spacing="1">PHYSICAL</text>
-    ${pEdges}${pNodes}
-    ${trumpLabel}`;
+    ${pEdges}${pNodes}`;
 }
 
 // ── Status bar ────────────────────────────────────────────────────────────
