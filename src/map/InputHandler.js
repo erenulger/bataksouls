@@ -12,8 +12,9 @@
 
 export class InputHandler {
   constructor() {
-    this._held = new Set();
-    this._onKeyDown = (e) => this._held.add(e.code);
+    this._held       = new Set();
+    this._justPressed = new Set();
+    this._onKeyDown = (e) => { this._held.add(e.code); this._justPressed.add(e.code); };
     this._onKeyUp   = (e) => this._held.delete(e.code);
 
     window.addEventListener('keydown', this._onKeyDown);
@@ -42,6 +43,19 @@ export class InputHandler {
     }
 
     return { dx, dy };
+  }
+
+  /**
+   * Returns true once if the key was pressed since the last call, then resets.
+   * Use this for one-shot actions like opening the Forge (F key).
+   * @param {string} code — e.g. 'KeyF'
+   */
+  consume(code) {
+    if (this._justPressed.has(code)) {
+      this._justPressed.delete(code);
+      return true;
+    }
+    return false;
   }
 
   /** Remove DOM listeners when the engine shuts down. */

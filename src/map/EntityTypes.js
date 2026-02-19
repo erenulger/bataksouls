@@ -33,7 +33,12 @@ export const EntityTypes = {
     triggerable: true,    // TriggerSystem fires combatStart on contact
     label: 'Enemy',
   },
-  // Example future triggerable types:
-  // npc:   { color: '#4cc9f0', borderColor: '#4361ee', solid: false, border: true, triggerable: true,  label: 'NPC'   },
-  // chest: { color: '#e9c46a', borderColor: '#f4a261', solid: true,  border: true, triggerable: false, label: 'Chest' },
+  forge: {
+    color: '#c46200',
+    borderColor: '#7a3c00',
+    solid: true,
+    border: true,
+    triggerable: false,   // triggered by F key when adjacent, not by contact
+    label: 'Forge',
+  },
 };

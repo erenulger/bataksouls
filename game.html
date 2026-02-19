@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BatakSouls — Combat</title>
+  <title>BatakSouls</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -32,6 +32,33 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
+    }
+
+    /* ── Map layer ───────────────────────────────────────────────────────── */
+    #gameCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #map-hud {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      z-index: 10;
+      font-family: 'Courier New', monospace;
+      color: #FFD700;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    /* ── Combat layer ────────────────────────────────────────────────────── */
+    #combat-ui {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
     }
 
     /* ── Grid container ─────────────────────────────────────────────────── */
@@ -301,41 +328,70 @@
 </head>
 <body>
 
-<div id="reconnecting">⚡ RECONNECTING...</div>
+<!-- Map layer (visible by default) -->
+<canvas id="gameCanvas"></canvas>
+<div id="map-hud"><span id="souls-display">⬥ 0</span></div>
 
-<div class="parent">
-  <!-- div1: combatants upper-left -->
-  <div id="combatants" class="grid-1"></div>
-
-  <!-- div2: event log lower-left -->
-  <div id="event-log" class="grid-2"></div>
-
-  <!-- div3: player hand lower-right -->
-  <div id="hand-area" class="grid-3">
-    <div id="hand-label">YOUR HAND</div>
-    <div id="hand"></div>
-  </div>
-
-  <!-- div4: title top-center -->
-  <div id="title-bar" class="grid-4">
-    <span id="game-title">BatakSouls</span>
-    <span id="state-label"></span>
-    <span id="round-info"></span>
-  </div>
-
-  <!-- div5: element wheels upper-right -->
-  <div id="element-wheels" class="grid-5">
-    <svg id="wheels-svg" viewBox="0 0 200 268" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
-  </div>
-
-  <!-- div6: empty -->
-  <div class="grid-6"></div>
-
-  <!-- div7: main panel / played cards center -->
-  <div id="main-panel" class="grid-7">
-    <p class="waiting">Waiting for server...</p>
+<!-- Forge layer (hidden until player opens forge) -->
+<div id="forge-ui" style="display:none; position:fixed; inset:0; background:#0d0d0d; z-index:50;
+     flex-direction:column; align-items:center; justify-content:center;">
+  <div style="text-align:center; font-family:'Courier New',monospace;">
+    <div style="font-size:48px; font-weight:bold; color:#c46200; letter-spacing:4px; text-transform:uppercase;">
+      ⚒ FORGE
+    </div>
+    <p style="color:#555; margin-top:16px; font-size:13px; letter-spacing:1px;">
+      Coming soon...
+    </p>
+    <button id="forge-back-btn"
+      style="margin-top:40px; padding:10px 28px; background:transparent; border:1px solid #555;
+             color:#c8b89a; font-family:'Courier New',monospace; font-size:13px;
+             letter-spacing:1px; cursor:pointer; text-transform:uppercase;">
+      Return to Map
+    </button>
   </div>
 </div>
+
+<!-- Combat layer (hidden until encounter) -->
+<div id="combat-ui" style="display:none">
+  <div id="reconnecting">⚡ RECONNECTING...</div>
+
+  <div class="parent">
+    <!-- div1: combatants upper-left -->
+    <div id="combatants" class="grid-1"></div>
+
+    <!-- div2: event log lower-left -->
+    <div id="event-log" class="grid-2"></div>
+
+    <!-- div3: player hand lower-right -->
+    <div id="hand-area" class="grid-3">
+      <div id="hand-label">YOUR HAND</div>
+      <div id="hand"></div>
+    </div>
+
+    <!-- div4: title top-center -->
+    <div id="title-bar" class="grid-4">
+      <span id="game-title">BatakSouls</span>
+      <span id="state-label"></span>
+      <span id="round-info"></span>
+    </div>
+
+    <!-- div5: element wheels upper-right -->
+    <div id="element-wheels" class="grid-5">
+      <svg id="wheels-svg" viewBox="0 0 200 268" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- div6: empty -->
+    <div class="grid-6"></div>
+
+    <!-- div7: main panel / played cards center -->
+    <div id="main-panel" class="grid-7">
+      <p class="waiting">Waiting for server...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Map engine — ES6 module, auto-starts rAF loop -->
+<script type="module" src="/src/map/MapEngine.js"></script>
 
 <script>
 // ── Client state ─────────────────────────────────────────────────────────
@@ -345,6 +401,7 @@ let logLines     = [];
 let inputEnabled = false;
 let currentSpec  = null;
 let autoTimer    = null;
+let soulsTotal   = 0;
 const MAX_LOG    = 30;
 
 // States that auto-advance (no player decision needed)
@@ -382,6 +439,10 @@ const $handLabel    = document.getElementById('hand-label');
 const $reconnecting = document.getElementById('reconnecting');
 const $stateLabel   = document.getElementById('state-label');
 const $roundInfo    = document.getElementById('round-info');
+const $combatUI     = document.getElementById('combat-ui');
+const $gameCanvas   = document.getElementById('gameCanvas');
+const $mapHud       = document.getElementById('map-hud');
+const $soulsDisplay = document.getElementById('souls-display');
 
 // ── Input ─────────────────────────────────────────────────────────────────
 async function sendInput(value) {
@@ -651,18 +712,6 @@ function renderResult(ctx) {
   $handLabel.textContent = 'Click or press Enter / Space to continue';
 }
 
-// Game-over screen (engine finished)
-function renderGameOver() {
-  $mainPanel.innerHTML = `
-    <div class="result-wrap">
-      <div class="result-card">
-        <div class="result-title" style="color:var(--muted)">⊛ SESSION ENDED</div>
-        <p style="color:var(--muted)">Reload the page to play again.</p>
-      </div>
-    </div>`;
-  $stateLabel.textContent = 'ENDED';
-}
-
 // ── Hand rendering ────────────────────────────────────────────────────────
 function renderHand(cards, onPick) {
   $handLabel.textContent = 'YOUR HAND — click a card to play';
@@ -674,7 +723,6 @@ function renderHand(cards, onPick) {
     const col  = elC(card.element);
     const pw   = (card.basePower || 0) + (card.level || 0) * 2;
     const lvl  = card.level > 0 ? ` <span style="color:var(--muted)">+${card.level}</span>` : '';
-    // Structured like a playing card: top-left corner, center face, bottom-right corner, and a colored left bar
     return `<div class="card" data-cidx="${i}" data-el-color style="--el-color:${col};">
       <div class="bar-left" style="background:${col}"></div>
       <div class="corner corner-tl"><span class="card-elem" style="color:${col}">${card.element}</span><span class="card-pw">Pw:${pw}</span></div>
@@ -850,25 +898,76 @@ function handleMessage(msg) {
     case 'onPanicChanged':
       break;
 
-    // ── Session end ───────────────────────────────────────────────────────
-    case 'gameOver':
-      renderGameOver();
-      break;
-
     case 'error':
       addLog('Server error: ' + msg.message, 'bad');
       break;
   }
 }
 
+// ── Map ↔ Forge bridge ────────────────────────────────────────────────────
+const $forgeUI      = document.getElementById('forge-ui');
+const $forgeBackBtn = document.getElementById('forge-back-btn');
+
+window.addEventListener('forgeOpen', () => {
+  window.mapPaused = true;
+  $gameCanvas.style.display = 'none';
+  $mapHud.style.display     = 'none';
+  $forgeUI.style.display    = 'flex';
+});
+
+$forgeBackBtn.addEventListener('click', () => {
+  $forgeUI.style.display    = 'none';
+  $gameCanvas.style.display = 'block';
+  $mapHud.style.display     = 'block';
+  window.mapPaused = false;
+});
+
+// ── Map ↔ Combat bridge ───────────────────────────────────────────────────
+function returnToMap(souls) {
+  soulsTotal += souls;
+  $soulsDisplay.textContent = `⬥ ${soulsTotal}`;
+  $combatUI.style.display  = 'none';
+  $gameCanvas.style.display = 'block';
+  $mapHud.style.display     = 'block';
+  window.mapPaused = false;
+}
+
+window.addEventListener('combatStart', ({ detail: { enemy } }) => {
+  window.mapPaused = true;
+  $gameCanvas.style.display = 'none';
+  $mapHud.style.display     = 'none';
+  $combatUI.style.display   = 'block';
+
+  // Reset combat UI for fresh encounter
+  clearTimeout(autoTimer);
+  logLines     = [];
+  currentState = null;
+  gameCtx      = null;
+  inputEnabled = false;
+  currentSpec  = null;
+  $eventLog.innerHTML  = '';
+  $combatants.innerHTML = '';
+  $mainPanel.innerHTML = '<p class="waiting">Connecting to server...</p>';
+  renderWheels(null);
+
+  connect(enemy.slug);
+});
+
 // ── SSE connection ────────────────────────────────────────────────────────
-function connect() {
-  const es = new EventSource('/events');
+function connect(slug) {
+  const url = `/events?slug=${encodeURIComponent(slug)}`;
+  const es = new EventSource(url);
 
   es.onmessage = e => {
     $reconnecting.classList.remove('show');
     try {
-      handleMessage(JSON.parse(e.data));
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'combatComplete') {
+        es.close();
+        returnToMap(msg.souls || 0);
+        return;
+      }
+      handleMessage(msg);
     } catch (err) {
       console.error('Parse error:', err, e.data);
     }
@@ -877,12 +976,9 @@ function connect() {
   es.onerror = () => {
     es.close();
     $reconnecting.classList.add('show');
-    setTimeout(connect, 1000);
+    setTimeout(() => connect(slug), 1000);
   };
 }
-
-renderWheels(null);
-connect();
 </script>
 </body>
 </html>

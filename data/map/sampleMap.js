@@ -70,9 +70,11 @@ export default {
     //   w, h        : size in pixels (affects hitbox)
     //   name        : shown on the combat flash and sent in the combatStart event
     // -------------------------------------------------------------------------
-    { type: 'enemy', x: 150, y: 200, w: 32, h: 32, name: 'Undead Soldier' },
-    { type: 'enemy', x: 600, y: 350, w: 32, h: 32, name: 'Hollow Knight'  },
-    { type: 'enemy', x: 120, y: 500, w: 32, h: 32, name: 'Rat'            },
-    { type: 'enemy', x: 900, y: 200, w: 32, h: 32, name: 'Cursed Wraith'  },
+    { type: 'forge', x: 150, y: 100, w: 48, h: 48 },
+
+    { type: 'enemy', x: 150, y: 200, w: 32, h: 32, name: 'Undead Soldier', slug: 'undeadSword'         },
+    { type: 'enemy', x: 600, y: 350, w: 32, h: 32, name: 'Hollow Knight',  slug: 'undeadShieldedSword' },
+    { type: 'enemy', x: 120, y: 500, w: 32, h: 32, name: 'Rat',            slug: 'rat'                 },
+    { type: 'enemy', x: 900, y: 200, w: 32, h: 32, name: 'Cursed Wraith',  slug: 'solaire'             },
   ],
 };
