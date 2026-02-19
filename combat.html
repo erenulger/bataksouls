@@ -26,28 +26,89 @@
       background: var(--bg);
       color: var(--text);
       font-family: 'Courier New', Courier, monospace;
-      font-size: 13 px;
+      font-size: 13px;
       line-height: 1.5;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Grid container ─────────────────────────────────────────────────── */
+    .parent {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      gap: 6px;
+      height: 100vh;
+      padding: 6px;
+    }
+
+    /* ── Grid placements ────────────────────────────────────────────────── */
+    .grid-1 {
+      grid-column: span 3 / span 3;
+      grid-row: span 7 / span 7;
+      overflow-y: auto;
+    }
+
+    .grid-2 {
+      grid-column: span 3 / span 3;
+      grid-row: span 3 / span 3;
+      grid-column-start: 1;
+      grid-row-start: 8;
+      overflow-y: auto;
+    }
+
+    .grid-3 {
+      grid-column: span 7 / span 7;
+      grid-row: span 3 / span 3;
+      grid-column-start: 4;
+      grid-row-start: 8;
       overflow: hidden;
     }
 
-
-
-    /* ── Combatants row ─────────────────────────────────────────────────── */
-    #combatants {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 7px 12px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
+    .grid-4 {
+      grid-column: span 5 / span 5;
+      grid-column-start: 4;
+      grid-row-start: 1;
+      overflow: hidden;
     }
 
-    .combatant { min-width: 140px; flex: 1; max-width: 220px; }
+    .grid-5 {
+      grid-column: span 2 / span 2;
+      grid-row: span 4 / span 4;
+      grid-column-start: 9;
+      grid-row-start: 1;
+      overflow: hidden;
+    }
+
+    .grid-6 {
+      grid-column: span 2 / span 2;
+      grid-row: span 3 / span 3;
+      grid-column-start: 9;
+      grid-row-start: 5;
+      overflow: hidden;
+    }
+
+    .grid-7 {
+      grid-column: span 5 / span 5;
+      grid-row: span 6 / span 6;
+      grid-column-start: 4;
+      grid-row-start: 2;
+      overflow-y: auto;
+    }
+
+    /* ── Combatants (div1) ──────────────────────────────────────────────── */
+    #combatants {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .combatant { width: 100%; }
 
     .c-header {
       font-size: 11px;
@@ -55,7 +116,7 @@
       justify-content: space-between;
       margin-bottom: 3px;
     }
-    .c-name { font-weight: bold; font-size: 16px; }
+    .c-name { font-weight: bold; font-size: 14px; }
     .c-hp   { color: var(--muted); font-size: 12px; }
 
     .hp-track { height: 6px; background: var(--hp-bg); border-radius: 3px; overflow: hidden; }
@@ -75,29 +136,12 @@
       gap: 8px;
     }
 
-    /* ── Main layout ────────────────────────────────────────────────────── */
-    #content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-height: 0;
-    }
-
-    #main-panel {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 12px;
-      min-height: 0;
-    }
-
-    /* ── Event log ──────────────────────────────────────────────────────── */
+    /* ── Event log (div2) ───────────────────────────────────────────────── */
     #event-log {
-      height: 110px;
       overflow-y: auto;
       padding: 5px 12px;
       background: var(--surface);
-      border-top: 1px solid var(--border);
+      border: 1px solid var(--border);
       font-size: 11px;
     }
     .log-line             { margin-bottom: 1px; color: var(--muted); }
@@ -105,12 +149,13 @@
     .log-line.good        { color: var(--good); }
     .log-line.bad         { color: var(--bad); }
 
-    /* ── Hand area ──────────────────────────────────────────────────────── */
+    /* ── Hand area (div3) ───────────────────────────────────────────────── */
     #hand-area {
       background: var(--surface2);
-      border-top: 1px solid var(--border);
+      border: 1px solid var(--border);
       padding: 7px 12px 6px;
-      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
     }
     #hand-label {
       font-size: 10px;
@@ -119,7 +164,7 @@
       letter-spacing: 1px;
       margin-bottom: 5px;
     }
-    #hand { display: flex; flex-wrap: wrap; gap: 4px; }
+    #hand { display: flex; flex-wrap: wrap; gap: 4px; overflow-y: auto; }
 
     .card {
       padding: 3px 8px;
@@ -137,27 +182,58 @@
     .card-el            { font-weight: bold; margin-right: 3px; }
     .card-pw            { font-size: 10px; color: var(--muted); margin-left: 4px; }
 
-    /* ── Controls ───────────────────────────────────────────────────────── */
-    #controls {
-      padding: 6px 12px;
-      background: var(--surface2);
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
+    /* ── Title bar (div4) ───────────────────────────────────────────────── */
+    #title-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    #continue-btn {
-      padding: 5px 18px;
-      background: transparent;
-      border: 1px solid var(--accent);
+    #game-title {
+      font-size: 14px;
+      font-weight: bold;
       color: var(--accent);
-      font-family: inherit;
-      font-size: 11px;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.1s, color 0.1s;
     }
-    #continue-btn:hover   { background: var(--accent); color: var(--bg); }
-    #continue-btn:disabled { opacity: 0.3; cursor: default; }
+    #state-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    #round-info {
+      font-size: 10px;
+      color: var(--muted);
+    }
+    #trump-display {
+      font-size: 10px;
+      margin-left: auto;
+    }
+    .trump-badge {
+      border: 1px solid;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+    }
+
+    /* ── Element wheels (div5) ──────────────────────────────────────────── */
+    #element-wheels {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+    }
+    #wheels-svg { width: 100%; height: 100%; display: block; }
+
+    /* ── Main panel (div7) ──────────────────────────────────────────────── */
+    #main-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+    }
 
     /* ── Reconnect overlay ──────────────────────────────────────────────── */
     #reconnecting {
@@ -216,20 +292,39 @@
 
 <div id="reconnecting">⚡ RECONNECTING...</div>
 
-<div id="combatants"></div>
+<div class="parent">
+  <!-- div1: combatants upper-left -->
+  <div id="combatants" class="grid-1"></div>
 
-<div id="content">
-  <div id="main-panel"><p class="waiting">Waiting for server...</p></div>
-  <div id="event-log"></div>
-</div>
+  <!-- div2: event log lower-left -->
+  <div id="event-log" class="grid-2"></div>
 
-<div id="hand-area" style="display:none">
-  <div id="hand-label">YOUR HAND — click a card to play</div>
-  <div id="hand"></div>
-</div>
+  <!-- div3: player hand lower-right -->
+  <div id="hand-area" class="grid-3">
+    <div id="hand-label">YOUR HAND</div>
+    <div id="hand"></div>
+  </div>
 
-<div id="controls">
-  <button id="continue-btn" disabled>[ Continue ]</button>
+  <!-- div4: title top-center -->
+  <div id="title-bar" class="grid-4">
+    <span id="game-title">BatakSouls</span>
+    <span id="state-label"></span>
+    <span id="round-info"></span>
+    <span id="trump-display"></span>
+  </div>
+
+  <!-- div5: element wheels upper-right -->
+  <div id="element-wheels" class="grid-5">
+    <svg id="wheels-svg" viewBox="0 0 200 268" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <!-- div6: empty -->
+  <div class="grid-6"></div>
+
+  <!-- div7: main panel / played cards center -->
+  <div id="main-panel" class="grid-7">
+    <p class="waiting">Waiting for server...</p>
+  </div>
 </div>
 
 <script>
@@ -238,6 +333,7 @@ let currentState = null;
 let gameCtx      = null;
 let logLines     = [];
 let inputEnabled = false;
+let currentSpec  = null;
 let autoTimer    = null;
 const MAX_LOG    = 30;
 
@@ -271,14 +367,16 @@ const $mainPanel    = document.getElementById('main-panel');
 const $eventLog     = document.getElementById('event-log');
 const $handArea     = document.getElementById('hand-area');
 const $hand         = document.getElementById('hand');
-const $continueBtn  = document.getElementById('continue-btn');
+const $handLabel    = document.getElementById('hand-label');
 const $reconnecting = document.getElementById('reconnecting');
+const $stateLabel   = document.getElementById('state-label');
+const $roundInfo    = document.getElementById('round-info');
+const $trumpDisplay = document.getElementById('trump-display');
 
 // ── Input ─────────────────────────────────────────────────────────────────
 async function sendInput(value) {
   if (!inputEnabled) return;
   inputEnabled = false;
-  $continueBtn.disabled = true;
   try {
     await fetch('/input', {
       method: 'POST',
@@ -290,7 +388,107 @@ async function sendInput(value) {
   }
 }
 
-$continueBtn.addEventListener('click', () => sendInput(null));
+function onAnyInput(e) {
+  if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+  if (!inputEnabled) return;
+  if (currentSpec && currentSpec.type !== 'key') return; // don't fire during card-pick states
+  sendInput(null);
+}
+document.addEventListener('click', onAnyInput);
+document.addEventListener('keydown', onAnyInput);
+
+// ── Element wheels ────────────────────────────────────────────────────────
+const MYSTICAL_ORDER = ['Light', 'Dark', 'Magic', 'Fire', 'Poison', 'Bleed'];
+const PHYSICAL_ORDER = ['Armor', 'Slash', 'Pierce'];
+
+// What each element beats (for tooltip)
+const BEATS = {
+  Light: 'Dark', Dark: 'Magic', Magic: 'Fire', Fire: 'Poison', Poison: 'Bleed', Bleed: 'Light',
+  Armor: 'Slash', Slash: 'Pierce', Pierce: 'Armor',
+};
+
+function wheelPositions(elements, cx, cy, r) {
+  return elements.map((el, i) => {
+    const angle = (2 * Math.PI * i / elements.length) - Math.PI / 2;
+    return { el, x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  });
+}
+
+function renderWheels(trumpEl) {
+  const svg = document.getElementById('wheels-svg');
+
+  const mPos = wheelPositions(MYSTICAL_ORDER, 60, 92, 62);
+  const pPos = wheelPositions(PHYSICAL_ORDER, 140, 215, 40);
+  const MNR = 12;
+  const PNR = 12;
+
+  function markerDef(id, color) {
+    return `<marker id="${id}" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0 0, 6 2, 0 4" fill="${color}" opacity="0.65"/>
+    </marker>`;
+  }
+
+  function drawEdge(from, to, nr, color) {
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const dist = Math.hypot(dx, dy);
+    const ux = dx / dist, uy = dy / dist;
+    const x1 = (from.x + ux * (nr + 2)).toFixed(1);
+    const y1 = (from.y + uy * (nr + 2)).toFixed(1);
+    const x2 = (to.x   - ux * (nr + 7)).toFixed(1);
+    const y2 = (to.y   - uy * (nr + 7)).toFixed(1);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+      stroke="${color}" stroke-width="1.2" stroke-opacity="0.5"
+      marker-end="url(#arr-${from.el})"/>`;
+  }
+
+  function drawNode(pos, nr) {
+    const isTrump = pos.el === trumpEl;
+    const color   = elC(pos.el);
+    const r       = isTrump ? nr + 3 : nr;
+    const sw      = isTrump ? 2.5 : 1.2;
+    const filter  = isTrump ? ' filter="url(#glow)"' : '';
+    const EL_ABBR = { Light:'LGT', Dark:'DRK', Magic:'MGC', Fire:'FIR', Poison:'PSN', Bleed:'BLE', Armor:'ARM', Slash:'SLS', Pierce:'PRC' };
+    const ab      = EL_ABBR[pos.el] || pos.el.substring(0, 3).toUpperCase();
+    const tip     = `${pos.el} beats ${BEATS[pos.el]}${isTrump ? ' [TRUMP]' : ''}`;
+    return `<g>
+      <title>${tip}</title>
+      <circle cx="${pos.x.toFixed(1)}" cy="${pos.y.toFixed(1)}" r="${r}"
+        fill="#0d0d0d" stroke="${color}" stroke-width="${sw}"${filter}/>
+      <text x="${pos.x.toFixed(1)}" y="${(pos.y + 3.5).toFixed(1)}"
+        text-anchor="middle" font-size="7" font-family="Courier New,monospace"
+        font-weight="bold" fill="${color}">${ab}</text>
+    </g>`;
+  }
+
+  const allMarkers = [...MYSTICAL_ORDER, ...PHYSICAL_ORDER]
+    .map(el => markerDef(`arr-${el}`, elC(el))).join('');
+
+  const glowFilter = `<filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="3" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>`;
+
+  const mEdges = mPos.map((p, i) => drawEdge(p, mPos[(i + 1) % mPos.length], MNR, elC(p.el))).join('');
+  const pEdges = pPos.map((p, i) => drawEdge(p, pPos[(i + 1) % pPos.length], PNR, elC(p.el))).join('');
+  const mNodes = mPos.map(p => drawNode(p, MNR)).join('');
+  const pNodes = pPos.map(p => drawNode(p, PNR)).join('');
+
+  const trumpLabel = trumpEl
+    ? `<text x="100" y="260" text-anchor="middle" font-size="8" font-family="Courier New,monospace"
+        fill="${elC(trumpEl)}" letter-spacing="1">TRUMP: ${trumpEl.toUpperCase()}</text>`
+    : `<text x="100" y="260" text-anchor="middle" font-size="6.5" font-family="Courier New,monospace"
+        fill="#333">— beats clockwise —</text>`;
+
+  svg.innerHTML = `
+    <defs>${allMarkers}${glowFilter}</defs>
+    <text x="60" y="11" text-anchor="middle" font-size="10" font-family="Courier New,monospace"
+      fill="#444" letter-spacing="1">MYSTICAL</text>
+    ${mEdges}${mNodes}
+    <text x="140" y="158" text-anchor="middle" font-size="10" font-family="Courier New,monospace"
+      fill="#444" letter-spacing="1">PHYSICAL</text>
+    ${pEdges}${pNodes}
+    ${trumpLabel}`;
+}
 
 // ── Status bar ────────────────────────────────────────────────────────────
 function renderStatus(state, ctx) {
@@ -308,9 +506,10 @@ function renderStatus(state, ctx) {
       $trumpDisplay.innerHTML = '';
     }
   } else {
-    $roundInfo.textContent    = '';
-    $trumpDisplay.innerHTML   = '';
+    $roundInfo.textContent  = '';
+    $trumpDisplay.innerHTML = '';
   }
+  renderWheels(ctx && ctx.combat ? ctx.combat.trumpElement : null);
 }
 
 // ── Combatants row ────────────────────────────────────────────────────────
@@ -340,18 +539,16 @@ function renderCombatants(players) {
 
 function updateHpBars(players) {
   if (!players) return;
-  // Re-render fully to keep HP numbers accurate
   renderCombatants(players);
-  // Persist to gameCtx so future renders are correct
   if (gameCtx) gameCtx.combatPlayers = players;
 }
 
 // ── Main panel ────────────────────────────────────────────────────────────
 function clearInput() {
   inputEnabled = false;
-  $continueBtn.disabled = true;
-  $handArea.style.display = 'none';
+  currentSpec   = null;
   $hand.innerHTML = '';
+  $handLabel.textContent = 'YOUR HAND';
 }
 
 function renderMainPanel(state, ctx) {
@@ -384,6 +581,7 @@ function renderInit(ctx) {
       </div>
       <p style="color:var(--muted);margin-top:8px">Fight to the death against ${names || 'unknown'}</p>
     </div>`;
+  $handLabel.textContent = 'Click or press Enter / Space to continue';
 }
 
 // Trick play panel
@@ -459,6 +657,7 @@ function renderResult(ctx) {
         ${won ? `<div class="result-souls">+${ctx.playerSouls || 0} souls</div>` : ''}
       </div>
     </div>`;
+  $handLabel.textContent = 'Click or press Enter / Space to continue';
 }
 
 // Game-over screen (engine finished)
@@ -475,7 +674,7 @@ function renderGameOver() {
 
 // ── Hand rendering ────────────────────────────────────────────────────────
 function renderHand(cards, onPick) {
-  $handArea.style.display = 'block';
+  $handLabel.textContent = 'YOUR HAND — click a card to play';
   if (!cards || cards.length === 0) {
     $hand.innerHTML = '<span class="waiting">No cards in hand</span>';
     return;
@@ -521,12 +720,14 @@ function handleMessage(msg) {
       gameCtx      = msg.ctx;
       renderCombatants(msg.ctx.combatPlayers);
       renderMainPanel(msg.state, msg.ctx);
+      renderStatus(msg.state, msg.ctx);
       break;
     }
 
     // ── Input request ───────────────────────────────────────────────────
     case 'requestInput': {
       const spec = msg.spec;
+      currentSpec = spec;
 
       if (spec.type === 'key') {
         if (AUTO_STATES.has(currentState)) {
@@ -536,8 +737,7 @@ function handleMessage(msg) {
             sendInput(null);
           }, 300);
         } else {
-          // Player must press continue (init, result, etc.)
-          $continueBtn.disabled = false;
+          // Player must click or press Enter/Space (combat-init, combat-result, etc.)
           inputEnabled = true;
         }
 
@@ -553,7 +753,6 @@ function handleMessage(msg) {
     // ── Card played ─────────────────────────────────────────────────────
     case 'onCardPlayed': {
       const { player, card, plays } = msg;
-      // Update in-memory plays so renderPlay is accurate
       if (gameCtx && gameCtx.combat && plays) {
         gameCtx.combat.plays = plays;
       }
@@ -640,7 +839,7 @@ function handleMessage(msg) {
     case 'onTrickHeader': {
       addLog(`── Trick ${msg.trickNum}/${msg.totalTricks} &nbsp; Trump: ${elSpan(msg.trumpElement)} ──`);
       if (gameCtx && gameCtx.combat) {
-        gameCtx.combat.trickNum    = msg.trickNum;
+        gameCtx.combat.trickNum     = msg.trickNum;
         gameCtx.combat.trumpElement = msg.trumpElement;
       }
       break;
@@ -655,7 +854,6 @@ function handleMessage(msg) {
       break;
 
     case 'onPanicChanged':
-      // Panic changes are minor — omit from log to keep it readable
       break;
 
     // ── Session end ───────────────────────────────────────────────────────
@@ -689,6 +887,7 @@ function connect() {
   };
 }
 
+renderWheels(null);
 connect();
 </script>
 </body>
