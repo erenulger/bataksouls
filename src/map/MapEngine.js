@@ -56,12 +56,11 @@ const renderer = new MapRenderer(canvas);
 // Game loop
 // ---------------------------------------------------------------------------
 
-let lastTime    = null;
-let combatFlash = null;                 // { message, timer, maxTimer } or null
-const MAX_DT    = 0.1;                  // cap delta time to avoid spiral-of-death on tab switch
-const FLASH_DURATION = 2.5;            // seconds the combat overlay stays visible
+let lastTime = null;
+const MAX_DT = 0.1;                    // cap delta time to avoid spiral-of-death on tab switch
 
 function tick(timestamp) {
+  if (window.mapPaused) { requestAnimationFrame(tick); return; }
   if (lastTime === null) lastTime = timestamp;
   const dt = Math.min((timestamp - lastTime) / 1000, MAX_DT);
   lastTime = timestamp;
@@ -84,15 +83,22 @@ function tick(timestamp) {
 
     // Dispatch a DOM event so external systems (combat engine, UI) can react
     window.dispatchEvent(new CustomEvent('combatStart', { detail: { enemy } }));
-
-    // Show the in-map combat flash (last triggered enemy wins if simultaneous)
-    combatFlash = { message: enemy.name || enemy.label, timer: FLASH_DURATION, maxTimer: FLASH_DURATION };
   }
 
-  // Tick combat flash countdown
-  if (combatFlash) {
-    combatFlash.timer -= dt;
-    if (combatFlash.timer <= 0) combatFlash = null;
+  // 3c. Check F key — open forge if player is adjacent to one
+  if (input.consume('KeyF')) {
+    const p = player.bounds;
+    const pad = 20;
+    const forge = entities.find(e =>
+      e.type === 'forge' &&
+      p.x < e.x + e.w + pad &&
+      p.x + p.w > e.x - pad &&
+      p.y < e.y + e.h + pad &&
+      p.y + p.h > e.y - pad,
+    );
+    if (forge) {
+      window.dispatchEvent(new CustomEvent('forgeOpen'));
+    }
   }
 
   // 4. Update camera — pan if middle mouse is held, otherwise follow player
@@ -105,7 +111,7 @@ function tick(timestamp) {
   }
 
   // 5. Render the frame
-  renderer.render(player, entities, camera, combatFlash);
+  renderer.render(player, entities, camera);
 
   requestAnimationFrame(tick);
 }

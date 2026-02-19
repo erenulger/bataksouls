@@ -30,9 +30,8 @@ export class MapRenderer {
    * @param {import('./Player.js').Player}   player
    * @param {Array<Object>}                  entities
    * @param {import('./Camera.js').Camera}   camera
-   * @param {{ message: string, timer: number, maxTimer: number }|null} combatFlash
    */
-  render(player, entities, camera, combatFlash = null) {
+  render(player, entities, camera) {
     const { ctx, canvas } = this;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -40,8 +39,23 @@ export class MapRenderer {
     this._drawGrid(camera);
     this._drawEntities(entities, camera);
     this._drawPlayer(player, camera);
-    this._drawHUD();
-    this._drawCombatFlash(combatFlash);  // always last — draws over everything
+    this._drawHUD(this._isNearForge(player, entities));
+  }
+
+  /**
+   * True if the player is within 20 px of any forge entity.
+   * @private
+   */
+  _isNearForge(player, entities) {
+    const p   = player.bounds;
+    const pad = 20;
+    return entities.some(e => {
+      if (e.type !== 'forge') return false;
+      return p.x < e.x + e.w + pad &&
+             p.x + p.w > e.x - pad &&
+             p.y < e.y + e.h + pad &&
+             p.y + p.h > e.y - pad;
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -88,6 +102,8 @@ export class MapRenderer {
         this._drawTree(sx, sy, e.w, e.h);
       } else if (e.type === 'enemy') {
         this._drawEnemy(sx, sy, e.w, e.h);
+      } else if (e.type === 'forge') {
+        this._drawForge(sx, sy, e.w, e.h);
       } else {
         ctx.fillRect(sx, sy, e.w, e.h);
         if (e.border) ctx.strokeRect(sx, sy, e.w, e.h);
@@ -162,41 +178,53 @@ export class MapRenderer {
     ctx.restore();
   }
 
-  /**
-   * Full-screen combat flash overlay. Fades out in the last 0.5 s.
-   * @param {{ message: string, timer: number, maxTimer: number }|null} flash
-   */
-  _drawCombatFlash(flash) {
-    if (!flash) return;
-    const { ctx, canvas } = this;
-
-    const alpha = flash.timer < 0.5 ? flash.timer / 0.5 : 1.0;
-    const cx    = canvas.width  / 2;
-    const cy    = canvas.height / 2;
-
-    // Dark red tint over the whole screen
-    ctx.fillStyle = `rgba(80, 0, 0, ${alpha * 0.75})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  /** Draw an anvil-shaped forge with a warm glow. */
+  _drawForge(sx, sy, w, h) {
+    const { ctx } = this;
 
     ctx.save();
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ff6b00';
+    ctx.shadowBlur  = 10;
 
-    ctx.fillStyle = `rgba(255, 70, 70, ${alpha})`;
-    ctx.font      = 'bold 56px monospace';
-    ctx.fillText('COMBAT', cx, cy - 36);
+    // Top plate (hot surface)
+    ctx.fillStyle = '#c46200';
+    ctx.fillRect(sx - w * 0.08, sy, w * 1.16, h * 0.32);
 
-    ctx.fillStyle = `rgba(255, 220, 220, ${alpha})`;
-    ctx.font      = '26px monospace';
-    ctx.fillText(flash.message, cx, cy + 16);
+    // Horn (left protrusion)
+    ctx.beginPath();
+    ctx.moveTo(sx - w * 0.08, sy + h * 0.05);
+    ctx.lineTo(sx - w * 0.30, sy + h * 0.20);
+    ctx.lineTo(sx - w * 0.08, sy + h * 0.32);
+    ctx.closePath();
+    ctx.fill();
+
+    // Neck (narrow waist)
+    ctx.fillStyle = '#3d3d3d';
+    const neckW = w * 0.55;
+    ctx.fillRect(sx + (w - neckW) / 2, sy + h * 0.32, neckW, h * 0.18);
+
+    // Base
+    ctx.fillStyle = '#4a4a4a';
+    ctx.fillRect(sx, sy + h * 0.50, w, h * 0.50);
 
     ctx.restore();
+
+    // Border
+    ctx.strokeStyle = '#7a3c00';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(sx, sy, w, h);
   }
 
-  _drawHUD() {
+  _drawHUD(nearForge = false) {
     const { ctx, canvas } = this;
+    ctx.font = '13px monospace';
+
+    if (nearForge) {
+      ctx.fillStyle = '#e07b39';
+      ctx.fillText('[F] Open Forge', 12, canvas.height - 30);
+    }
+
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.font      = '13px monospace';
     ctx.fillText('WASD / Arrows — move   |   Middle mouse drag — pan camera', 12, canvas.height - 12);
   }
 }
