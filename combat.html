@@ -166,21 +166,45 @@
     }
     #hand { display: flex; flex-wrap: wrap; gap: 4px; overflow-y: auto; }
 
+    /* Playing-card style */
     .card {
-      padding: 3px 8px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+      width: 90px;
+      height: 135px; /* classic 2:3 ratio */
+      margin-top: 20px;
+      padding: 8px;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 10px;
       background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
       cursor: pointer;
-      font-size: 12px;
-      white-space: nowrap;
-      transition: background 0.1s, border-color 0.1s;
+      font-size: 13px;
+      line-height: 1.15;
+      white-space: normal;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
       user-select: none;
+      position: relative;
+      overflow: hidden;
     }
-    .card:hover         { background: var(--surface2); }
-    .card.played        { opacity: 0.35; pointer-events: none; }
-    .card-el            { font-weight: bold; margin-right: 3px; }
-    .card-pw            { font-size: 10px; color: var(--muted); margin-left: 4px; }
+    .card:hover { transform: translateY(-18px) rotate(2.5deg); box-shadow: 0 18px 40px rgba(0,0,0,0.55); }
+    .card.played { opacity: 0.35; pointer-events: none; transform: none; box-shadow: none; }
+
+    .card .corner { font-size: 11px; line-height: 1; display: flex; flex-direction: column; }
+    .card .corner-tl { position: absolute; left: 8px; top: 8px; text-align: left; }
+    .card .corner-br { position: absolute; right: 8px; bottom: 8px; transform: rotate(180deg); text-align: left; }
+
+    .card .card-center { display:flex; flex:1; align-items:center; justify-content:center; padding: 6px; text-align:center; }
+    .card .card-name { font-weight:700; font-size:14px; color:var(--text); }
+    .card .card-elem { font-weight:800; font-size:14px; letter-spacing:0.6px; }
+    .card .card-pw { font-size:12px; color:var(--text); margin-top:4px; }
+
+    /* allow a colored stripe along left to indicate element */
+    .card[data-el-color] { box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
+    .card .bar-left { position:absolute; left:0; top:0; bottom:0; width:6px; }
 
     /* ── Title bar (div4) ───────────────────────────────────────────────── */
     #title-bar {
@@ -683,9 +707,12 @@ function renderHand(cards, onPick) {
     const col  = elC(card.element);
     const pw   = (card.basePower || 0) + (card.level || 0) * 2;
     const lvl  = card.level > 0 ? ` <span style="color:var(--muted)">+${card.level}</span>` : '';
-    return `<div class="card" data-cidx="${i}"
-      style="border-left: 3px solid ${col}">
-      <span class="card-el" style="color:${col}">${card.element}</span>${card.name}${lvl}<span class="card-pw">Pw:${pw}</span>
+    // Structured like a playing card: top-left corner, center face, bottom-right corner, and a colored left bar
+    return `<div class="card" data-cidx="${i}" data-el-color style="--el-color:${col};">
+      <div class="bar-left" style="background:${col}"></div>
+      <div class="corner corner-tl"><span class="card-elem" style="color:${col}">${card.element}</span><span class="card-pw">Pw:${pw}</span></div>
+      <div class="card-center"><div class="card-name">${card.name}${lvl}</div></div>
+      <div class="corner corner-br"><span class="card-elem" style="color:${col}">${card.element}</span><span class="card-pw">Pw:${pw}</span></div>
     </div>`;
   }).join('');
 
