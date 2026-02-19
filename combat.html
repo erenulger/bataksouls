@@ -34,36 +34,7 @@
       overflow: hidden;
     }
 
-    /* ── Status bar ─────────────────────────────────────────────────────── */
-    #status-bar {
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-      padding: 5px 12px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-shrink: 0;
-      min-height: 32px;
-    }
 
-    #state-label {
-      font-size: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--muted);
-      min-width: 140px;
-    }
-
-    #round-info { color: var(--accent); font-size: 12px; }
-
-    .trump-badge {
-      display: inline-block;
-      padding: 1px 7px;
-      border-radius: 3px;
-      border: 1px solid currentColor;
-      font-size: 11px;
-      font-weight: bold;
-    }
 
     /* ── Combatants row ─────────────────────────────────────────────────── */
     #combatants {
@@ -245,12 +216,6 @@
 
 <div id="reconnecting">⚡ RECONNECTING...</div>
 
-<div id="status-bar">
-  <span id="state-label">CONNECTING...</span>
-  <span id="round-info"></span>
-  <span id="trump-display"></span>
-</div>
-
 <div id="combatants"></div>
 
 <div id="content">
@@ -301,9 +266,6 @@ const elSpan = (el, txt) =>
   `<span style="color:${elC(el)};font-weight:bold">${txt || el}</span>`;
 
 // ── DOM refs ──────────────────────────────────────────────────────────────
-const $stateLabel   = document.getElementById('state-label');
-const $roundInfo    = document.getElementById('round-info');
-const $trumpDisplay = document.getElementById('trump-display');
 const $combatants   = document.getElementById('combatants');
 const $mainPanel    = document.getElementById('main-panel');
 const $eventLog     = document.getElementById('event-log');
@@ -557,7 +519,6 @@ function handleMessage(msg) {
     case 'stateEnter': {
       currentState = msg.state;
       gameCtx      = msg.ctx;
-      renderStatus(msg.state, msg.ctx);
       renderCombatants(msg.ctx.combatPlayers);
       renderMainPanel(msg.state, msg.ctx);
       break;
@@ -681,7 +642,6 @@ function handleMessage(msg) {
       if (gameCtx && gameCtx.combat) {
         gameCtx.combat.trickNum    = msg.trickNum;
         gameCtx.combat.trumpElement = msg.trumpElement;
-        renderStatus(currentState, gameCtx);
       }
       break;
     }
