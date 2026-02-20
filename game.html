@@ -324,6 +324,7 @@
     .win-color           { color: var(--good); }
     .lose-color          { color: var(--bad); }
     .result-souls        { font-size: 15px; color: #FFD700; margin-top: 8px; }
+
   </style>
 </head>
 <body>
@@ -331,25 +332,6 @@
 <!-- Map layer (visible by default) -->
 <canvas id="gameCanvas"></canvas>
 <div id="map-hud"><span id="souls-display">⬥ 0</span></div>
-
-<!-- Forge layer (hidden until player opens forge) -->
-<div id="forge-ui" style="display:none; position:fixed; inset:0; background:#0d0d0d; z-index:50;
-     flex-direction:column; align-items:center; justify-content:center;">
-  <div style="text-align:center; font-family:'Courier New',monospace;">
-    <div style="font-size:48px; font-weight:bold; color:#c46200; letter-spacing:4px; text-transform:uppercase;">
-      ⚒ FORGE
-    </div>
-    <p style="color:#555; margin-top:16px; font-size:13px; letter-spacing:1px;">
-      Coming soon...
-    </p>
-    <button id="forge-back-btn"
-      style="margin-top:40px; padding:10px 28px; background:transparent; border:1px solid #555;
-             color:#c8b89a; font-family:'Courier New',monospace; font-size:13px;
-             letter-spacing:1px; cursor:pointer; text-transform:uppercase;">
-      Return to Map
-    </button>
-  </div>
-</div>
 
 <!-- Combat layer (hidden until encounter) -->
 <div id="combat-ui" style="display:none">
@@ -401,7 +383,7 @@ let logLines     = [];
 let inputEnabled = false;
 let currentSpec  = null;
 let autoTimer    = null;
-let soulsTotal   = 0;
+let soulsTotal   = parseInt(localStorage.getItem('bs_souls') || '0', 10);
 const MAX_LOG    = 30;
 
 // States that auto-advance (no player decision needed)
@@ -904,22 +886,13 @@ function handleMessage(msg) {
   }
 }
 
-// ── Map ↔ Forge bridge ────────────────────────────────────────────────────
-const $forgeUI      = document.getElementById('forge-ui');
-const $forgeBackBtn = document.getElementById('forge-back-btn');
+// ── Sync souls display on load (returned from forge) ─────────────────────
+$soulsDisplay.textContent = `⬥ ${soulsTotal}`;
 
+// ── Forge bridge — navigate to /forge, passing souls via localStorage ─────
 window.addEventListener('forgeOpen', () => {
-  window.mapPaused = true;
-  $gameCanvas.style.display = 'none';
-  $mapHud.style.display     = 'none';
-  $forgeUI.style.display    = 'flex';
-});
-
-$forgeBackBtn.addEventListener('click', () => {
-  $forgeUI.style.display    = 'none';
-  $gameCanvas.style.display = 'block';
-  $mapHud.style.display     = 'block';
-  window.mapPaused = false;
+  localStorage.setItem('bs_souls', String(soulsTotal));
+  window.location.href = '/forge';
 });
 
 // ── Map ↔ Combat bridge ───────────────────────────────────────────────────

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BatakSouls — Forge</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --surface2:  #1e1e1e;
+      --border:    #2a2a2a;
+      --text:      #c8b89a;
+      --muted:     #555;
+      --accent:    #c8a96e;
+      --good:      #4caf50;
+      --bad:       #e05050;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sec-header {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+    .waiting { color: var(--muted); font-style: italic; }
+
+    /* ── Forge layout ──────────────────────────────────────────────────────── */
+    #forge-ui {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--bg);
+    }
+
+    #forge-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    #forge-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #c46200;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    #forge-souls-display { font-size: 14px; color: #FFD700; }
+
+    #forge-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left panel */
+    #forge-detail {
+      width: 230px;
+      min-width: 230px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    /* Right: collection grid */
+    #forge-grid-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #forge-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8px;
+    }
+
+    /* Footer */
+    #forge-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    #forge-back-btn {
+      padding: 5px 18px;
+      background: transparent;
+      border: 1px solid var(--muted);
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    #forge-back-btn:hover { border-color: var(--text); color: var(--text); }
+    #forge-status { font-size: 11px; color: var(--muted); font-style: italic; }
+
+    /* Playing-card base */
+    .card {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+      width: 90px;
+      height: 135px;
+      padding: 8px;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1.15;
+      white-space: normal;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .card .corner { font-size: 11px; line-height: 1; display: flex; flex-direction: column; }
+    .card .corner-tl { position: absolute; left: 8px; top: 8px; text-align: left; }
+    .card .corner-br { position: absolute; right: 8px; bottom: 8px; transform: rotate(180deg); text-align: left; }
+    .card .card-center { display:flex; flex:1; align-items:center; justify-content:center; padding: 6px; text-align:center; }
+    .card .card-name { font-weight:700; font-size:14px; color:var(--text); }
+    .card .card-elem { font-weight:800; font-size:14px; letter-spacing:0.6px; }
+    .card .card-pw { font-size:12px; color:var(--text); margin-top:4px; }
+    .card .bar-left { position:absolute; left:0; top:0; bottom:0; width:6px; }
+
+    /* Forge card variants */
+    .forge-card {
+      cursor: pointer;
+      margin-top: 0;
+      width: 84px;
+      height: 126px;
+    }
+    .forge-card:hover {
+      transform: translateY(-10px) rotate(1.5deg);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.55);
+    }
+    .forge-card.selected {
+      transform: translateY(-6px);
+      box-shadow: 0 0 0 2px var(--el-color), 0 10px 28px rgba(0,0,0,0.5);
+    }
+    .forge-card.selected:hover { transform: translateY(-6px); }
+    .forge-card.maxed { opacity: 0.45; }
+    .forge-card .forge-level {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+    .forge-card.upgradeable .forge-level { color: #c46200; }
+
+    /* Detail panel */
+    .forge-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .forge-stat span:last-child { color: var(--text); }
+    .forge-arrow { color: #c46200; }
+    .forge-cost-row {
+      font-size: 12px;
+      color: #FFD700;
+      margin-top: 2px;
+    }
+    .forge-cost-row.cant-afford { color: var(--bad); }
+
+    #forge-upgrade-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      background: #2a1400;
+      border: 1px solid #c46200;
+      color: #c46200;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    #forge-upgrade-btn:hover:not(:disabled) { background: #3d1e00; }
+    #forge-upgrade-btn:disabled {
+      border-color: var(--border);
+      color: var(--muted);
+      background: transparent;
+      cursor: not-allowed;
+    }
+
+    #forge-log {
+      margin-top: 10px;
+      font-size: 11px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .forge-log-line           { margin-bottom: 2px; color: var(--muted); }
+    .forge-log-line.upgraded  { color: #c46200; }
+  </style>
+</head>
+<body>
+
+<div id="forge-ui">
+
+  <div id="forge-header">
+    <span id="forge-title">⚒ FORGE</span>
+    <span id="forge-souls-display">⬥ 0 souls</span>
+  </div>
+
+  <div id="forge-body">
+
+    <div id="forge-detail">
+      <div class="sec-header">SELECTED CARD</div>
+      <div id="forge-detail-content">
+        <p class="waiting">Click a card to select it.</p>
+      </div>
+    </div>
+
+    <div id="forge-grid-wrap">
+      <div class="sec-header" style="padding:6px 14px; margin:0; flex-shrink:0;">YOUR COLLECTION</div>
+      <div id="forge-grid"></div>
+    </div>
+
+  </div>
+
+  <div id="forge-footer">
+    <button id="forge-back-btn">← Return to Map</button>
+    <span id="forge-status"></span>
+  </div>
+
+</div>
+
+<script>
+// ── Element colors ─────────────────────────────────────────────────────────
+const EL_COLOR = {
+  Light:  '#FFD700',
+  Dark:   '#BA55D3',
+  Magic:  '#6495ED',
+  Fire:   '#FF6347',
+  Poison: '#3CB371',
+  Bleed:  '#CD5C5C',
+  Armor:  '#DAA520',
+  Slash:  '#C0C0C0',
+  Pierce: '#40E0D0',
+};
+const elC = el => EL_COLOR[el] || '#c8b89a';
+
+// ── DOM refs ───────────────────────────────────────────────────────────────
+const $forgeSoulsDisplay  = document.getElementById('forge-souls-display');
+const $forgeGrid          = document.getElementById('forge-grid');
+const $forgeDetailContent = document.getElementById('forge-detail-content');
+const $forgeStatus        = document.getElementById('forge-status');
+
+// ── Constants ──────────────────────────────────────────────────────────────
+const FORGE_MAX_LEVEL     = 10;
+const FORGE_POWER_PER_LVL = 2;
+const forgeUpgradeCost    = lvl => 10 + lvl * 5;
+
+// ── State — souls read from localStorage (written by game.html on forge open) ──
+let forgeCards       = [];
+let forgeSouls       = parseInt(localStorage.getItem('bs_souls') || '0', 10);
+let forgeSelectedIdx = -1;
+let forgeLog         = [];
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function forgeRender() {
+  $forgeSoulsDisplay.textContent = `⬥ ${forgeSouls} souls`;
+  forgeRenderGrid();
+  forgeRenderDetail();
+}
+
+function forgeRenderGrid() {
+  $forgeGrid.innerHTML = forgeCards.map((card, i) => {
+    const col   = elC(card.element);
+    const pw    = card.basePower + card.level * FORGE_POWER_PER_LVL;
+    const isMax = card.level >= FORGE_MAX_LEVEL;
+    const cost  = forgeUpgradeCost(card.level);
+    const canUp = !isMax && forgeSouls >= cost;
+    const isSel = i === forgeSelectedIdx;
+
+    let cls = 'card forge-card';
+    if (isSel)      cls += ' selected';
+    if (isMax)      cls += ' maxed';
+    else if (canUp) cls += ' upgradeable';
+
+    const lvlLabel = isMax ? 'MAX' : `Lv.${card.level}`;
+
+    return `<div class="${cls}" data-fidx="${i}" style="--el-color:${col}">
+      <div class="bar-left" style="background:${col}"></div>
+      <div class="corner corner-tl">
+        <span class="card-elem" style="color:${col}">${card.element}</span>
+        <span class="card-pw">Pw:${pw}</span>
+      </div>
+      <div class="card-center"><div class="card-name">${card.name}</div></div>
+      <div class="corner corner-br">
+        <span class="card-elem" style="color:${col}">${card.element}</span>
+        <span class="card-pw">Pw:${pw}</span>
+      </div>
+      <div class="forge-level">${lvlLabel}</div>
+    </div>`;
+  }).join('');
+
+  $forgeGrid.querySelectorAll('.forge-card').forEach(el => {
+    el.addEventListener('click', () => {
+      forgeSelectedIdx = parseInt(el.dataset.fidx, 10);
+      forgeRender();
+    });
+  });
+}
+
+function forgeRenderDetail() {
+  if (forgeSelectedIdx < 0 || forgeSelectedIdx >= forgeCards.length) {
+    $forgeDetailContent.innerHTML = '<p class="waiting">Click a card to select it.</p>';
+    return;
+  }
+
+  const card  = forgeCards[forgeSelectedIdx];
+  const col   = elC(card.element);
+  const isMax = card.level >= FORGE_MAX_LEVEL;
+  const curPw = card.basePower + card.level * FORGE_POWER_PER_LVL;
+  const nxtPw = curPw + FORGE_POWER_PER_LVL;
+  const cost  = forgeUpgradeCost(card.level);
+  const canUp = !isMax && forgeSouls >= cost;
+
+  const lvlHtml = isMax
+    ? `<div class="forge-stat"><span>Level</span><span>${card.level} — MAX</span></div>`
+    : `<div class="forge-stat"><span>Level</span><span>${card.level} <span class="forge-arrow">→</span> ${card.level + 1}</span></div>`;
+
+  const pwHtml = isMax
+    ? `<div class="forge-stat"><span>Power</span><span>${curPw}</span></div>`
+    : `<div class="forge-stat"><span>Power</span><span>${curPw} <span class="forge-arrow">→</span> ${nxtPw}</span></div>`;
+
+  const costHtml = isMax
+    ? `<div class="forge-cost-row" style="color:var(--muted)">Max level reached</div>`
+    : `<div class="forge-cost-row ${canUp ? '' : 'cant-afford'}">Cost: ${cost} ⬥</div>`;
+
+  const logHtml = forgeLog.length
+    ? `<div id="forge-log">${forgeLog.map(l =>
+        `<div class="forge-log-line upgraded">${l}</div>`
+      ).join('')}</div>`
+    : '';
+
+  $forgeDetailContent.innerHTML = `
+    <div style="margin-bottom:8px">
+      <div style="color:${col};font-weight:bold;font-size:14px">${card.element}</div>
+      <div style="font-size:13px;margin-top:2px">${card.name}</div>
+    </div>
+    <div class="forge-stat"><span>Base Power</span><span>${card.basePower}</span></div>
+    ${lvlHtml}
+    ${pwHtml}
+    ${costHtml}
+    <button id="forge-upgrade-btn" ${canUp ? '' : 'disabled'}>
+      ${isMax ? '⚒ MAX LEVEL' : `⚒ Upgrade (${cost}⬥)`}
+    </button>
+    ${logHtml}`;
+
+  const $btn = document.getElementById('forge-upgrade-btn');
+  if ($btn && canUp) $btn.addEventListener('click', forgeUpgrade);
+}
+
+function forgeUpgrade() {
+  const card = forgeCards[forgeSelectedIdx];
+  if (!card || card.level >= FORGE_MAX_LEVEL) return;
+  const cost = forgeUpgradeCost(card.level);
+  if (forgeSouls < cost) return;
+
+  forgeSouls -= cost;
+  card.level++;
+  const pw = card.basePower + card.level * FORGE_POWER_PER_LVL;
+  forgeLog.unshift(`${card.name} → Lv.${card.level} (Pw:${pw})`);
+  if (forgeLog.length > 12) forgeLog.pop();
+
+  forgeRender();
+}
+
+async function forgeClose() {
+  $forgeStatus.textContent = 'Saving...';
+  try {
+    await fetch('/forge/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cards: forgeCards.map(c => ({ cardId: c.id, level: c.level })) }),
+    });
+  } catch (e) {
+    console.error('Forge save error:', e);
+  }
+
+  // Write updated souls back so game.html can pick them up on return
+  localStorage.setItem('bs_souls', String(forgeSouls));
+  window.location.href = '/';
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+async function init() {
+  $forgeStatus.textContent = 'Loading...';
+  try {
+    const res  = await fetch('/forge/deck');
+    const data = await res.json();
+    forgeCards = data.cards.map(c => ({ ...c }));
+    $forgeStatus.textContent = '';
+  } catch (e) {
+    $forgeStatus.textContent = 'Failed to load deck.';
+    console.error('Forge load error:', e);
+    return;
+  }
+  forgeRender();
+}
+
+document.getElementById('forge-back-btn').addEventListener('click', forgeClose);
+init();
+</script>
+</body>
+</html>

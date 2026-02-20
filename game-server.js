@@ -6,6 +6,7 @@ const { runEngine } = require('./src/engine');
 const { createContext } = require('./src/context');
 const { createHtmlAdapter } = require('./src/ui/htmlAdapter');
 const { loadNPCBySlug } = require('./src/npcRegistry');
+const { loadDeck } = require('./src/deck');
 const { createPlayer } = require('./src/player');
 const { TEAMS } = require('./src/constants');
 
@@ -46,9 +47,18 @@ let currentAdapter = null;
 
 // ── HTTP server ───────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
-  // Serve the unified game page
+  // Serve the main game page
   if (req.method === 'GET' && req.url === '/') {
     const htmlPath = path.join(__dirname, 'game.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(html);
+    return;
+  }
+
+  // Serve the forge page
+  if (req.method === 'GET' && req.url === '/forge') {
+    const htmlPath = path.join(__dirname, 'forge.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -101,6 +111,43 @@ const server = http.createServer((req, res) => {
     req.on('close', () => clearInterval(heartbeat));
 
     startGame(slug, res);
+    return;
+  }
+
+  // Forge: return resolved player deck (full card objects)
+  if (req.method === 'GET' && url === '/forge/deck') {
+    try {
+      const playerPath = path.join(__dirname, 'data', 'decks', 'player.json');
+      const deck = loadDeck(playerPath);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ cards: deck.cards }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // Forge: persist upgraded card levels back to player.json
+  if (req.method === 'POST' && url === '/forge/save') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { cards } = JSON.parse(body);
+        const playerPath = path.join(__dirname, 'data', 'decks', 'player.json');
+        const raw = JSON.parse(fs.readFileSync(playerPath, 'utf-8'));
+        for (let i = 0; i < Math.min(cards.length, raw.cards.length); i++) {
+          raw.cards[i].level = cards[i].level;
+        }
+        fs.writeFileSync(playerPath, JSON.stringify(raw, null, 2), 'utf-8');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('{"ok":true}');
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
     return;
   }
 
