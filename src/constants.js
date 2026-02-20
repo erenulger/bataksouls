@@ -16,7 +16,6 @@ const ELEMENTS = {
 const MYSTICAL = [ELEMENTS.LIGHT, ELEMENTS.DARK, ELEMENTS.MAGIC, ELEMENTS.FIRE, ELEMENTS.POISON, ELEMENTS.BLEED];
 const PHYSICAL = [ELEMENTS.ARMOR, ELEMENTS.SLASH, ELEMENTS.PIERCE];
 const ALL_ELEMENTS = [...MYSTICAL, ...PHYSICAL];
-const { ANSI, color, reset } = require('./ansiColors');
 
 // ── Weakness Wheels ──
 // Each key beats the value
@@ -40,23 +39,6 @@ function beatsElement(attacker, defender) {
   if (PHYSICAL_WHEEL[attacker] === defender) return true;
   return false;
 }
-
-// ── ANSI Colors per Element ──
-const ELEMENT_COLORS = {
-  [ELEMENTS.LIGHT]:  color({ fg: ANSI.fg.bright.yellow }),                      // bright white
-  [ELEMENTS.DARK]:   color({ fg: ANSI.fg.magenta }),                           // magenta
-  [ELEMENTS.MAGIC]:  color({ fg: ANSI.fg.bright.blue }),                       // bright blue
-  [ELEMENTS.FIRE]:   color({ fg: ANSI.fg.bright.red }),                        // bright red
-  [ELEMENTS.POISON]: color({ fg: ANSI.fg.green }),                             // green
-  [ELEMENTS.BLEED]:  color({ fg: ANSI.fg.red }),                               // red
-  [ELEMENTS.ARMOR]:  color({ fg: ANSI.fg.yellow}),                            // yellow/orange
-  [ELEMENTS.SLASH]:  color({ fg: ANSI.fg.white }),                             // white
-  [ELEMENTS.PIERCE]: color({ fg: ANSI.fg.cyan }),                              // cyan
-};
-
-const RESET = reset;
-const BOLD  = color({ style: ANSI.style.bold });
-const DIM   = color({ style: ANSI.style.dim });
 
 // ── Weapon Names per Element ──
 const WEAPON_NAMES = {
@@ -118,6 +100,5 @@ const CONFIG = {
 module.exports = {
   ELEMENTS, MYSTICAL, PHYSICAL, ALL_ELEMENTS,
   MYSTICAL_WHEEL, PHYSICAL_WHEEL, beatsElement,
-  ELEMENT_COLORS, RESET, BOLD, DIM,
   WEAPON_NAMES, NPC_NAMES, AI_TYPES, AI_MOODS, TEAMS, CONFIG,
 };

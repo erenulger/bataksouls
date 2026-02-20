@@ -1,4 +1,4 @@
-const { ELEMENT_COLORS, RESET, BOLD, DIM, WEAPON_NAMES, CONFIG, beatsElement } = require('./constants');
+const { WEAPON_NAMES, CONFIG, beatsElement } = require('./constants');
 
 /**
  * @typedef {Object} Card
@@ -123,22 +123,4 @@ function computeTrickPowers(plays, trumpElement) {
   return results.map(r => ({ base: r.base, power: r.power, bonuses: r.bonuses }));
 }
 
-/** @param {Card} card @param {{showPower?: boolean, trumpElement?: string|null, index?: number|null}} [opts] @returns {string} */
-function cardDisplay(card, { showPower = true, trumpElement = null, index = null } = {}) {
-  const color = ELEMENT_COLORS[card.element];
-  const lvl = card.level > 0 ? ` +${card.level}` : '';
-  const { power, bonuses } = effectivePower(card, trumpElement);
-  const bonusStr = bonuses.length > 0 ? ` ${DIM}(${bonuses.join(', ')})${RESET}` : '';
-  const prefix = index !== null ? `${DIM}[${index + 1}]${RESET} ` : '';
-  const powerStr = showPower ? ` ${BOLD}Pw:${power}${RESET}${bonusStr}` : '';
-  return `${prefix}${color}${card.element}${RESET} ${card.name}${lvl}${powerStr}`;
-}
-
-/** @param {Card} card @returns {string} */
-function shortDisplay(card) {
-  const color = ELEMENT_COLORS[card.element];
-  const lvl = card.level > 0 ? `+${card.level}` : '';
-  return `${color}${card.element}${RESET} ${card.name}${lvl} (${rawPower(card)})`;
-}
-
-module.exports = { createCard, rawPower, effectivePower, computeTrickPowers, cardDisplay, shortDisplay };
+module.exports = { createCard, rawPower, effectivePower, computeTrickPowers };
