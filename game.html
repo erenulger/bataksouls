@@ -382,8 +382,10 @@ let gameCtx      = null;
 let logLines     = [];
 let inputEnabled = false;
 let currentSpec  = null;
-let autoTimer    = null;
-let soulsTotal   = parseInt(localStorage.getItem('bs_souls') || '0', 10);
+let autoTimer          = null;
+let pendingCombatEnemy = null;
+let pendingCombatWon   = false;
+let soulsTotal         = parseInt(localStorage.getItem('bs_souls') || '0', 10);
 const MAX_LOG    = 30;
 
 // States that auto-advance (no player decision needed)
@@ -871,6 +873,7 @@ function handleMessage(msg) {
 
     // ── Combat end ───────────────────────────────────────────────────────
     case 'onCombatEnd':
+      pendingCombatWon = msg.playerWon;
       addLog(
         `⚡ Combat ended — ${msg.playerWon ? 'VICTORY' : 'DEFEAT'}`,
         msg.playerWon ? 'good' : 'bad',
@@ -906,6 +909,8 @@ function returnToMap(souls) {
 }
 
 window.addEventListener('combatStart', ({ detail: { enemy } }) => {
+  pendingCombatEnemy = enemy;
+  pendingCombatWon   = false;
   window.mapPaused = true;
   $gameCanvas.style.display = 'none';
   $mapHud.style.display     = 'none';
@@ -936,6 +941,14 @@ function connect(slug) {
     try {
       const msg = JSON.parse(e.data);
       if (msg.type === 'combatComplete') {
+        if (pendingCombatWon && pendingCombatEnemy) {
+          const eid = `${pendingCombatEnemy.slug}_${pendingCombatEnemy.x}_${pendingCombatEnemy.y}`;
+          const def = new Set(JSON.parse(localStorage.getItem('bs_defeated') || '[]'));
+          def.add(eid);
+          localStorage.setItem('bs_defeated', JSON.stringify([...def]));
+        }
+        pendingCombatEnemy = null;
+        pendingCombatWon   = false;
         es.close();
         returnToMap(msg.souls || 0);
         return;

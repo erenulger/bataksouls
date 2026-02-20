@@ -31,11 +31,22 @@ import { MapRenderer }    from './MapRenderer.js';
 const canvas  = document.getElementById('gameCanvas');
 const factory = new EntityFactory();
 
-// Build typed entity list from raw map config
-const entities = factory.buildAll(mapConfig.entities);
+// Filter out enemies already defeated in a previous session
+const _defeated = new Set(
+  JSON.parse(localStorage.getItem('bs_defeated') || '[]')
+);
 
-// Player starts at the configured spawn point
-const player  = new Player(mapConfig.playerStart.x, mapConfig.playerStart.y);
+// Build typed entity list from raw map config, skipping defeated enemies
+const entities = factory.buildAll(mapConfig.entities).filter(e => {
+  if (e.type !== 'enemy') return true;
+  return !_defeated.has(`${e.slug}_${e.x}_${e.y}`);
+});
+
+// Restore last known position if coming back from the forge, else use spawn point
+const _savedPos = JSON.parse(localStorage.getItem('bs_pos') || 'null');
+const _startX   = _savedPos ? _savedPos.x : mapConfig.playerStart.x;
+const _startY   = _savedPos ? _savedPos.y : mapConfig.playerStart.y;
+const player    = new Player(_startX, _startY);
 const input     = new InputHandler();
 const mouse     = new MouseHandler(canvas);
 const collision = new CollisionSystem();
@@ -97,6 +108,7 @@ function tick(timestamp) {
       p.y + p.h > e.y - pad,
     );
     if (forge) {
+      localStorage.setItem('bs_pos', JSON.stringify({ x: player.x, y: player.y }));
       window.dispatchEvent(new CustomEvent('forgeOpen'));
     }
   }

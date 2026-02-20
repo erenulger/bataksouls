@@ -10,6 +10,16 @@ module.exports = {
 
     const alliesInPlay = players.filter(p => p.team === TEAMS.ALLIES);
     const enemiesInPlay = players.filter(p => p.team === TEAMS.ENEMIES);
+
+    // Guard: one team already eliminated (can arrive here via the
+    // endurance-wait → trick-start path, which bypasses the team-size
+    // check in combatTrickWait). Array.every() on an empty array is
+    // vacuously true, so skip before the depleted checks misfire.
+    if (alliesInPlay.length === 0 || enemiesInPlay.length === 0) {
+      c.enduranceAction = 'end-round';
+      return 'combat-endurance-wait';
+    }
+
     const alliesDepleted = alliesInPlay.every(p => p.hand.length === 0);
     const enemiesDepleted = enemiesInPlay.every(p => p.hand.length === 0);
 
