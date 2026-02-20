@@ -95,7 +95,7 @@ The combat-server only serves combat. A full web mode needs map rendering too. T
 
 | ID | Priority | Task | Notes |
 |----|----------|------|-------|
-| ME-01 | Critical | Connect forge entity trigger to forge game state | Fix forge-map integration |
+DONE| ME-01 | Critical | Connect forge entity trigger to forge game state | Fix forge-map integration |
 DONE| ME-02 | Critical | Implement persistent map state (defeated enemies, world object) | Core game loop blocker |
 | ME-03 | Critical | Implement victory state and win condition flow | Requires SD-02 arc definition |
 | ME-04 | Critical | Implement proper game-over → restart flow | In-game restart without CLI |

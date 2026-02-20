@@ -179,8 +179,8 @@
     .forge-card.maxed { opacity: 0.45; }
     .forge-card .forge-level {
       position: absolute;
-      bottom: 5px;
-      left: 50%;
+      top: 10%;
+      right: -1%;
       transform: translateX(-50%);
       font-size: 9px;
       color: var(--muted);
@@ -323,7 +323,7 @@ function forgeRenderGrid() {
     if (isMax)      cls += ' maxed';
     else if (canUp) cls += ' upgradeable';
 
-    const lvlLabel = isMax ? 'MAX' : `Lv.${card.level}`;
+    const lvlLabel = isMax ? 'MAX' : `+${card.level}`;
 
     return `<div class="${cls}" data-fidx="${i}" style="--el-color:${col}">
       <div class="bar-left" style="background:${col}"></div>
@@ -407,7 +407,7 @@ function forgeUpgrade() {
   forgeSouls -= cost;
   card.level++;
   const pw = card.basePower + card.level * FORGE_POWER_PER_LVL;
-  forgeLog.unshift(`${card.name} → Lv.${card.level} (Pw:${pw})`);
+  forgeLog.unshift(`${card.name} → +${card.level} (Pw:${pw})`);
   if (forgeLog.length > 12) forgeLog.pop();
 
   forgeRender();

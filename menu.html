@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BatakSouls</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d0d;
+      --surface:  #161616;
+      --surface2: #1e1e1e;
+      --border:   #2a2a2a;
+      --text:     #c8b89a;
+      --muted:    #555;
+      --accent:   #c8a96e;
+      --bad:      #e05050;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #menu-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 320px;
+    }
+
+    #title {
+      color: var(--accent);
+      font-size: 2.4rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 0.2em;
+    }
+
+    #subtitle {
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      margin-bottom: 2.4em;
+    }
+
+    #menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      width: 100%;
+    }
+
+    .menu-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.65em 1.2em;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .menu-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .menu-btn:disabled {
+      color: var(--muted);
+      border-color: #1e1e1e;
+      cursor: default;
+    }
+
+    .menu-btn .prefix {
+      color: var(--muted);
+      margin-right: 0.6em;
+    }
+
+    .menu-btn:hover:not(:disabled) .prefix {
+      color: var(--accent);
+    }
+
+    /* Settings panel */
+    #settings-panel {
+      display: none;
+      margin-top: 1.6em;
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 1em 1.2em;
+    }
+
+    #settings-panel.open {
+      display: block;
+    }
+
+    #settings-panel h2 {
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 0.8em;
+    }
+
+    #settings-panel p {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    /* Exit overlay */
+    #exit-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--text);
+      letter-spacing: 0.1em;
+    }
+
+    #exit-overlay.open {
+      display: flex;
+    }
+
+    /* New-game confirm */
+    #confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+    }
+
+    #confirm-overlay.open {
+      display: flex;
+    }
+
+    #confirm-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2em 2.4em;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      width: 300px;
+    }
+
+    #confirm-box p {
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #confirm-box .confirm-warn {
+      color: var(--bad);
+      font-size: 0.8rem;
+    }
+
+    #confirm-actions {
+      display: flex;
+      gap: 0.6em;
+    }
+
+    #confirm-actions button {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.5em;
+      cursor: pointer;
+    }
+
+    #confirm-actions button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    #btn-confirm-yes:hover {
+      border-color: var(--bad) !important;
+      color: var(--bad) !important;
+    }
+  </style>
+</head>
+<body>
+
+<div id="menu-wrap">
+  <div id="title">BatakSouls</div>
+  <div id="subtitle">── Menu ──</div>
+
+  <div id="menu-list">
+    <button class="menu-btn" id="btn-new">
+      <span class="prefix">&gt;</span> New Game
+    </button>
+    <button class="menu-btn" id="btn-continue" disabled>
+      <span class="prefix">&gt;</span> Continue
+    </button>
+    <button class="menu-btn" id="btn-settings">
+      <span class="prefix">&gt;</span> Settings
+    </button>
+    <button class="menu-btn" id="btn-exit">
+      <span class="prefix">&gt;</span> Exit
+    </button>
+  </div>
+
+  <div id="settings-panel">
+    <h2>Settings</h2>
+    <p>No settings yet.</p>
+  </div>
+</div>
+
+<!-- New Game confirm dialog -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <p>Start a new game?</p>
+    <p class="confirm-warn">This will erase your current save.</p>
+    <div id="confirm-actions">
+      <button id="btn-confirm-yes">Yes</button>
+      <button id="btn-confirm-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exit overlay -->
+<div id="exit-overlay">
+  You may now close this tab.
+</div>
+
+<script>
+  const hasSave = ['bs_pos', 'bs_defeated', 'bs_souls'].some(k => localStorage.getItem(k) !== null);
+  if (hasSave) {
+    document.getElementById('btn-continue').disabled = false;
+  }
+
+  document.getElementById('btn-new').addEventListener('click', () => {
+    if (hasSave) {
+      document.getElementById('confirm-overlay').classList.add('open');
+    } else {
+      startNew();
+    }
+  });
+
+  document.getElementById('btn-confirm-yes').addEventListener('click', () => {
+    startNew();
+  });
+
+  document.getElementById('btn-confirm-no').addEventListener('click', () => {
+    document.getElementById('confirm-overlay').classList.remove('open');
+  });
+
+  function startNew() {
+    localStorage.removeItem('bs_pos');
+    localStorage.removeItem('bs_defeated');
+    localStorage.removeItem('bs_souls');
+    window.location.href = '/game';
+  }
+
+  document.getElementById('btn-continue').addEventListener('click', () => {
+    window.location.href = '/game';
+  });
+
+  document.getElementById('btn-settings').addEventListener('click', () => {
+    document.getElementById('settings-panel').classList.toggle('open');
+  });
+
+  document.getElementById('btn-exit').addEventListener('click', () => {
+    const closed = window.close();
+    if (closed === undefined) {
+      // Some browsers return undefined even on success; show overlay after short delay
+      setTimeout(() => {
+        document.getElementById('exit-overlay').classList.add('open');
+      }, 300);
+    }
+  });
+</script>
+</body>
+</html>

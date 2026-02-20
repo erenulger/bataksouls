@@ -47,8 +47,17 @@ let currentAdapter = null;
 
 // ── HTTP server ───────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
-  // Serve the main game page
+  // Serve the main menu
   if (req.method === 'GET' && req.url === '/') {
+    const htmlPath = path.join(__dirname, 'menu.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(html);
+    return;
+  }
+
+  // Serve the game/map page
+  if (req.method === 'GET' && req.url === '/game') {
     const htmlPath = path.join(__dirname, 'game.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });

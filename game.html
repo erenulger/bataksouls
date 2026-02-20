@@ -54,6 +54,23 @@
       pointer-events: none;
     }
 
+    #map-menu-btn {
+      position: fixed;
+      top: 12px;
+      left: 16px;
+      z-index: 10;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      background: none;
+      border: 1px solid #2a2a2a;
+      padding: 2px 10px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    #map-menu-btn:hover { color: var(--accent); border-color: var(--accent); }
+
     /* ── Combat layer ────────────────────────────────────────────────────── */
     #combat-ui {
       position: fixed;
@@ -332,6 +349,7 @@
 <!-- Map layer (visible by default) -->
 <canvas id="gameCanvas"></canvas>
 <div id="map-hud"><span id="souls-display">⬥ 0</span></div>
+<button id="map-menu-btn" onclick="window.location.href='/'">≡ Menu</button>
 
 <!-- Combat layer (hidden until encounter) -->
 <div id="combat-ui" style="display:none">
@@ -426,6 +444,7 @@ const $roundInfo    = document.getElementById('round-info');
 const $combatUI     = document.getElementById('combat-ui');
 const $gameCanvas   = document.getElementById('gameCanvas');
 const $mapHud       = document.getElementById('map-hud');
+const $mapMenuBtn   = document.getElementById('map-menu-btn');
 const $soulsDisplay = document.getElementById('souls-display');
 
 // ── Input ─────────────────────────────────────────────────────────────────
@@ -902,9 +921,10 @@ window.addEventListener('forgeOpen', () => {
 function returnToMap(souls) {
   soulsTotal += souls;
   $soulsDisplay.textContent = `⬥ ${soulsTotal}`;
-  $combatUI.style.display  = 'none';
+  $combatUI.style.display   = 'none';
   $gameCanvas.style.display = 'block';
   $mapHud.style.display     = 'block';
+  $mapMenuBtn.style.display = 'block';
   window.mapPaused = false;
 }
 
@@ -914,6 +934,7 @@ window.addEventListener('combatStart', ({ detail: { enemy } }) => {
   window.mapPaused = true;
   $gameCanvas.style.display = 'none';
   $mapHud.style.display     = 'none';
+  $mapMenuBtn.style.display = 'none';
   $combatUI.style.display   = 'block';
 
   // Reset combat UI for fresh encounter
