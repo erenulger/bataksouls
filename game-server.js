@@ -49,7 +49,7 @@ let currentAdapter = null;
 const server = http.createServer((req, res) => {
   // Serve the main menu
   if (req.method === 'GET' && req.url === '/') {
-    const htmlPath = path.join(__dirname, 'menu.html');
+    const htmlPath = path.join(__dirname, 'ui', 'menu.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -58,7 +58,7 @@ const server = http.createServer((req, res) => {
 
   // Serve the game/map page
   if (req.method === 'GET' && req.url === '/game') {
-    const htmlPath = path.join(__dirname, 'game.html');
+    const htmlPath = path.join(__dirname, 'ui', 'game.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -67,7 +67,7 @@ const server = http.createServer((req, res) => {
 
   // Serve the tutorial page
   if (req.method === 'GET' && req.url === '/tutorial') {
-    const htmlPath = path.join(__dirname, 'tutorial.html');
+    const htmlPath = path.join(__dirname, 'ui', 'tutorial.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -76,7 +76,7 @@ const server = http.createServer((req, res) => {
 
   // Serve the forge page
   if (req.method === 'GET' && req.url === '/forge') {
-    const htmlPath = path.join(__dirname, 'forge.html');
+    const htmlPath = path.join(__dirname, 'ui', 'forge.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
