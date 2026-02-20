@@ -6,7 +6,7 @@ const { runEngine } = require('./src/engine');
 const { createContext } = require('./src/context');
 const { createHtmlAdapter } = require('./src/ui/htmlAdapter');
 const { loadNPCBySlug } = require('./src/npcRegistry');
-const { loadDeck } = require('./src/deck');
+const { loadDeck, getCardLibrary } = require('./src/deck');
 const { createPlayer } = require('./src/player');
 const { TEAMS } = require('./src/constants');
 
@@ -182,6 +182,77 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'bad json' }));
+      }
+    });
+    return;
+  }
+
+  // Serve character creation page
+  if (req.method === 'GET' && req.url === '/character-creation') {
+    const htmlPath = path.join(__dirname, 'ui', 'character-creation.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(html);
+    return;
+  }
+
+  // Return all starter classes with resolved card summaries
+  if (req.method === 'GET' && url === '/api/classes') {
+    try {
+      const classDir = path.join(__dirname, 'data', 'decks', 'playerStarterClasses');
+      const lib = getCardLibrary();
+      const files = fs.readdirSync(classDir).filter(f => f.endsWith('.json'));
+      const classes = files.map(file => {
+        const raw = JSON.parse(fs.readFileSync(path.join(classDir, file), 'utf-8'));
+        const grouped = new Map();
+        for (const entry of raw.cards) {
+          const card = lib.get(entry.cardId);
+          if (!card) continue;
+          if (!grouped.has(card.id)) grouped.set(card.id, { count: 0, name: card.name, element: card.element });
+          grouped.get(card.id).count++;
+        }
+        return {
+          id: file.replace('.json', ''),
+          class: raw.class,
+          description: raw.description,
+          cardSummary: [...grouped.values()],
+        };
+      });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(classes));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // Save chosen starter class to player.json
+  if (req.method === 'POST' && url === '/api/choose-class') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { id } = JSON.parse(body);
+        if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'invalid class id' }));
+          return;
+        }
+        const classDir = path.join(__dirname, 'data', 'decks', 'playerStarterClasses');
+        const classPath = path.join(classDir, `${id}.json`);
+        if (!classPath.startsWith(classDir)) {
+          res.writeHead(403); res.end('Forbidden'); return;
+        }
+        const raw = JSON.parse(fs.readFileSync(classPath, 'utf-8'));
+        const playerData = { name: 'You', cards: raw.cards };
+        const playerPath = path.join(__dirname, 'data', 'decks', 'player.json');
+        fs.writeFileSync(playerPath, JSON.stringify(playerData, null, 2), 'utf-8');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('{"ok":true}');
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
       }
     });
     return;

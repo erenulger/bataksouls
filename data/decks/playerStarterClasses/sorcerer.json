@@ -1,0 +1,19 @@
+{
+    "class": "Sorcerer",
+    "description": "The Sorcerer of the Moon. Starts with a light armor, a dagger and standard spells.",
+    "cards": [
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 6000, "level": 0},
+        { "cardId": 6000, "level": 0},
+        { "cardId": 6000, "level": 0},
+        { "cardId": 6000, "level": 0},
+        { "cardId": 6000, "level": 0},
+        { "cardId": 6000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 9000, "level": 0},
+        { "cardId": 9000, "level": 0}
+    ]
+}

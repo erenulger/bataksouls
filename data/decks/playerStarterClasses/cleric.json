@@ -1,0 +1,19 @@
+{
+    "class": "Cleric",
+    "description": "The Cleric of the Sun. Starts with a medium armor, a spear and standart miracles.",
+    "cards": [
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 5000, "level": 0},
+        { "cardId": 5000, "level": 0},
+        { "cardId": 5000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0}
+    ]    
+}

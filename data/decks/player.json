@@ -2,111 +2,63 @@
   "name": "You",
   "cards": [
     {
-      "cardId": 1003,
-      "level": 4
-    },
-    {
-      "cardId": 1003,
-      "level": 8
-    },
-    {
-      "cardId": 1001,
-      "level": 1
-    },
-    {
-      "cardId": 1004,
+      "cardId": 1000,
       "level": 0
     },
     {
-      "cardId": 1006,
-      "level": 1
-    },
-    {
-      "cardId": 1007,
-      "level": 1
-    },
-    {
-      "cardId": 1007,
-      "level": 1
-    },
-    {
-      "cardId": 2000,
-      "level": 1
-    },
-    {
-      "cardId": 2004,
+      "cardId": 1000,
       "level": 0
     },
     {
-      "cardId": 2007,
+      "cardId": 1000,
       "level": 0
     },
     {
-      "cardId": 3002,
-      "level": 1
-    },
-    {
-      "cardId": 3006,
-      "level": 1
-    },
-    {
-      "cardId": 3007,
+      "cardId": 1000,
       "level": 0
     },
     {
-      "cardId": 4001,
+      "cardId": 1000,
       "level": 0
     },
     {
-      "cardId": 4004,
+      "cardId": 7000,
       "level": 0
     },
     {
-      "cardId": 4007,
+      "cardId": 7000,
       "level": 0
     },
     {
-      "cardId": 5002,
+      "cardId": 7000,
       "level": 0
     },
     {
-      "cardId": 5004,
+      "cardId": 7000,
       "level": 0
     },
     {
-      "cardId": 5007,
+      "cardId": 7000,
       "level": 0
     },
     {
-      "cardId": 6001,
+      "cardId": 9000,
       "level": 0
     },
     {
-      "cardId": 6006,
+      "cardId": 9000,
       "level": 0
     },
     {
-      "cardId": 7003,
+      "cardId": 9000,
       "level": 0
     },
     {
-      "cardId": 7007,
+      "cardId": 9000,
       "level": 0
     },
     {
-      "cardId": 8002,
-      "level": 0
-    },
-    {
-      "cardId": 8006,
-      "level": 0
-    },
-    {
-      "cardId": 9003,
-      "level": 0
-    },
-    {
-      "cardId": 9007,
+      "cardId": 9000,
       "level": 0
     }
   ]

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BatakSouls — Choose Class</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d0d;
+      --surface:  #161616;
+      --surface2: #1e1e1e;
+      --border:   #2a2a2a;
+      --text:     #c8b89a;
+      --muted:    #555;
+      --accent:   #c8a96e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    #title {
+      color: var(--accent);
+      font-size: 2.4rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 0.2em;
+    }
+
+    #subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 2.5rem;
+    }
+
+    #classes {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .class-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      width: 220px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    .class-card:hover {
+      border-color: var(--muted);
+      background: var(--surface2);
+    }
+
+    .class-card.selected {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+
+    .class-name {
+      color: var(--accent);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .class-desc {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-summary {
+      list-style: none;
+      font-size: 0.8rem;
+    }
+
+    .card-summary li {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      padding: 0.12rem 0;
+    }
+
+    .card-count {
+      color: var(--muted);
+      min-width: 2ch;
+      text-align: right;
+    }
+
+    .card-name {
+      flex: 1;
+    }
+
+    .card-elem {
+      font-size: 0.72rem;
+      font-weight: bold;
+    }
+
+    #btn-begin {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.5rem 2.5rem;
+      letter-spacing: 0.1em;
+      cursor: not-allowed;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    #btn-begin.ready {
+      border-color: var(--accent);
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    #btn-begin.ready:hover {
+      background: var(--surface);
+    }
+
+    #back-link {
+      display: block;
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    #back-link:hover {
+      color: var(--text);
+    }
+
+    #error {
+      color: #e05050;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="title">BatakSouls</div>
+<div id="subtitle">── Choose Your Class ──</div>
+
+<div id="classes"><span style="color:var(--muted)">Loading...</span></div>
+
+<button id="btn-begin" disabled>Begin Journey</button>
+<a id="back-link" href="/">← Back to Menu</a>
+<div id="error"></div>
+
+<script>
+  const EL_COLOR = {
+    Light:  '#FFD700',
+    Dark:   '#BA55D3',
+    Magic:  '#6495ED',
+    Fire:   '#FF6347',
+    Poison: '#3CB371',
+    Bleed:  '#CD5C5C',
+    Armor:  '#DAA520',
+    Slash:  '#C0C0C0',
+    Pierce: '#40E0D0',
+  };
+
+  let selectedId = null;
+
+  async function load() {
+    try {
+      const res = await fetch('/api/classes');
+      const classes = await res.json();
+      const $classes = document.getElementById('classes');
+      $classes.innerHTML = '';
+
+      for (const cls of classes) {
+        const div = document.createElement('div');
+        div.className = 'class-card';
+        div.dataset.id = cls.id;
+
+        const summaryItems = cls.cardSummary.map(c => {
+          const col = EL_COLOR[c.element] || '#c8b89a';
+          return `<li>
+            <span class="card-count">${c.count}×</span>
+            <span class="card-name">${c.name}</span>
+            <span class="card-elem" style="color:${col}">${c.element}</span>
+          </li>`;
+        }).join('');
+
+        div.innerHTML = `
+          <div class="class-name">${cls.class}</div>
+          <div class="class-desc">${cls.description}</div>
+          <ul class="card-summary">${summaryItems}</ul>
+        `;
+
+        div.addEventListener('click', () => {
+          document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedId = cls.id;
+          const btn = document.getElementById('btn-begin');
+          btn.disabled = false;
+          btn.classList.add('ready');
+        });
+
+        $classes.appendChild(div);
+      }
+    } catch (e) {
+      document.getElementById('classes').textContent = 'Failed to load classes.';
+    }
+  }
+
+  document.getElementById('btn-begin').addEventListener('click', async () => {
+    if (!selectedId) return;
+    const btn = document.getElementById('btn-begin');
+    btn.disabled = true;
+    btn.textContent = 'Starting...';
+    try {
+      const res = await fetch('/api/choose-class', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: selectedId }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      window.location.href = '/game';
+    } catch (e) {
+      const $err = document.getElementById('error');
+      $err.textContent = 'Error: ' + e.message;
+      $err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Begin Journey';
+    }
+  });
+
+  load();
+</script>
+</body>
+</html>

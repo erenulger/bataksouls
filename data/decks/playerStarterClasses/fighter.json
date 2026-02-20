@@ -1,0 +1,21 @@
+{
+    "class": "Fighter",
+    "description": "The Fighter is a versatile and skilled combatant, excelling in both offense and defense.",
+    "cards": [
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 1000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 7000, "level": 0},
+        { "cardId": 9000, "level": 0},
+        { "cardId": 9000, "level": 0},
+        { "cardId": 9000, "level": 0},
+        { "cardId": 9000, "level": 0},
+        { "cardId": 9000, "level": 0}
+    ]
+}
