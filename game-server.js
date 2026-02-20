@@ -65,6 +65,15 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Serve the tutorial page
+  if (req.method === 'GET' && req.url === '/tutorial') {
+    const htmlPath = path.join(__dirname, 'tutorial.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(html);
+    return;
+  }
+
   // Serve the forge page
   if (req.method === 'GET' && req.url === '/forge') {
     const htmlPath = path.join(__dirname, 'forge.html');

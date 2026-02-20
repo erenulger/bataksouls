@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BatakSouls — Tutorial</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d0d;
+      --surface:  #161616;
+      --surface2: #1e1e1e;
+      --border:   #2a2a2a;
+      --text:     #c8b89a;
+      --muted:    #555;
+      --accent:   #c8a96e;
+      --good:     #4caf50;
+      --bad:      #e05050;
+
+      --light:  #FFD700;
+      --dark:   #BA55D3;
+      --magic:  #6495ED;
+      --fire:   #FF6347;
+      --poison: #3CB371;
+      --bleed:  #CD5C5C;
+      --armor:  #DAA520;
+      --slash:  #C0C0C0;
+      --pierce: #40E0D0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* ── Layout ── */
+    #layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar nav ── */
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    #sidebar-title {
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      padding: 0 20px 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    #sidebar a {
+      display: block;
+      padding: 5px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      transition: color 0.12s;
+    }
+
+    #sidebar a:hover { color: var(--accent); }
+
+    #sidebar .back-link {
+      margin-top: auto;
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    #sidebar .back-link a {
+      color: var(--muted);
+      padding: 0;
+    }
+
+    #sidebar .back-link a:hover { color: var(--accent); }
+
+    /* ── Main content ── */
+    #content {
+      flex: 1;
+      max-width: 760px;
+      padding: 40px 48px 80px;
+      overflow-y: auto;
+    }
+
+    h1 {
+      color: var(--accent);
+      font-size: 1.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.3em;
+    }
+
+    .page-sub {
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 2.5em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1em;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin: 2.2em 0 0.9em;
+    }
+
+    h3 {
+      color: var(--text);
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 1.4em 0 0.5em;
+    }
+
+    p { margin-bottom: 0.75em; color: var(--text); }
+
+    .muted { color: var(--muted); }
+
+    /* ── Callout boxes ── */
+    .box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      margin: 1em 0;
+      font-size: 0.82rem;
+    }
+
+    .box.tip  { border-left-color: var(--good); }
+    .box.warn { border-left-color: var(--bad); }
+
+    .box-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .box.tip  .box-label { color: var(--good); }
+    .box.warn .box-label { color: var(--bad); }
+    .box      .box-label { color: var(--accent); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.9em 0;
+      font-size: 0.8rem;
+    }
+
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      padding: 4px 10px;
+    }
+
+    td {
+      padding: 4px 10px;
+      border-bottom: 1px solid #1a1a1a;
+      vertical-align: top;
+    }
+
+    /* ── Element tags ── */
+    .el { font-weight: bold; }
+    .el-light  { color: var(--light); }
+    .el-dark   { color: var(--dark); }
+    .el-magic  { color: var(--magic); }
+    .el-fire   { color: var(--fire); }
+    .el-poison { color: var(--poison); }
+    .el-bleed  { color: var(--bleed); }
+    .el-armor  { color: var(--armor); }
+    .el-slash  { color: var(--slash); }
+    .el-pierce { color: var(--pierce); }
+
+    /* ── Wheels diagram ── */
+    .wheels-wrap {
+      display: flex;
+      gap: 32px;
+      margin: 1em 0 0.5em;
+      flex-wrap: wrap;
+    }
+
+    .wheel-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+    }
+
+    .wheel-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .wheel-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 2px 0;
+      font-size: 0.82rem;
+    }
+
+    .arrow { color: var(--muted); }
+
+    /* ── Power formula ── */
+    .formula {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      margin: 0.8em 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .formula .term { color: var(--text); }
+    .formula .op   { color: var(--muted); }
+    .formula .mod  { color: var(--accent); }
+    .formula .cond { color: var(--muted); font-size: 0.72rem; }
+
+    /* ── Stat row ── */
+    .stat-row {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      margin: 3px 0;
+      font-size: 0.82rem;
+    }
+
+    .stat-label { color: var(--muted); min-width: 180px; }
+    .stat-value { color: var(--accent); font-weight: bold; }
+
+    /* ── Section anchors ── */
+    section { scroll-margin-top: 20px; }
+  </style>
+</head>
+<body>
+<div id="layout">
+
+  <!-- Sidebar navigation -->
+  <nav id="sidebar">
+    <div id="sidebar-title">Tutorial</div>
+    <a href="#overview">Overview</a>
+    <a href="#map">The World</a>
+    <a href="#combat">Combat</a>
+    <a href="#bidding">Bidding</a>
+    <a href="#tricks">Tricks</a>
+    <a href="#power">Power Calculation</a>
+    <a href="#damage">Damage</a>
+    <a href="#endurance">Endurance</a>
+    <a href="#panic">Panic</a>
+    <a href="#elements">Elements</a>
+    <a href="#forge">Forge</a>
+    <a href="#tips">Tips</a>
+    <div class="back-link"><a href="/">← Main Menu</a></div>
+  </nav>
+
+  <!-- Main content -->
+  <main id="content">
+    <h1>BatakSouls</h1>
+    <div class="page-sub">How to Play</div>
+
+    <!-- ── Overview ── -->
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>BatakSouls is a card-based combat game inspired by the trick-taking card game Batak. You navigate a world map, encounter enemies, and defeat them through a series of card duels. Souls earned from victories can be spent at the Forge to strengthen your deck.</p>
+      <p>Combat is resolved card by card across a series of <strong>tricks</strong>. Higher power wins each trick — but an element system, a blind bidding phase, and a panic mechanic add depth to every decision.</p>
+    </section>
+
+    <!-- ── Map ── -->
+    <section id="map">
+      <h2>The World</h2>
+      <p>Move your character across the map using the arrow keys or WASD. The world contains enemies and a Forge.</p>
+      <table>
+        <thead><tr><th>Entity</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>Enemy</td><td>Walk into them to start combat. Defeated enemies stay dead until you start a new game.</td></tr>
+          <tr><td>Forge</td><td>Opens the upgrade screen where you can spend souls to level up your cards.</td></tr>
+        </tbody>
+      </table>
+      <p>Your position and defeated enemies are saved automatically. Use <strong>Continue</strong> from the main menu to resume where you left off.</p>
+    </section>
+
+    <!-- ── Combat ── -->
+    <section id="combat">
+      <h2>Combat</h2>
+      <p>Combat is structured as a sequence of <strong>rounds</strong>. Each round has two phases:</p>
+      <ol style="padding-left:1.4em;margin-bottom:0.75em;">
+        <li style="margin-bottom:4px"><strong>Bid Phase</strong> — Everyone secretly picks one card. The result sets the Trump element for the round.</li>
+        <li style="margin-bottom:4px"><strong>Trick Phase</strong> — 12 tricks are played. Each trick, every combatant plays one card. The card with the highest final power wins the trick and deals damage to opponents.</li>
+      </ol>
+      <p>Combat ends when all enemies are eliminated (Victory) or you are eliminated (Defeat).</p>
+      <div class="stat-row"><span class="stat-label">Hand size per round</span><span class="stat-value">13 cards</span></div>
+      <div class="stat-row"><span class="stat-label">Tricks per round</span><span class="stat-value">12</span></div>
+      <div class="stat-row"><span class="stat-label">Player HP</span><span class="stat-value">100</span></div>
+    </section>
+
+    <!-- ── Bidding ── -->
+    <section id="bidding">
+      <h2>Bidding</h2>
+      <p>At the start of each round, all combatants are dealt a hand of 13 cards. Then every combatant secretly picks one card from their hand to <strong>sacrifice to the Bonfire</strong>.</p>
+      <p>Once all bids are in, the element with the <strong>highest total power</strong> across all bid cards becomes the <strong>Trump element</strong> for this round. Bid cards are discarded.</p>
+      <div class="box tip">
+        <div class="box-label">Tip</div>
+        The player who bid the most trump cards has their <strong>Panic reduced by 20</strong>. Winning the bid is worth doing even if your Trump card is weak.
+      </div>
+      <div class="box">
+        <div class="box-label">Strategy</div>
+        If you own many cards of the same element, sacrificing one of them gives you a better chance of making that element Trump — boosting all your remaining cards of that type this round.
+      </div>
+    </section>
+
+    <!-- ── Tricks ── -->
+    <section id="tricks">
+      <h2>Tricks</h2>
+      <p>After bidding, 12 tricks are played. Each trick, every combatant plays one card from their hand simultaneously. The card with the highest <strong>effective power</strong> wins the trick.</p>
+      <p>The trick winner's Panic increases by +5 (see <a href="#panic">Panic</a>). Damage is dealt to all cross-team pairs based on the power difference between their cards (see <a href="#damage">Damage</a>).</p>
+      <div class="box warn">
+        <div class="box-label">Important</div>
+        Play order is determined by Panic. Higher Panic = plays earlier in the trick. Playing earlier is a <strong>disadvantage</strong> — opponents see your card and can react to it.
+      </div>
+    </section>
+
+    <!-- ── Power Calculation ── -->
+    <section id="power">
+      <h2>Power Calculation</h2>
+      <p>A card's <strong>effective power</strong> in a trick is computed from several components:</p>
+
+      <div class="formula">
+        <span class="term">Base Power</span>
+        <span class="op">+</span>
+        <span class="term">Level Bonus</span>
+        <span class="op">+</span>
+        <span class="mod">Trump Bonus</span>
+        <span class="op">+</span>
+        <span class="mod">Element Bonus</span>
+        <span class="op">+</span>
+        <span class="mod">Team Buff</span>
+      </div>
+
+      <table>
+        <thead><tr><th>Component</th><th>Value</th><th>Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Base Power</td><td>3–10</td><td>Set when the card is created, shown on the card</td></tr>
+          <tr><td>Level Bonus</td><td><span style="color:var(--accent)">+2 per level</span></td><td>Each upgrade level adds 2 permanent power</td></tr>
+          <tr><td>Trump Bonus</td><td><span style="color:var(--accent)">+4</span></td><td>Card element matches the Trump element this round</td></tr>
+          <tr><td>Element Bonus</td><td><span style="color:var(--good)">+4</span> / <span style="color:var(--bad)">−4</span></td><td>Your element beats / is beaten by an opponent's element (first interaction). Subsequent interactions with the same card: ±1</td></tr>
+          <tr><td>Team Buff</td><td><span style="color:var(--accent)">+2</span></td><td>A teammate plays the same element in the same trick</td></tr>
+        </tbody>
+      </table>
+
+      <div class="box tip">
+        <div class="box-label">Example</div>
+        You play a <span class="el el-fire">Fire</span> card with base power 7, level 2, and Fire is Trump this round. An enemy plays <span class="el el-magic">Magic</span> (Fire beats Magic).<br><br>
+        Power = 7 + (2×2) + 4 trump + 4 element = <strong>19</strong>
+      </div>
+    </section>
+
+    <!-- ── Damage ── -->
+    <section id="damage">
+      <h2>Damage</h2>
+      <p>After every trick, damage is applied to each <strong>cross-team pair</strong> of combatants. For each enemy/ally pairing:</p>
+      <ul style="padding-left:1.4em;margin-bottom:0.75em;">
+        <li>The combatant with <strong>higher effective power</strong> deals damage to the other.</li>
+        <li>Damage = <strong>power difference</strong> between the two cards.</li>
+        <li>If both cards have equal power, no damage is dealt.</li>
+      </ul>
+      <div class="box">
+        <div class="box-label">Example</div>
+        You play a card with effective power 14. The enemy plays power 9.<br>
+        You deal <strong>5 damage</strong> to the enemy. The enemy deals nothing to you.
+      </div>
+      <p>A combatant reaching 0 HP is eliminated from the fight. Combat ends when all enemies or all allies reach 0 HP.</p>
+    </section>
+
+    <!-- ── Endurance ── -->
+    <section id="endurance">
+      <h2>Endurance</h2>
+      <p>If a combatant runs out of cards before the round's 12 tricks are complete, the <strong>Endurance phase</strong> triggers:</p>
+      <table>
+        <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>One team completely out of cards, other team still has cards</td>
+            <td>Depleted team takes damage equal to the <strong>average effective power</strong> of the opponent's remaining cards. Round ends early.</td>
+          </tr>
+          <tr>
+            <td>Both teams completely out of cards</td>
+            <td>Everyone is reshuffled and the round continues.</td>
+          </tr>
+          <tr>
+            <td>Only some players depleted (mixed hand states)</td>
+            <td>Depleted players take endurance damage and are reshuffled individually. Round continues.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Panic ── -->
+    <section id="panic">
+      <h2>Panic</h2>
+      <p>Every combatant has a <strong>Panic</strong> value. Higher Panic means you play your card <strong>earlier</strong> in each trick — which is a disadvantage because opponents can see your card and choose counters.</p>
+
+      <div class="stat-row"><span class="stat-label">Winning a trick</span><span class="stat-value">+5 Panic</span></div>
+      <div class="stat-row"><span class="stat-label">Winning the Bid</span><span class="stat-value">−20 Panic</span></div>
+      <div class="stat-row"><span class="stat-label">Panic floor</span><span class="stat-value">10</span></div>
+
+      <div class="box tip">
+        <div class="box-label">Tip</div>
+        Winning too many tricks in a row drives your panic up, forcing you to lead future tricks — telegraphing your element to enemies. Bid well to keep your panic under control.
+      </div>
+    </section>
+
+    <!-- ── Elements ── -->
+    <section id="elements">
+      <h2>Elements</h2>
+      <p>There are <strong>9 elements</strong> arranged in two circular weakness wheels. Each element beats exactly one other. When your element beats an opponent's element in the same trick, you gain +4 power (and they lose −4).</p>
+
+      <div class="wheels-wrap">
+        <div class="wheel-box">
+          <div class="wheel-title">Mystical Wheel</div>
+          <div class="wheel-row"><span class="el el-light">Light</span><span class="arrow"> → beats → </span><span class="el el-dark">Dark</span></div>
+          <div class="wheel-row"><span class="el el-dark">Dark</span><span class="arrow"> → beats → </span><span class="el el-magic">Magic</span></div>
+          <div class="wheel-row"><span class="el el-magic">Magic</span><span class="arrow"> → beats → </span><span class="el el-fire">Fire</span></div>
+          <div class="wheel-row"><span class="el el-fire">Fire</span><span class="arrow"> → beats → </span><span class="el el-poison">Poison</span></div>
+          <div class="wheel-row"><span class="el el-poison">Poison</span><span class="arrow"> → beats → </span><span class="el el-bleed">Bleed</span></div>
+          <div class="wheel-row"><span class="el el-bleed">Bleed</span><span class="arrow"> → beats → </span><span class="el el-light">Light</span></div>
+        </div>
+        <div class="wheel-box">
+          <div class="wheel-title">Physical Wheel</div>
+          <div class="wheel-row"><span class="el el-armor">Armor</span><span class="arrow"> → beats → </span><span class="el el-slash">Slash</span></div>
+          <div class="wheel-row"><span class="el el-slash">Slash</span><span class="arrow"> → beats → </span><span class="el el-pierce">Pierce</span></div>
+          <div class="wheel-row"><span class="el el-pierce">Pierce</span><span class="arrow"> → beats → </span><span class="el el-armor">Armor</span></div>
+        </div>
+      </div>
+
+      <div class="box warn">
+        <div class="box-label">Note</div>
+        The two wheels are <strong>independent</strong>. A Mystical element never beats a Physical element and vice versa.
+      </div>
+
+      <h3>Element Reference</h3>
+      <table>
+        <thead><tr><th>Element</th><th>Wheel</th><th>Beats</th><th>Beaten by</th></tr></thead>
+        <tbody>
+          <tr><td><span class="el el-light">Light</span></td><td>Mystical</td><td><span class="el el-dark">Dark</span></td><td><span class="el el-bleed">Bleed</span></td></tr>
+          <tr><td><span class="el el-dark">Dark</span></td><td>Mystical</td><td><span class="el el-magic">Magic</span></td><td><span class="el el-light">Light</span></td></tr>
+          <tr><td><span class="el el-magic">Magic</span></td><td>Mystical</td><td><span class="el el-fire">Fire</span></td><td><span class="el el-dark">Dark</span></td></tr>
+          <tr><td><span class="el el-fire">Fire</span></td><td>Mystical</td><td><span class="el el-poison">Poison</span></td><td><span class="el el-magic">Magic</span></td></tr>
+          <tr><td><span class="el el-poison">Poison</span></td><td>Mystical</td><td><span class="el el-bleed">Bleed</span></td><td><span class="el el-fire">Fire</span></td></tr>
+          <tr><td><span class="el el-bleed">Bleed</span></td><td>Mystical</td><td><span class="el el-light">Light</span></td><td><span class="el el-poison">Poison</span></td></tr>
+          <tr><td><span class="el el-armor">Armor</span></td><td>Physical</td><td><span class="el el-slash">Slash</span></td><td><span class="el el-pierce">Pierce</span></td></tr>
+          <tr><td><span class="el el-slash">Slash</span></td><td>Physical</td><td><span class="el el-pierce">Pierce</span></td><td><span class="el el-armor">Armor</span></td></tr>
+          <tr><td><span class="el el-pierce">Pierce</span></td><td>Physical</td><td><span class="el el-armor">Armor</span></td><td><span class="el el-slash">Slash</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Forge ── -->
+    <section id="forge">
+      <h2>The Forge</h2>
+      <p>Souls dropped by defeated enemies can be spent at the Forge to upgrade your cards. Each upgrade level adds <strong>+2 permanent power</strong> to a card.</p>
+
+      <div class="stat-row"><span class="stat-label">Power per level</span><span class="stat-value">+2</span></div>
+      <div class="stat-row"><span class="stat-label">Max level</span><span class="stat-value">10</span></div>
+      <div class="stat-row"><span class="stat-label">Upgrade cost</span><span class="stat-value">10 + (current level × 5) souls</span></div>
+
+      <h3>Upgrade Cost Table</h3>
+      <table>
+        <thead><tr><th>Current Level</th><th>Cost to upgrade</th><th>Total cost from 0</th></tr></thead>
+        <tbody id="cost-table"></tbody>
+      </table>
+      <script>
+        const tbody = document.getElementById('cost-table');
+        let total = 0;
+        for (let lvl = 0; lvl < 10; lvl++) {
+          const cost = 10 + lvl * 5;
+          total += cost;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${lvl} → ${lvl + 1}</td><td>${cost} souls</td><td>${total} souls</td>`;
+          tbody.appendChild(tr);
+        }
+      </script>
+
+      <div class="box tip">
+        <div class="box-label">Tip</div>
+        Early upgrades are cheap. Concentrate souls on a few key cards rather than spreading upgrades thin — a level 5 card is significantly stronger than five level 1 cards.
+      </div>
+    </section>
+
+    <!-- ── Tips ── -->
+    <section id="tips">
+      <h2>Tips</h2>
+      <ul style="padding-left:1.4em;line-height:2">
+        <li>Check the element wheels displayed during combat. Always know what your Trump element beats and what beats it.</li>
+        <li>Bid a card whose element you have many of — it turns your whole hand into Trump cards for the round.</li>
+        <li>High Panic is a liability. Win the Bid to keep your Panic low and preserve your ability to play reactively.</li>
+        <li>The damage system rewards outlasting your opponent card-by-card. A single high-power Trump card can delete an enemy in one trick.</li>
+        <li>Upgrade cards you use every round. A maxed-out card (+20 power) is a near-guaranteed trick win against any opposition.</li>
+        <li>Defeated enemies do not respawn. Clear the map before visiting the Forge for maximum souls.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
